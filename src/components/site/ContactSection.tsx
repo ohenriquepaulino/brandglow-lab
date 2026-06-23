@@ -9,100 +9,88 @@ export function ContactSection() {
   }
 
   return (
-    <section id="contato" className="bg-ink text-cream">
-      <div className="container-page grid gap-12 py-24 md:grid-cols-2 md:py-32">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-widest text-lime-brand">
-            05 — Contato
-          </p>
-          <h2 className="mt-4 text-4xl leading-[0.95] md:text-6xl">
-            Vamos construir <br />
-            <span className="text-lime-brand">sua marca?</span>
-          </h2>
-          <p className="mt-6 max-w-md text-base text-cream/70">
-            Preencha o formulário. Nossa equipe vai analisar o seu perfil e
-            entrar em contato para uma conversa de qualificação.
-          </p>
-        </div>
-
-        {submitted ? (
-          <div className="flex min-h-[320px] flex-col justify-center rounded-2xl border border-cream/15 bg-cream/5 p-8">
-            <p className="text-2xl font-extrabold text-lime-brand">
-              Recebemos seu contato.
-            </p>
-            <p className="mt-3 text-cream/70">
-              Nossa equipe entrará em contato em até 2 dias úteis.
+    <section id="contato" className="border-t border-ink/10 bg-background">
+      <div className="container-page py-32 md:py-40">
+        <div className="grid gap-16 md:grid-cols-[1fr_1.4fr]">
+          <div>
+            <p className="section-label">05 — Contato</p>
+            <h2 className="mt-6 text-3xl font-bold leading-tight text-ink md:text-[40px]">
+              Vamos construir sua marca?
+            </h2>
+            <p className="mt-6 max-w-sm text-base leading-[1.7] text-muted-foreground">
+              Preencha o formulário. Nossa equipe vai analisar o seu perfil e
+              entrar em contato para uma conversa de qualificação.
             </p>
           </div>
-        ) : (
-          <form onSubmit={onSubmit} className="flex flex-col gap-5">
-            <Field label="Nome completo">
-              <input
-                required
-                type="text"
-                name="name"
-                className="input-dark"
-                placeholder="Seu nome"
-              />
-            </Field>
-            <Field label="WhatsApp">
-              <input
-                required
-                type="tel"
-                name="phone"
-                className="input-dark"
-                placeholder="(00) 00000-0000"
-              />
-            </Field>
-            <Field label="@ do Instagram">
-              <input
-                required
-                type="text"
-                name="instagram"
-                className="input-dark"
-                placeholder="@suamarca"
-              />
-            </Field>
-            <Field label="Faturamento mensal">
-              <select required name="revenue" className="input-dark" defaultValue="">
-                <option value="" disabled>
-                  Selecione uma faixa
-                </option>
-                <option>De R$ 6.000 a R$ 10.000</option>
-                <option>De R$ 10.000 a R$ 20.000</option>
-                <option>Acima de R$ 20.000</option>
-              </select>
-            </Field>
 
-            <button
-              type="submit"
-              className="mt-2 inline-flex items-center justify-center rounded-full bg-orange-brand px-8 py-4 text-base font-semibold text-white transition-transform hover:scale-[1.01]"
-            >
-              Quero começar
-            </button>
-            <p className="text-sm text-cream/50">
-              Após o envio, nossa equipe entrará em contato em até 2 dias úteis.
-            </p>
-          </form>
-        )}
+          {submitted ? (
+            <div className="flex min-h-[280px] flex-col justify-center border border-ink/10 p-10">
+              <p className="text-2xl font-semibold text-ink">
+                Recebemos seu contato.
+              </p>
+              <p className="mt-3 text-base text-muted-foreground">
+                Nossa equipe entrará em contato em até 2 dias úteis.
+              </p>
+            </div>
+          ) : (
+            <form onSubmit={onSubmit} className="flex flex-col gap-6">
+              <div className="grid gap-6 md:grid-cols-2">
+                <Field label="Nome completo">
+                  <input required type="text" name="name" className="input-light" placeholder="Seu nome" />
+                </Field>
+                <Field label="WhatsApp">
+                  <input required type="tel" name="phone" className="input-light" placeholder="(00) 00000-0000" />
+                </Field>
+                <Field label="@ do Instagram">
+                  <input required type="text" name="instagram" className="input-light" placeholder="@suamarca" />
+                </Field>
+                <Field label="Faturamento mensal">
+                  <select required name="revenue" className="input-light" defaultValue="">
+                    <option value="" disabled>Selecione uma faixa</option>
+                    <option>De R$ 6.000 a R$ 10.000</option>
+                    <option>De R$ 10.000 a R$ 20.000</option>
+                    <option>Acima de R$ 20.000</option>
+                  </select>
+                </Field>
+              </div>
+
+              <button
+                type="submit"
+                className="mt-2 inline-flex w-fit items-center justify-center rounded-[4px] bg-orange-brand px-8 py-4 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+              >
+                Quero começar
+              </button>
+              <p className="text-xs text-muted-foreground">
+                Após o envio, nossa equipe entrará em contato em até 2 dias úteis.
+              </p>
+            </form>
+          )}
+        </div>
       </div>
 
       <style>{`
-        .input-dark {
+        .input-light {
           width: 100%;
           background: transparent;
-          border: 1px solid rgba(244, 242, 239, 0.18);
-          color: #f4f2ef;
-          padding: 0.9rem 1rem;
-          border-radius: 0.6rem;
+          border: 1px solid #d0cec9;
+          color: #121110;
+          padding: 0.85rem 0.95rem;
+          border-radius: 4px;
           font: inherit;
+          font-size: 15px;
           outline: none;
           transition: border-color .2s;
         }
-        .input-dark::placeholder { color: rgba(244,242,239,0.4); }
-        .input-dark:focus { border-color: #cfff87; }
-        select.input-dark { appearance: none; background-image: linear-gradient(45deg, transparent 50%, #cfff87 50%), linear-gradient(135deg, #cfff87 50%, transparent 50%); background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50%; background-size: 6px 6px, 6px 6px; background-repeat: no-repeat; padding-right: 2.5rem; }
-        select.input-dark option { background: #121110; color: #f4f2ef; }
+        .input-light::placeholder { color: #9c9a94; }
+        .input-light:focus { border-color: #121110; }
+        select.input-light {
+          appearance: none;
+          background-image: linear-gradient(45deg, transparent 50%, #121110 50%), linear-gradient(135deg, #121110 50%, transparent 50%);
+          background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50%;
+          background-size: 6px 6px, 6px 6px;
+          background-repeat: no-repeat;
+          padding-right: 2.5rem;
+        }
       `}</style>
     </section>
   );
@@ -111,7 +99,7 @@ export function ContactSection() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="flex flex-col gap-2">
-      <span className="text-xs font-semibold uppercase tracking-widest text-cream/60">
+      <span className="text-[11px] font-normal uppercase tracking-[0.18em] text-muted-foreground">
         {label}
       </span>
       {children}

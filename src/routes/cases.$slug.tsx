@@ -27,10 +27,10 @@ export const Route = createFileRoute("/cases/$slug")({
     <div className="min-h-screen bg-background text-foreground">
       <Navbar />
       <div className="container-page py-32 text-center">
-        <h1 className="text-4xl font-black">Case não encontrado</h1>
+        <h1 className="text-3xl font-bold text-ink">Case não encontrado</h1>
         <Link
           to="/cases"
-          className="mt-6 inline-block text-orange-brand underline"
+          className="mt-6 inline-block text-sm text-ink underline underline-offset-4 hover:text-orange-brand"
         >
           Voltar para cases
         </Link>
@@ -50,62 +50,53 @@ function CasePage() {
       <Navbar />
 
       {/* Header */}
-      <section
-        className="border-b border-ink/10"
-        style={{
-          backgroundColor: c.accent,
-          color: c.accentText === "cream" ? "#f4f2ef" : "#121110",
-        }}
-      >
-        <div className="container-page py-20 md:py-32">
-          <Link
-            to="/cases"
-            className="text-sm font-semibold uppercase tracking-widest opacity-70 hover:opacity-100"
-          >
-            ← Todos os cases
-          </Link>
-          <span className="mt-8 inline-flex w-fit rounded-full border border-current/30 px-3 py-1 text-xs font-semibold uppercase tracking-wider">
-            {c.segment}
-          </span>
-          <h1 className="mt-6 text-[clamp(3rem,10vw,7rem)] font-black leading-[0.9] tracking-tight">
+      <section className="container-page py-24 md:py-32">
+        <Link
+          to="/cases"
+          className="text-xs font-normal uppercase tracking-[0.18em] text-muted-foreground hover:text-ink"
+        >
+          ← Todos os cases
+        </Link>
+        <p className="mt-12 section-label">{c.segment}</p>
+        <h1 className="mt-6 max-w-4xl text-[40px] font-bold leading-[1.05] tracking-tight text-ink md:text-[56px]">
+          {c.name}
+        </h1>
+        <p className="mt-8 max-w-2xl text-[18px] leading-[1.7] text-muted-foreground">
+          {c.short}
+        </p>
+      </section>
+
+      {/* Hero visual */}
+      <section className="container-page">
+        <div className="flex aspect-[16/9] items-center justify-center overflow-hidden rounded-[8px] bg-[#ECE9E4]">
+          <span className="text-6xl font-semibold tracking-tight text-ink/40">
             {c.name}
-          </h1>
-          <p className="mt-6 max-w-2xl text-lg opacity-80 md:text-xl">
-            {c.short}
-          </p>
+          </span>
         </div>
       </section>
 
       {/* Content blocks */}
-      <section className="container-page grid gap-16 py-20 md:grid-cols-[1fr_2fr] md:py-32">
+      <section className="container-page grid gap-16 py-32 md:grid-cols-[1fr_2fr] md:py-40">
         <Block label="Contexto" body={c.context} />
         <Block label="Desafio" body={c.challenge} />
         <Block label="O que foi feito" body={c.delivery} />
       </section>
 
-      {/* Gallery placeholder */}
-      <section className="border-t border-ink/10 bg-background">
-        <div className="container-page py-20 md:py-32">
-          <p className="text-sm font-semibold uppercase tracking-widest text-foreground/60">
-            Resultado
-          </p>
-          <h2 className="mt-4 text-3xl md:text-5xl">
-            Aplicações da <span className="italic text-orange-brand">marca.</span>
-          </h2>
+      {/* Gallery */}
+      <section className="border-t border-ink/10">
+        <div className="container-page py-32 md:py-40">
+          <div className="grid gap-12 md:grid-cols-[1fr_2fr]">
+            <p className="section-label">Resultado</p>
+            <h2 className="text-[28px] font-bold leading-tight tracking-tight text-ink md:text-[36px]">
+              Aplicações da marca.
+            </h2>
+          </div>
 
-          <div className="mt-12 grid gap-4 md:grid-cols-3">
+          <div className="mt-16 grid gap-4 md:grid-cols-3">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div
                 key={i}
-                className="aspect-square rounded-2xl"
-                style={{
-                  backgroundColor:
-                    i % 3 === 0
-                      ? c.accent
-                      : i % 3 === 1
-                        ? "#121110"
-                        : "#ece9e4",
-                }}
+                className="aspect-square rounded-[8px] bg-[#ECE9E4]"
               />
             ))}
           </div>
@@ -114,20 +105,20 @@ function CasePage() {
 
       {/* CTA */}
       <section className="border-t border-ink/10">
-        <div className="container-page grid gap-8 py-20 md:grid-cols-[1.5fr_1fr] md:items-center md:py-28">
-          <h2 className="text-4xl md:text-6xl">
-            Quero uma <span className="italic text-orange-brand">marca assim.</span>
+        <div className="container-page grid gap-10 py-32 md:grid-cols-[1.5fr_1fr] md:items-center md:py-40">
+          <h2 className="text-[32px] font-bold leading-[1.15] tracking-tight text-ink md:text-[44px]">
+            Quero uma marca assim.
           </h2>
           <div className="flex flex-col gap-4 md:items-end">
             <a
               href="/#contato"
-              className="inline-flex items-center justify-center rounded-full bg-orange-brand px-8 py-4 text-base font-semibold text-white"
+              className="inline-flex w-fit items-center justify-center rounded-[4px] bg-orange-brand px-7 py-3.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
             >
               Começar meu projeto
             </a>
             <Link
               to="/cases"
-              className="text-sm font-semibold text-foreground/70 hover:text-orange-brand"
+              className="text-xs font-normal uppercase tracking-[0.18em] text-muted-foreground hover:text-ink"
             >
               Ver outros cases →
             </Link>
@@ -136,28 +127,24 @@ function CasePage() {
       </section>
 
       {/* Other cases */}
-      <section className="border-t border-ink/10 bg-background">
-        <div className="container-page py-20">
-          <p className="text-sm font-semibold uppercase tracking-widest text-foreground/60">
-            Outros cases
-          </p>
-          <div className="mt-8 grid gap-6 md:grid-cols-2">
+      <section className="border-t border-ink/10">
+        <div className="container-page py-24">
+          <p className="section-label">Outros cases</p>
+          <div className="mt-10 grid gap-x-8 gap-y-12 md:grid-cols-2">
             {others.map((o) => (
               <Link
                 key={o.slug}
                 to="/cases/$slug"
                 params={{ slug: o.slug }}
-                className="group flex items-center justify-between rounded-2xl border border-ink/10 bg-card p-8 transition-colors hover:border-orange-brand"
+                className="group flex flex-col"
               >
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-widest text-foreground/60">
-                    {o.segment}
-                  </p>
-                  <p className="mt-2 text-3xl font-black tracking-tight">
+                <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-[8px] bg-[#ECE9E4] transition-opacity group-hover:opacity-90">
+                  <span className="text-3xl font-semibold tracking-tight text-ink/40">
                     {o.name}
-                  </p>
+                  </span>
                 </div>
-                <span className="text-orange-brand">→</span>
+                <p className="mt-5 text-lg font-semibold text-ink">{o.name}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{o.segment}</p>
               </Link>
             ))}
           </div>
@@ -173,10 +160,8 @@ function CasePage() {
 function Block({ label, body }: { label: string; body: string }) {
   return (
     <>
-      <p className="text-sm font-semibold uppercase tracking-widest text-foreground/60 md:sticky md:top-24 md:self-start">
-        {label}
-      </p>
-      <div className="text-lg text-foreground/80 md:text-xl">
+      <p className="section-label md:sticky md:top-24 md:self-start">{label}</p>
+      <div className="text-[17px] leading-[1.75] text-ink/85">
         <p>{body}</p>
       </div>
     </>
