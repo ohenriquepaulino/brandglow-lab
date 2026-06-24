@@ -1,2 +1,5 @@
 User-agent: *
+Disallow: /crm
+Disallow: /crm/
+Disallow: /sitemap.xml
 Allow: /
