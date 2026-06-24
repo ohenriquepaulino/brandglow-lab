@@ -99,8 +99,8 @@ function CasePage() {
           <div className="mt-16 grid gap-4 md:grid-cols-3">
             {(c.gallery && c.gallery.length > 0
               ? c.gallery
-              : [null, null, null, null, null, null]
-            ).map((src, i) => (
+              : ([null, null, null, null, null, null] as (string | null)[])
+            ).map((src: string | null, i: number) => (
               <div
                 key={i}
                 className="aspect-square overflow-hidden rounded-[8px] bg-[#ECE9E4]"
