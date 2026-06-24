@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const UTM_KEYS = [
   "utm_source",
@@ -66,20 +67,31 @@ export function ContactSection() {
     [instagram],
   );
 
-  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!name.trim() || !phoneValid || !instagramValid || !revenue) return;
-    // payload includes UTMs for downstream tracking when a backend is wired up.
-    const payload = {
-      name: name.trim(),
-      phone,
+    setSubmitting(true);
+    setSubmitError(null);
+    const { error } = await supabase.from("leads").insert({
+      nome: name.trim(),
+      whatsapp: phone,
       instagram,
-      revenue,
-      utms,
-      submittedAt: new Date().toISOString(),
-    };
-    if (typeof window !== "undefined") {
-      console.info("[contato] lead", payload);
+      faturamento: revenue,
+      utm_source: utms.utm_source ?? null,
+      utm_medium: utms.utm_medium ?? null,
+      utm_campaign: utms.utm_campaign ?? null,
+      utm_content: utms.utm_content ?? null,
+      utm_term: utms.utm_term ?? null,
+      coluna: "novo-lead",
+    });
+    setSubmitting(false);
+    if (error) {
+      console.error("[contato] erro ao salvar", error);
+      setSubmitError("Não foi possível enviar agora. Tente novamente.");
+      return;
     }
     setSubmitted(true);
   }
