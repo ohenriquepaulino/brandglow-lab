@@ -97,11 +97,23 @@ function CasePage() {
           </div>
 
           <div className="mt-16 grid gap-4 md:grid-cols-3">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
+            {(c.gallery && c.gallery.length > 0
+              ? c.gallery
+              : [null, null, null, null, null, null]
+            ).map((src, i) => (
               <div
                 key={i}
-                className="aspect-square rounded-[8px] bg-[#ECE9E4]"
-              />
+                className="aspect-square overflow-hidden rounded-[8px] bg-[#ECE9E4]"
+              >
+                {src ? (
+                  <img
+                    src={src}
+                    alt={`${c.name} — aplicação ${i + 1}`}
+                    loading="lazy"
+                    className="h-full w-full object-cover"
+                  />
+                ) : null}
+              </div>
             ))}
           </div>
         </div>
