@@ -10,8 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as CrmRouteImport } from './routes/crm'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CrmIndexRouteImport } from './routes/crm.index'
 import { Route as CasesIndexRouteImport } from './routes/cases.index'
+import { Route as CrmKanbanRouteImport } from './routes/crm.kanban'
 import { Route as CasesSlugRouteImport } from './routes/cases.$slug'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -19,15 +22,30 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CrmRoute = CrmRouteImport.update({
+  id: '/crm',
+  path: '/crm',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CrmIndexRoute = CrmIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CrmRoute,
+} as any)
 const CasesIndexRoute = CasesIndexRouteImport.update({
   id: '/cases/',
   path: '/cases/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const CrmKanbanRoute = CrmKanbanRouteImport.update({
+  id: '/kanban',
+  path: '/kanban',
+  getParentRoute: () => CrmRoute,
 } as any)
 const CasesSlugRoute = CasesSlugRouteImport.update({
   id: '/cases/$slug',
@@ -37,33 +55,57 @@ const CasesSlugRoute = CasesSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/crm': typeof CrmRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/cases/$slug': typeof CasesSlugRoute
+  '/crm/kanban': typeof CrmKanbanRoute
   '/cases/': typeof CasesIndexRoute
+  '/crm/': typeof CrmIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/cases/$slug': typeof CasesSlugRoute
+  '/crm/kanban': typeof CrmKanbanRoute
   '/cases': typeof CasesIndexRoute
+  '/crm': typeof CrmIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/crm': typeof CrmRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/cases/$slug': typeof CasesSlugRoute
+  '/crm/kanban': typeof CrmKanbanRoute
   '/cases/': typeof CasesIndexRoute
+  '/crm/': typeof CrmIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/sitemap.xml' | '/cases/$slug' | '/cases/'
+  fullPaths:
+    | '/'
+    | '/crm'
+    | '/sitemap.xml'
+    | '/cases/$slug'
+    | '/crm/kanban'
+    | '/cases/'
+    | '/crm/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/sitemap.xml' | '/cases/$slug' | '/cases'
-  id: '__root__' | '/' | '/sitemap.xml' | '/cases/$slug' | '/cases/'
+  to: '/' | '/sitemap.xml' | '/cases/$slug' | '/crm/kanban' | '/cases' | '/crm'
+  id:
+    | '__root__'
+    | '/'
+    | '/crm'
+    | '/sitemap.xml'
+    | '/cases/$slug'
+    | '/crm/kanban'
+    | '/cases/'
+    | '/crm/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CrmRoute: typeof CrmRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   CasesSlugRoute: typeof CasesSlugRoute
   CasesIndexRoute: typeof CasesIndexRoute
@@ -78,6 +120,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/crm': {
+      id: '/crm'
+      path: '/crm'
+      fullPath: '/crm'
+      preLoaderRoute: typeof CrmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -85,12 +134,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/crm/': {
+      id: '/crm/'
+      path: '/'
+      fullPath: '/crm/'
+      preLoaderRoute: typeof CrmIndexRouteImport
+      parentRoute: typeof CrmRoute
+    }
     '/cases/': {
       id: '/cases/'
       path: '/cases'
       fullPath: '/cases/'
       preLoaderRoute: typeof CasesIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/crm/kanban': {
+      id: '/crm/kanban'
+      path: '/kanban'
+      fullPath: '/crm/kanban'
+      preLoaderRoute: typeof CrmKanbanRouteImport
+      parentRoute: typeof CrmRoute
     }
     '/cases/$slug': {
       id: '/cases/$slug'
@@ -102,8 +165,21 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface CrmRouteChildren {
+  CrmKanbanRoute: typeof CrmKanbanRoute
+  CrmIndexRoute: typeof CrmIndexRoute
+}
+
+const CrmRouteChildren: CrmRouteChildren = {
+  CrmKanbanRoute: CrmKanbanRoute,
+  CrmIndexRoute: CrmIndexRoute,
+}
+
+const CrmRouteWithChildren = CrmRoute._addFileChildren(CrmRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CrmRoute: CrmRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   CasesSlugRoute: CasesSlugRoute,
   CasesIndexRoute: CasesIndexRoute,
