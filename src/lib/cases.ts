@@ -112,7 +112,7 @@ export const cases: CaseStudy[] = [
       img308Insta.url,
       img308LogoPalavras.url,
     ],
-  }
+  },
   {
     slug: "moewa",
     name: "Moewa",
