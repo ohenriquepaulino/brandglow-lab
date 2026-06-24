@@ -8,6 +8,12 @@ import img308Livro from "@/assets/308-network/308-network-livro-portfolio.webp.a
 import img308LogoPalavras from "@/assets/308-network/308-network-logo-branco-fundo-palavras.webp.asset.json";
 import img308OutBanner from "@/assets/308-network/308-network-out-banner.webp.asset.json";
 import img308SiteTelaPc from "@/assets/308-network/308-network-site-tela-pc.webp.asset.json";
+import img308EfeitoMetal from "@/assets/308-network/308-network-308-efeito-metal.webp.asset.json";
+import img308FotoCorrendo from "@/assets/308-network/308-network-308-foto-correndo.webp.asset.json";
+import img308NetworkHorizontal from "@/assets/308-network/308-network-308-network-horizontal.webp.asset.json";
+import img308NetworkVertical from "@/assets/308-network/308-network-308-network-vertical.webp.asset.json";
+import img308VariacoesLogo from "@/assets/308-network/308-network-308-variacoes-logo.webp.asset.json";
+import img308IphoneAppPatrimonio from "@/assets/308-network/308-network-iphone-app-patrimonio.webp.asset.json";
 import img44 from "@/assets/geriacademy/geriacademy-page-0044.webp.asset.json";
 import img46 from "@/assets/geriacademy/geriacademy-page-0046.webp.asset.json";
 import img49 from "@/assets/geriacademy/geriacademy-page-0049.webp.asset.json";
@@ -67,6 +73,12 @@ export const cases: CaseStudy[] = [
     accentText: "cream",
     heroImage: img308OutBanner.url,
     gallery: [
+      img308FotoCorrendo.url,
+      img308NetworkHorizontal.url,
+      img308NetworkVertical.url,
+      img308EfeitoMetal.url,
+      img308IphoneAppPatrimonio.url,
+      img308VariacoesLogo.url,
       img308SiteTelaPc.url,
       img308BannerMetroMoema.url,
       img308BoneMoletom.url,
