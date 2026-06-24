@@ -55,24 +55,33 @@ function Home() {
 
 function Hero() {
   return (
-    <section className="relative h-[calc(100vh-4rem)] min-h-[560px] w-full overflow-hidden">
+    <section className="relative h-[calc(100vh-4rem)] min-h-[600px] w-full overflow-hidden">
       <HeroSlider slides={heroSlides} />
-      <div className="container-page relative z-10 flex h-full flex-col justify-end pb-20 md:pb-28">
-        <div className="fade-up max-w-4xl">
-          <h1 className="text-[34px] font-bold leading-[1.1] tracking-tight text-cream md:text-[60px] md:leading-[1.05]">
+      <div className="container-page relative z-10 flex h-full flex-col justify-center pb-16 pt-24 md:justify-end md:pb-28 md:pt-0">
+        <div className="fade-up max-w-3xl">
+          <p className="mb-5 text-[11px] font-medium uppercase tracking-[0.22em] text-cream/70 md:mb-6 md:text-xs">
+            Legacy BrandCo. — Estratégia & Identidade
+          </p>
+          <h1 className="text-[36px] font-bold leading-[1.05] tracking-tight text-cream sm:text-[44px] md:text-[60px] md:leading-[1.05]">
             Criamos a estratégia e a identidade visual da sua marca.
           </h1>
-          <p className="mt-6 max-w-xl text-[17px] leading-[1.7] text-cream/85 md:text-[18px]">
+          <p className="mt-5 max-w-xl text-[15px] leading-[1.65] text-cream/85 sm:text-[16px] md:mt-7 md:text-[18px] md:leading-[1.7]">
             Para negócios com um bom produto ou serviço que ainda não sabem
             como comunicar isso com clareza e precisam de uma marca que{" "}
             <span className="font-semibold text-cream">posicione, atraia e convença</span>.
           </p>
-          <div className="mt-10">
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5 md:mt-10">
             <a
               href="#contato"
               className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-lime-brand to-[#a8f25a] px-7 py-3.5 text-sm font-semibold text-ink transition-opacity hover:opacity-90"
             >
               Quero transformar minha marca
+            </a>
+            <a
+              href="#cases"
+              className="inline-flex items-center justify-center text-sm font-medium text-cream/90 underline underline-offset-4 hover:text-cream"
+            >
+              Ver cases →
             </a>
           </div>
         </div>
