@@ -76,16 +76,16 @@ function About() {
           <p className="section-label">02 — Quem somos</p>
           <div className="grid gap-10 text-[17px] leading-[1.75] text-ink/85 md:grid-cols-2">
             <p>
-              A Legacy BrandCo. é uma consultoria especializada em estratégia
-              de marca e identidade visual com mais de 8 anos de experiência.
-              Atendemos negócios em todo o Brasil, de profissionais liberais a
-              empresas em crescimento, e trabalhamos com grandes players do
-              mercado.
+              A Legacy BrandCo. é uma consultoria especializada em{" "}
+              <span className="font-semibold text-ink">estratégia de marca e identidade visual</span>{" "}
+              com mais de 8 anos de experiência. Atendemos negócios em todo o
+              Brasil, de profissionais liberais a empresas em crescimento, e
+              trabalhamos com grandes players do mercado.
             </p>
             <p>
               Nosso trabalho começa antes do visual. Entendemos o negócio, o
-              mercado e o consumidor para depois traduzir tudo isso em uma
-              marca coesa, profissional e de alto padrão.
+              mercado e o consumidor para depois traduzir tudo isso em uma{" "}
+              <span className="font-semibold text-ink">marca coesa, profissional e de alto padrão</span>.
             </p>
           </div>
         </div>
