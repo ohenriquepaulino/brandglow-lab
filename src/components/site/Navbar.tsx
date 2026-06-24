@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
+import logoAsset from "@/assets/logo-legacy.png.asset.json";
 
 const links = [
   { label: "Cases", hash: "cases" },
@@ -13,8 +14,8 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-ink/10 bg-background/90 backdrop-blur">
       <div className="container-page flex h-16 items-center justify-between">
-        <Link to="/" className="text-[15px] font-semibold tracking-tight text-ink" aria-label="Legacy BrandCo. — Início">
-          Legacy BrandCo.
+        <Link to="/" className="flex items-center" aria-label="Legacy BrandCo. — Início">
+          <img src={logoAsset.url} alt="Legacy BrandCo." className="h-8 w-auto" />
         </Link>
 
         <nav className="hidden items-center gap-10 md:flex">

@@ -56,13 +56,10 @@ export function ContactSection() {
 
               <button
                 type="submit"
-                className="mt-2 inline-flex w-fit items-center justify-center rounded-[4px] bg-orange-brand px-8 py-4 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                className="mt-2 inline-flex w-fit items-center justify-center rounded-full bg-gradient-to-r from-lime-brand to-[#a8f25a] px-8 py-4 text-sm font-semibold text-ink transition-opacity hover:opacity-90"
               >
                 Quero começar
               </button>
-              <p className="text-xs text-muted-foreground">
-                Após o envio, nossa equipe entrará em contato em até 2 dias úteis.
-              </p>
             </form>
           )}
         </div>
