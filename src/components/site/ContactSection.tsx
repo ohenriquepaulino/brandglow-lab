@@ -56,13 +56,10 @@ export function ContactSection() {
 
               <button
                 type="submit"
-                className="mt-2 inline-flex w-fit items-center justify-center rounded-[4px] bg-orange-brand px-8 py-4 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                className="mt-2 inline-flex w-fit items-center justify-center rounded-full bg-gradient-to-r from-lime-brand to-[#a8f25a] px-8 py-4 text-sm font-semibold text-ink transition-opacity hover:opacity-90"
               >
                 Quero começar
               </button>
-              <p className="text-xs text-muted-foreground">
-                Após o envio, nossa equipe entrará em contato em até 2 dias úteis.
-              </p>
             </form>
           )}
         </div>
@@ -74,8 +71,8 @@ export function ContactSection() {
           background: transparent;
           border: 1px solid #d0cec9;
           color: #121110;
-          padding: 0.85rem 0.95rem;
-          border-radius: 4px;
+          padding: 0.85rem 1rem;
+          border-radius: 10px;
           font: inherit;
           font-size: 15px;
           outline: none;
