@@ -71,8 +71,8 @@ export function ContactSection() {
           background: transparent;
           border: 1px solid #d0cec9;
           color: #121110;
-          padding: 0.85rem 0.95rem;
-          border-radius: 4px;
+          padding: 0.85rem 1rem;
+          border-radius: 10px;
           font: inherit;
           font-size: 15px;
           outline: none;
