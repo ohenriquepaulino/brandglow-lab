@@ -2,7 +2,19 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
 import { ContactSection } from "@/components/site/ContactSection";
+import { HeroSlider } from "@/components/site/HeroSlider";
 import { cases } from "@/lib/cases";
+import img308OutBanner from "@/assets/308-network/308-network-out-banner.webp.asset.json";
+import imgMoewaPosterManifesto from "@/assets/moewa/moewa-poster-manifesto.png.asset.json";
+import imgGeri from "@/assets/geriacademy/geriacademy-page-0060.webp.asset.json";
+import imgJoanaBillboardQuote from "@/assets/joana-ulmer/joana-ulmer-billboard-quote.webp.asset.json";
+
+const heroSlides = [
+  { src: img308OutBanner.url, alt: "308NETWORK — campanha out of home" },
+  { src: imgMoewaPosterManifesto.url, alt: "MOEWA — manifesto da marca" },
+  { src: imgGeri.url, alt: "Geriacademy — identidade de marca" },
+  { src: imgJoanaBillboardQuote.url, alt: "Joana Ulmer Co — campanha de marca" },
+];
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -19,9 +31,13 @@ export const Route = createFileRoute("/")({
         content: "Criamos a estratégia e a identidade visual da sua marca.",
       },
     ],
+    links: [
+      { rel: "preload", as: "image", href: heroSlides[0].src, fetchpriority: "high" },
+    ],
   }),
   component: Home,
 });
+
 
 function Home() {
   return (
