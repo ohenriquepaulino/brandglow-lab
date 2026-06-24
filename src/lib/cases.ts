@@ -1,3 +1,13 @@
+import img44 from "@/assets/geriacademy/geriacademy-page-0044.webp.asset.json";
+import img46 from "@/assets/geriacademy/geriacademy-page-0046.webp.asset.json";
+import img48 from "@/assets/geriacademy/geriacademy-page-0048.webp.asset.json";
+import img49 from "@/assets/geriacademy/geriacademy-page-0049.webp.asset.json";
+import img50 from "@/assets/geriacademy/geriacademy-page-0050.webp.asset.json";
+import img51 from "@/assets/geriacademy/geriacademy-page-0051.webp.asset.json";
+import img52 from "@/assets/geriacademy/geriacademy-page-0052.webp.asset.json";
+import img53 from "@/assets/geriacademy/geriacademy-page-0053.webp.asset.json";
+import img59 from "@/assets/geriacademy/geriacademy-page-0059.webp.asset.json";
+
 export type CaseStudy = {
   slug: string;
   name: string;
@@ -6,8 +16,10 @@ export type CaseStudy = {
   context: string;
   challenge: string;
   delivery: string;
-  accent: string; // hex color for header bg
+  accent: string;
   accentText: "ink" | "cream";
+  heroImage?: string;
+  gallery?: string[];
 };
 
 export const cases: CaseStudy[] = [
@@ -70,6 +82,17 @@ export const cases: CaseStudy[] = [
       "Base estratégica em três pilares — posicionamento único, mensagem clara e comunidade forte. Criação da narrativa de marca, da comunidade Geri Sim! (movimento que une profissionais da saúde em torno de uma nova visão sobre o envelhecer) e de uma esteira inteligente de produtos: cursos, certificações, plataforma viva, mentorias, encontros presenciais e uma IA própria, a GerIA.",
     accent: "#121110",
     accentText: "cream",
+    heroImage: img48.url,
+    gallery: [
+      img46.url,
+      img52.url,
+      img44.url,
+      img53.url,
+      img49.url,
+      img50.url,
+      img51.url,
+      img59.url,
+    ],
   },
 ];
 
