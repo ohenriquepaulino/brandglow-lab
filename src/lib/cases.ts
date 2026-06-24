@@ -56,6 +56,21 @@ export const cases: CaseStudy[] = [
     accent: "#d75631",
     accentText: "cream",
   },
+  {
+    slug: "geriacademy",
+    name: "Geriacademy",
+    segment: "Educação médica · 2026",
+    short:
+      "Posicionamento de uma escola médica com propósito em um ecossistema educacional de alto valor — marca forte, comunidade viva e esteira estratégica.",
+    context:
+      "A Geriacademy chegou com um propósito claro: qualificar o cuidado com o idoso no Brasil. O desafio era construir uma marca à altura desse propósito, capaz de sustentar uma plataforma educacional comprometida com uma transformação real no cuidado geriátrico.",
+    challenge:
+      "Posicionar a Geriacademy como mais do que uma escola — uma plataforma educacional de referência, com comunidade viva e esteira de produtos pronta para escalar.",
+    delivery:
+      "Base estratégica em três pilares — posicionamento único, mensagem clara e comunidade forte. Criação da narrativa de marca, da comunidade Geri Sim! (movimento que une profissionais da saúde em torno de uma nova visão sobre o envelhecer) e de uma esteira inteligente de produtos: cursos, certificações, plataforma viva, mentorias, encontros presenciais e uma IA própria, a GerIA.",
+    accent: "#121110",
+    accentText: "cream",
+  },
 ];
 
 export function getCase(slug: string): CaseStudy | undefined {
