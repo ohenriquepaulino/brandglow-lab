@@ -193,11 +193,16 @@ export function ContactSection() {
                 ) : null,
               )}
 
+              {submitError && (
+                <p className="text-sm text-red-600">{submitError}</p>
+              )}
+
               <button
                 type="submit"
-                className="mt-2 inline-flex w-fit items-center justify-center rounded-full bg-gradient-to-r from-lime-brand to-[#a8f25a] px-8 py-4 text-sm font-semibold text-ink transition-opacity hover:opacity-90"
+                disabled={submitting}
+                className="mt-2 inline-flex w-fit items-center justify-center rounded-full bg-gradient-to-r from-lime-brand to-[#a8f25a] px-8 py-4 text-sm font-semibold text-ink transition-opacity hover:opacity-90 disabled:opacity-60"
               >
-                Quero começar
+                {submitting ? "Enviando..." : "Quero começar"}
               </button>
             </form>
           )}
