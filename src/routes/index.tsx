@@ -125,7 +125,7 @@ function Cases() {
               params={{ slug: c.slug }}
               className="group flex flex-col"
             >
-              <div className="flex aspect-[4/5] items-center justify-center overflow-hidden rounded-[8px] bg-[#ECE9E4] transition-opacity group-hover:opacity-90">
+              <div className="flex aspect-[4/5] items-center justify-center overflow-hidden rounded-2xl bg-[#ECE9E4] transition-opacity group-hover:opacity-90">
                 <span className="text-3xl font-semibold tracking-tight text-ink/40">
                   {c.name}
                 </span>
@@ -181,13 +181,15 @@ function Process() {
           <p className="section-label">04 — Metodologia</p>
           <div className="grid gap-12 md:grid-cols-2 md:gap-16">
             <p className="text-[32px] font-bold leading-[1.15] tracking-tight text-ink md:text-[40px]">
-              80% estratégia. 20% execução visual.
+              <span className="text-orange-brand">80%</span> estratégia.{" "}
+              <span className="text-ink/40">20% execução visual.</span>
             </p>
             <p className="text-[16px] leading-[1.75] text-muted-foreground">
               Antes de criar qualquer logotipo, cor ou tipografia, entendemos
               profundamente o seu negócio, o mercado em que você atua e o
-              consumidor que você quer atrair. A identidade visual é a
-              consequência de tudo isso, não o ponto de partida.
+              consumidor que você quer atrair.{" "}
+              <span className="font-semibold text-ink">A identidade visual é a consequência de tudo isso</span>,
+              não o ponto de partida.
             </p>
           </div>
         </div>
