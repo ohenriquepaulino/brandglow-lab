@@ -130,18 +130,26 @@ export const cases: CaseStudy[] = [
   },
   {
     slug: "moewa",
-    name: "Moewa",
-    segment: "Estética e longevidade",
+    name: "MOEWA",
+    segment: "Estética, Emagrecimento & Longevidade",
     short:
-      "Marca premium para uma clínica de estética, emagrecimento e longevidade em São Paulo.",
+      "Posicionamento de uma clínica de estética, emagrecimento e longevidade em um ecossistema de alto valor, com marca forte, comunidade viva e uma jornada integrada de protocolos.",
     context:
-      "A Moewa é uma clínica em São Paulo que combina estética, emagrecimento e protocolos de longevidade. Buscava uma marca à altura do padrão de atendimento e do público que atende.",
+      "A MOEWA nasceu de uma história real: duas mulheres que vivem na pele a disciplina do autocuidado. O desafio era criar um posicionamento único capaz de refletir essa autenticidade e profundidade, transformando a marca, em um mar de rosas vermelhas, na única rosa branca do mercado.",
     challenge:
-      "Posicionar a clínica em um patamar premium, diferenciando-a de clínicas de estética convencionais, com uma marca sofisticada e atemporal.",
+      "A estratégia começou redefinindo o propósito da marca: ser a clínica que completa a jornada de mulheres que já fazem metade do caminho sozinhas. O desafio era sair da lógica de uma clínica tradicional e construir uma percepção de alto valor, clareza e diferenciação real.",
     delivery:
-      "Diagnóstico, posicionamento, naming review, identidade visual completa e guia de aplicação para fachada, ambiente e digital.",
-    accent: "#d75631",
+      "A partir de uma tese de comunicação forte — 'Quando uma mulher está com autoestima elevada e organização mental, ela resolve qualquer problema' — unificamos a entrega técnica em uma jornada completa. Em vez de procedimentos isolados e promessas milagrosas de antes e depois, a MOEWA passou a se posicionar com uma experiência integrada em que estética corporal, nutrição e bem-estar caminham juntos. O resultado não aparece apenas no espelho, mas se sustenta no sono, na energia e no treino.",
+    accent: "#c45330",
     accentText: "cream",
+    heroImage: imgMoewaPosterText.url,
+    gallery: [
+      imgMoewaPosterText.url,
+      imgMoewaCartao.url,
+      imgMoewaHomeSpray.url,
+      imgMoewaSacola.url,
+      imgMoewaXicara.url,
+    ],
   },
   {
     slug: "geriacademy",
