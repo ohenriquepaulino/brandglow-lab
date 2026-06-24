@@ -1,10 +1,86 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+
+const UTM_KEYS = [
+  "utm_source",
+  "utm_medium",
+  "utm_campaign",
+  "utm_term",
+  "utm_content",
+  "gclid",
+  "fbclid",
+] as const;
+
+type UtmData = Partial<Record<(typeof UTM_KEYS)[number], string>>;
+
+function maskPhone(value: string) {
+  const digits = value.replace(/\D/g, "").slice(0, 11);
+  if (digits.length <= 2) return digits.length ? `(${digits}` : "";
+  if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  if (digits.length <= 10)
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+}
+
+function maskInstagram(value: string) {
+  const cleaned = value.replace(/[^A-Za-z0-9._]/g, "").slice(0, 30);
+  return cleaned ? `@${cleaned}` : "";
+}
 
 export function ContactSection() {
   const [submitted, setSubmitted] = useState(false);
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [instagram, setInstagram] = useState("@");
+  const [revenue, setRevenue] = useState("");
+  const [utms, setUtms] = useState<UtmData>({});
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const stored = sessionStorage.getItem("lbc_utms");
+      if (stored) setUtms(JSON.parse(stored));
+      const params = new URLSearchParams(window.location.search);
+      const fresh: UtmData = {};
+      UTM_KEYS.forEach((k) => {
+        const v = params.get(k);
+        if (v) fresh[k] = v;
+      });
+      if (Object.keys(fresh).length) {
+        setUtms((prev) => {
+          const next = { ...prev, ...fresh };
+          sessionStorage.setItem("lbc_utms", JSON.stringify(next));
+          return next;
+        });
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const phoneValid = useMemo(
+    () => phone.replace(/\D/g, "").length >= 10,
+    [phone],
+  );
+  const instagramValid = useMemo(
+    () => instagram.replace(/[^A-Za-z0-9._]/g, "").length >= 2,
+    [instagram],
+  );
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (!name.trim() || !phoneValid || !instagramValid || !revenue) return;
+    // payload includes UTMs for downstream tracking when a backend is wired up.
+    const payload = {
+      name: name.trim(),
+      phone,
+      instagram,
+      revenue,
+      utms,
+      submittedAt: new Date().toISOString(),
+    };
+    if (typeof window !== "undefined") {
+      console.info("[contato] lead", payload);
+    }
     setSubmitted(true);
   }
 
@@ -24,35 +100,86 @@ export function ContactSection() {
           </div>
 
           {submitted ? (
-            <div className="flex min-h-[280px] flex-col justify-center border border-ink/10 p-10">
+            <div
+              role="status"
+              aria-live="polite"
+              className="flex min-h-[280px] flex-col justify-center border border-ink/10 p-10"
+            >
               <p className="text-2xl font-semibold text-ink">
-                Recebemos seu contato.
+                Obrigado pelas informações.
               </p>
               <p className="mt-3 text-base text-muted-foreground">
-                Nossa equipe entrará em contato em até 2 dias úteis.
+                Entraremos em contato nos próximos minutos.
               </p>
             </div>
           ) : (
-            <form onSubmit={onSubmit} className="flex flex-col gap-6">
+            <form onSubmit={onSubmit} noValidate className="flex flex-col gap-6">
               <div className="grid gap-6 md:grid-cols-2">
                 <Field label="Nome completo">
-                  <input required type="text" name="name" className="input-light" placeholder="Seu nome" />
+                  <input
+                    required
+                    type="text"
+                    name="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value.slice(0, 100))}
+                    minLength={2}
+                    maxLength={100}
+                    autoComplete="name"
+                    className="input-light"
+                    placeholder="Seu nome"
+                  />
                 </Field>
                 <Field label="WhatsApp">
-                  <input required type="tel" name="phone" className="input-light" placeholder="(00) 00000-0000" />
+                  <input
+                    required
+                    type="tel"
+                    name="phone"
+                    inputMode="numeric"
+                    value={phone}
+                    onChange={(e) => setPhone(maskPhone(e.target.value))}
+                    maxLength={16}
+                    pattern="\(\d{2}\) \d{4,5}-\d{4}"
+                    autoComplete="tel-national"
+                    className="input-light"
+                    placeholder="(00) 00000-0000"
+                  />
                 </Field>
                 <Field label="@ do Instagram">
-                  <input required type="text" name="instagram" className="input-light" placeholder="@suamarca" />
+                  <input
+                    required
+                    type="text"
+                    name="instagram"
+                    value={instagram}
+                    onChange={(e) => setInstagram(maskInstagram(e.target.value))}
+                    minLength={3}
+                    maxLength={31}
+                    className="input-light"
+                    placeholder="@suamarca"
+                  />
                 </Field>
                 <Field label="Faturamento mensal">
-                  <select required name="revenue" className="input-light" defaultValue="">
-                    <option value="" disabled>Selecione uma faixa</option>
+                  <select
+                    required
+                    name="revenue"
+                    value={revenue}
+                    onChange={(e) => setRevenue(e.target.value)}
+                    className="input-light"
+                  >
+                    <option value="" disabled>
+                      Selecione uma faixa
+                    </option>
                     <option>De R$ 6.000 a R$ 10.000</option>
                     <option>De R$ 10.000 a R$ 20.000</option>
                     <option>Acima de R$ 20.000</option>
                   </select>
                 </Field>
               </div>
+
+              {UTM_KEYS.map((k) =>
+                utms[k] ? (
+                  <input key={k} type="hidden" name={k} value={utms[k]} />
+                ) : null,
+              )}
 
               <button
                 type="submit"
