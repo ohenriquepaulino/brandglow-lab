@@ -155,9 +155,13 @@ function CasePage() {
                 className="group flex flex-col"
               >
                 <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-[8px] bg-[#ECE9E4] transition-opacity group-hover:opacity-90">
-                  <span className="text-3xl font-semibold tracking-tight text-ink/40">
-                    {o.name}
-                  </span>
+                  {o.heroImage ? (
+                    <img src={o.heroImage} alt={o.name} loading="lazy" className="h-full w-full object-cover" />
+                  ) : (
+                    <span className="text-3xl font-semibold tracking-tight text-ink/40">
+                      {o.name}
+                    </span>
+                  )}
                 </div>
                 <p className="mt-5 text-lg font-semibold text-ink">{o.name}</p>
                 <p className="mt-1 text-sm text-muted-foreground">{o.segment}</p>
