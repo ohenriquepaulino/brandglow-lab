@@ -14,7 +14,86 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      historico_movimentacoes: {
+        Row: {
+          coluna_destino: string
+          coluna_origem: string
+          id: string
+          lead_id: string
+          movido_em: string
+        }
+        Insert: {
+          coluna_destino: string
+          coluna_origem: string
+          id?: string
+          lead_id: string
+          movido_em?: string
+        }
+        Update: {
+          coluna_destino?: string
+          coluna_origem?: string
+          id?: string
+          lead_id?: string
+          movido_em?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "historico_movimentacoes_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          anotacoes: string | null
+          coluna: string
+          criado_em: string
+          faturamento: string
+          id: string
+          instagram: string
+          nome: string
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+          whatsapp: string
+        }
+        Insert: {
+          anotacoes?: string | null
+          coluna?: string
+          criado_em?: string
+          faturamento: string
+          id?: string
+          instagram: string
+          nome: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+          whatsapp: string
+        }
+        Update: {
+          anotacoes?: string | null
+          coluna?: string
+          criado_em?: string
+          faturamento?: string
+          id?: string
+          instagram?: string
+          nome?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+          whatsapp?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
