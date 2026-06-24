@@ -42,8 +42,7 @@ function Hero() {
     <section className="container-page py-32 md:py-44">
       <div className="fade-up max-w-4xl">
         <h1 className="text-[34px] font-bold leading-[1.15] tracking-tight text-ink md:text-[56px] md:leading-[1.08]">
-          Criamos a <span className="font-semibold italic">estratégia</span> e a{" "}
-          <span className="font-semibold italic">identidade visual</span> da sua marca.
+          Criamos a estratégia e a identidade visual da sua marca.
         </h1>
         <p className="mt-8 max-w-xl text-[18px] leading-[1.7] text-muted-foreground">
           Para negócios com um bom produto ou serviço que ainda não sabem como
