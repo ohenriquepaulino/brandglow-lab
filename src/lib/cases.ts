@@ -46,6 +46,16 @@ import imgMoewaCartao from "@/assets/moewa/moewa-cartao.jpg.asset.json";
 import imgMoewaHomeSpray from "@/assets/moewa/moewa-home-spray.jpg.asset.json";
 import imgMoewaSacola from "@/assets/moewa/moewa-sacola.jpg.asset.json";
 import imgMoewaXicara from "@/assets/moewa/moewa-xicara.jpg.asset.json";
+import imgMoewaClubeCard from "@/assets/moewa/moewa-clube-card.png.asset.json";
+import imgMoewaProfileCard from "@/assets/moewa/moewa-profile-card.png.asset.json";
+import imgMoewaWellnessShot from "@/assets/moewa/moewa-wellness-shot.png.asset.json";
+import imgMoewaUniform from "@/assets/moewa/moewa-uniform.png.asset.json";
+import imgMoewaPosterManifesto from "@/assets/moewa/moewa-poster-manifesto.png.asset.json";
+import imgMoewaLogoLockupDark from "@/assets/moewa/moewa-logo-lockup-dark.png.asset.json";
+import imgMoewaLogoCinnamon from "@/assets/moewa/moewa-logo-cinnamon.png.asset.json";
+import imgMoewaLogoTerracotta from "@/assets/moewa/moewa-logo-terracotta.png.asset.json";
+import imgMoewaLogoOffwhite from "@/assets/moewa/moewa-logo-offwhite.png.asset.json";
+import imgMoewaPalette from "@/assets/moewa/moewa-palette.png.asset.json";
 
 export type CaseStudy = {
   slug: string;
@@ -142,8 +152,18 @@ export const cases: CaseStudy[] = [
       "A partir de uma tese de comunicação forte — 'Quando uma mulher está com autoestima elevada e organização mental, ela resolve qualquer problema' — unificamos a entrega técnica em uma jornada completa. Em vez de procedimentos isolados e promessas milagrosas de antes e depois, a MOEWA passou a se posicionar com uma experiência integrada em que estética corporal, nutrição e bem-estar caminham juntos. O resultado não aparece apenas no espelho, mas se sustenta no sono, na energia e no treino.",
     accent: "#c45330",
     accentText: "cream",
-    heroImage: imgMoewaPosterText.url,
+    heroImage: imgMoewaClubeCard.url,
     gallery: [
+      imgMoewaClubeCard.url,
+      imgMoewaPosterManifesto.url,
+      imgMoewaUniform.url,
+      imgMoewaWellnessShot.url,
+      imgMoewaProfileCard.url,
+      imgMoewaLogoLockupDark.url,
+      imgMoewaPalette.url,
+      imgMoewaLogoTerracotta.url,
+      imgMoewaLogoCinnamon.url,
+      imgMoewaLogoOffwhite.url,
       imgMoewaPosterText.url,
       imgMoewaCartao.url,
       imgMoewaHomeSpray.url,
