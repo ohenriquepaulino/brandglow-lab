@@ -117,7 +117,7 @@ function Cases() {
         </div>
 
         <div className="mt-20 grid gap-x-8 gap-y-16 md:grid-cols-3">
-          {cases.map((c) => (
+          {cases.filter((c) => c.slug !== "joana-co").slice(0, 3).map((c) => (
             <Link
               key={c.slug}
               to="/cases/$slug"
