@@ -9,7 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as CrmRouteImport } from './routes/crm'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CrmIndexRouteImport } from './routes/crm.index'
@@ -17,11 +16,6 @@ import { Route as CasesIndexRouteImport } from './routes/cases.index'
 import { Route as CrmKanbanRouteImport } from './routes/crm.kanban'
 import { Route as CasesSlugRouteImport } from './routes/cases.$slug'
 
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const CrmRoute = CrmRouteImport.update({
   id: '/crm',
   path: '/crm',
@@ -56,7 +50,6 @@ const CasesSlugRoute = CasesSlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/crm': typeof CrmRouteWithChildren
-  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/cases/$slug': typeof CasesSlugRoute
   '/crm/kanban': typeof CrmKanbanRoute
   '/cases/': typeof CasesIndexRoute
@@ -64,7 +57,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/cases/$slug': typeof CasesSlugRoute
   '/crm/kanban': typeof CrmKanbanRoute
   '/cases': typeof CasesIndexRoute
@@ -74,7 +66,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/crm': typeof CrmRouteWithChildren
-  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/cases/$slug': typeof CasesSlugRoute
   '/crm/kanban': typeof CrmKanbanRoute
   '/cases/': typeof CasesIndexRoute
@@ -82,21 +73,13 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/crm'
-    | '/sitemap.xml'
-    | '/cases/$slug'
-    | '/crm/kanban'
-    | '/cases/'
-    | '/crm/'
+  fullPaths: '/' | '/crm' | '/cases/$slug' | '/crm/kanban' | '/cases/' | '/crm/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/sitemap.xml' | '/cases/$slug' | '/crm/kanban' | '/cases' | '/crm'
+  to: '/' | '/cases/$slug' | '/crm/kanban' | '/cases' | '/crm'
   id:
     | '__root__'
     | '/'
     | '/crm'
-    | '/sitemap.xml'
     | '/cases/$slug'
     | '/crm/kanban'
     | '/cases/'
@@ -106,20 +89,12 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CrmRoute: typeof CrmRouteWithChildren
-  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   CasesSlugRoute: typeof CasesSlugRoute
   CasesIndexRoute: typeof CasesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/crm': {
       id: '/crm'
       path: '/crm'
@@ -180,7 +155,6 @@ const CrmRouteWithChildren = CrmRoute._addFileChildren(CrmRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CrmRoute: CrmRouteWithChildren,
-  SitemapDotxmlRoute: SitemapDotxmlRoute,
   CasesSlugRoute: CasesSlugRoute,
   CasesIndexRoute: CasesIndexRoute,
 }
