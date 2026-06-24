@@ -69,9 +69,13 @@ function CasePage() {
       {/* Hero visual */}
       <section className="container-page">
         <div className="flex aspect-[16/9] items-center justify-center overflow-hidden rounded-[8px] bg-[#ECE9E4]">
-          <span className="text-6xl font-semibold tracking-tight text-ink/40">
-            {c.name}
-          </span>
+          {c.heroImage ? (
+            <img src={c.heroImage} alt={c.name} loading="eager" className="h-full w-full object-cover" />
+          ) : (
+            <span className="text-6xl font-semibold tracking-tight text-ink/40">
+              {c.name}
+            </span>
+          )}
         </div>
       </section>
 
