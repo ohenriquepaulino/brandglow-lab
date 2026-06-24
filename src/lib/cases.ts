@@ -41,6 +41,11 @@ import imgJoanaLogoAsterisk from "@/assets/joana-ulmer/joana-ulmer-logo-asterisk
 import imgJoanaLogoYellowBg from "@/assets/joana-ulmer/joana-ulmer-logo-yellow-bg.webp.asset.json";
 import imgJoanaLogoJoanaCo from "@/assets/joana-ulmer/joana-ulmer-logo-joana-co.webp.asset.json";
 import imgJoanaLogoJoanaUlmerCo from "@/assets/joana-ulmer/joana-ulmer-logo-joana-ulmer-co.webp.asset.json";
+import imgMoewaPosterText from "@/assets/moewa/moewa-poster-text.jpg.asset.json";
+import imgMoewaCartao from "@/assets/moewa/moewa-cartao.jpg.asset.json";
+import imgMoewaHomeSpray from "@/assets/moewa/moewa-home-spray.jpg.asset.json";
+import imgMoewaSacola from "@/assets/moewa/moewa-sacola.jpg.asset.json";
+import imgMoewaXicara from "@/assets/moewa/moewa-xicara.jpg.asset.json";
 
 export type CaseStudy = {
   slug: string;
