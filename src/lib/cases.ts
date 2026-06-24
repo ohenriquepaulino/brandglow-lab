@@ -75,6 +75,11 @@ export const cases: CaseStudy[] = [
     gallery: [
       imgJoanaBillboardQuote.url,
       imgJoanaBanner.url,
+      imgJoanaLogoJoanaUlmerCo.url,
+      imgJoanaLogoJoanaCo.url,
+      imgJoanaLogoYellowBg.url,
+      imgJoanaLogoAsterisk.url,
+      imgJoanaBoxLiberdade.url,
       imgJoanaLaptop.url,
       imgJoanaPhone.url,
       imgJoanaProfileCard.url,
