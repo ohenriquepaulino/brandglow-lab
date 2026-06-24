@@ -1,3 +1,13 @@
+import img308BannerMetroMoema from "@/assets/308-network/308-network-banner-metro-moema.webp.asset.json";
+import img308BoneMoletom from "@/assets/308-network/308-network-bone-e-moletom-juntos.webp.asset.json";
+import img308Cartao from "@/assets/308-network/308-network-cartao-de-visitas.webp.asset.json";
+import img308CopoCafe from "@/assets/308-network/308-network-copo-cafe.webp.asset.json";
+import img308Insta from "@/assets/308-network/308-network-insta-fundo.webp.asset.json";
+import img308Iphone from "@/assets/308-network/308-network-iphone-mao-podcast.webp.asset.json";
+import img308Livro from "@/assets/308-network/308-network-livro-portfolio.webp.asset.json";
+import img308LogoPalavras from "@/assets/308-network/308-network-logo-branco-fundo-palavras.webp.asset.json";
+import img308OutBanner from "@/assets/308-network/308-network-out-banner.webp.asset.json";
+import img308SiteTelaPc from "@/assets/308-network/308-network-site-tela-pc.webp.asset.json";
 import img44 from "@/assets/geriacademy/geriacademy-page-0044.webp.asset.json";
 import img46 from "@/assets/geriacademy/geriacademy-page-0046.webp.asset.json";
 import img49 from "@/assets/geriacademy/geriacademy-page-0049.webp.asset.json";
@@ -43,18 +53,30 @@ export const cases: CaseStudy[] = [
   },
   {
     slug: "308-network",
-    name: "308 Network",
-    segment: "Negócios e comunidade",
+    name: "308NETWORK",
+    segment: "Decisões patrimoniais inteligentes",
     short:
-      "Estratégia de marca e identidade visual para uma rede de conexões entre empreendedores.",
+      "Reposicionamento de uma marca imobiliária tradicional para uma referência em decisões patrimoniais inteligentes, pronta para expandir sua atuação.",
     context:
-      "A 308 nasceu como uma rede privada de conexões entre empreendedores em diferentes estágios. Precisava de uma marca que comunicasse senioridade e seletividade.",
+      "Com anos de mercado e uma reputação construída na base do atendimento e da confiança, a 308 já era reconhecida. Mas, para o próximo nível — tornar-se top of mind para investidores e famílias que valorizam estratégia — isso já não bastava.",
     challenge:
-      "Construir uma marca que comunicasse exclusividade, sem soar fechada, e que sustentasse o crescimento da comunidade em diferentes praças.",
+      "O modelo tradicional de imobiliária já não representava o que a 308 havia se tornado. O desafio era transformar essa percepção e fazer a marca ser vista como realmente era: uma parceira estratégica na construção e proteção de patrimônio imobiliário.",
     delivery:
-      "Posicionamento, manifesto, narrativa de marca, identidade visual completa e diretrizes de aplicação para eventos, materiais e digital.",
+      "Criamos um reposicionamento completo de marca para sustentar a expansão da 308, com narrativa mais estratégica, identidade visual de presença forte e aplicações que reforçam autoridade, clareza e visão de longo prazo em todos os pontos de contato.",
     accent: "#121110",
     accentText: "cream",
+    heroImage: img308OutBanner.url,
+    gallery: [
+      img308SiteTelaPc.url,
+      img308BannerMetroMoema.url,
+      img308BoneMoletom.url,
+      img308Cartao.url,
+      img308CopoCafe.url,
+      img308Iphone.url,
+      img308Livro.url,
+      img308Insta.url,
+      img308LogoPalavras.url,
+    ],
   },
   {
     slug: "moewa",
