@@ -55,28 +55,32 @@ function Home() {
 
 function Hero() {
   return (
-    <section className="container-page py-32 md:py-44">
-      <div className="fade-up max-w-4xl">
-        <h1 className="text-[34px] font-bold leading-[1.15] tracking-tight text-ink md:text-[56px] md:leading-[1.08]">
-          Criamos a estratégia e a identidade visual da sua marca.
-        </h1>
-        <p className="mt-8 max-w-xl text-[18px] leading-[1.7] text-muted-foreground">
-          Para negócios com um bom produto ou serviço que ainda não sabem como
-          comunicar isso com clareza e precisam de uma marca que{" "}
-          <span className="font-semibold text-ink">posicione, atraia e convença</span>.
-        </p>
-        <div className="mt-12">
-          <a
-            href="#contato"
-            className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-lime-brand to-[#a8f25a] px-7 py-3.5 text-sm font-semibold text-ink transition-opacity hover:opacity-90"
-          >
-            Quero transformar minha marca
-          </a>
+    <section className="relative h-[calc(100vh-4rem)] min-h-[560px] w-full overflow-hidden">
+      <HeroSlider slides={heroSlides} />
+      <div className="container-page relative z-10 flex h-full flex-col justify-end pb-20 md:pb-28">
+        <div className="fade-up max-w-4xl">
+          <h1 className="text-[34px] font-bold leading-[1.1] tracking-tight text-cream md:text-[60px] md:leading-[1.05]">
+            Criamos a estratégia e a identidade visual da sua marca.
+          </h1>
+          <p className="mt-6 max-w-xl text-[17px] leading-[1.7] text-cream/85 md:text-[18px]">
+            Para negócios com um bom produto ou serviço que ainda não sabem
+            como comunicar isso com clareza e precisam de uma marca que{" "}
+            <span className="font-semibold text-cream">posicione, atraia e convença</span>.
+          </p>
+          <div className="mt-10">
+            <a
+              href="#contato"
+              className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-lime-brand to-[#a8f25a] px-7 py-3.5 text-sm font-semibold text-ink transition-opacity hover:opacity-90"
+            >
+              Quero transformar minha marca
+            </a>
+          </div>
         </div>
       </div>
     </section>
   );
 }
+
 
 function About() {
   const stats = [
