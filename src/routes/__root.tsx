@@ -130,6 +130,19 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const router = useRouter();
+
+  useEffect(() => {
+    import("../lib/utm").then(({ captureUtmsFromUrl }) => {
+      captureUtmsFromUrl();
+    });
+    const unsub = router.subscribe("onResolved", () => {
+      import("../lib/utm").then(({ captureUtmsFromUrl }) => {
+        captureUtmsFromUrl();
+      });
+    });
+    return () => unsub();
+  }, [router]);
 
   return (
     <QueryClientProvider client={queryClient}>
