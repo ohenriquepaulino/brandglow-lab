@@ -83,7 +83,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "Consultoria brasileira de estratégia de marca e identidade visual para negócios que querem posicionar, atrair e convencer.",
       },
-      { property: "og:title", content: "Legacy BrandCo." },
+      { property: "og:title", content: "Legacy BrandCo. — Estratégia e identidade visual de marca" },
       {
         property: "og:description",
         content:
@@ -91,6 +91,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "Legacy BrandCo. — Estratégia e identidade visual de marca" },
+      { name: "description", content: "A Legacy BrandCo. website for a Brazilian brand strategy and visual identity consultancy." },
+      { property: "og:description", content: "A Legacy BrandCo. website for a Brazilian brand strategy and visual identity consultancy." },
+      { name: "twitter:description", content: "A Legacy BrandCo. website for a Brazilian brand strategy and visual identity consultancy." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f55bfd27-1b4e-4c85-998c-a4f501487f18/id-preview-a74339ee--4ed7aee0-bd7d-4037-9ba7-4c3cfcd58b79.lovable.app-1782344061066.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f55bfd27-1b4e-4c85-998c-a4f501487f18/id-preview-a74339ee--4ed7aee0-bd7d-4037-9ba7-4c3cfcd58b79.lovable.app-1782344061066.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
