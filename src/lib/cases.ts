@@ -36,6 +36,11 @@ import imgJoanaLaptop from "@/assets/joana-ulmer/joana-ulmer-laptop.webp.asset.j
 import imgJoanaPhone from "@/assets/joana-ulmer/joana-ulmer-phone.webp.asset.json";
 import imgJoanaProfileCard from "@/assets/joana-ulmer/joana-ulmer-profile-card.webp.asset.json";
 import imgJoanaSportwear from "@/assets/joana-ulmer/joana-ulmer-sportwear.webp.asset.json";
+import imgJoanaBoxLiberdade from "@/assets/joana-ulmer/joana-ulmer-box-liberdade.webp.asset.json";
+import imgJoanaLogoAsterisk from "@/assets/joana-ulmer/joana-ulmer-logo-asterisk.webp.asset.json";
+import imgJoanaLogoYellowBg from "@/assets/joana-ulmer/joana-ulmer-logo-yellow-bg.webp.asset.json";
+import imgJoanaLogoJoanaCo from "@/assets/joana-ulmer/joana-ulmer-logo-joana-co.webp.asset.json";
+import imgJoanaLogoJoanaUlmerCo from "@/assets/joana-ulmer/joana-ulmer-logo-joana-ulmer-co.webp.asset.json";
 
 export type CaseStudy = {
   slug: string;
