@@ -125,9 +125,13 @@ function Cases() {
               className="group flex flex-col"
             >
               <div className="flex aspect-[4/5] items-center justify-center overflow-hidden rounded-2xl bg-[#ECE9E4] transition-opacity group-hover:opacity-90">
-                <span className="text-3xl font-semibold tracking-tight text-ink/40">
-                  {c.name}
-                </span>
+                {c.heroImage ? (
+                  <img src={c.heroImage} alt={c.name} loading="lazy" className="h-full w-full object-cover" />
+                ) : (
+                  <span className="text-3xl font-semibold tracking-tight text-ink/40">
+                    {c.name}
+                  </span>
+                )}
               </div>
               <p className="mt-6 text-lg font-semibold text-ink">{c.name}</p>
               <p className="mt-1 text-sm text-muted-foreground">{c.segment}</p>

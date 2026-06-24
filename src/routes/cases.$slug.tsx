@@ -69,9 +69,13 @@ function CasePage() {
       {/* Hero visual */}
       <section className="container-page">
         <div className="flex aspect-[16/9] items-center justify-center overflow-hidden rounded-[8px] bg-[#ECE9E4]">
-          <span className="text-6xl font-semibold tracking-tight text-ink/40">
-            {c.name}
-          </span>
+          {c.heroImage ? (
+            <img src={c.heroImage} alt={c.name} loading="eager" className="h-full w-full object-cover" />
+          ) : (
+            <span className="text-6xl font-semibold tracking-tight text-ink/40">
+              {c.name}
+            </span>
+          )}
         </div>
       </section>
 
@@ -93,11 +97,23 @@ function CasePage() {
           </div>
 
           <div className="mt-16 grid gap-4 md:grid-cols-3">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
+            {(c.gallery && c.gallery.length > 0
+              ? c.gallery
+              : ([null, null, null, null, null, null] as (string | null)[])
+            ).map((src: string | null, i: number) => (
               <div
                 key={i}
-                className="aspect-square rounded-[8px] bg-[#ECE9E4]"
-              />
+                className="aspect-square overflow-hidden rounded-[8px] bg-[#ECE9E4]"
+              >
+                {src ? (
+                  <img
+                    src={src}
+                    alt={`${c.name} — aplicação ${i + 1}`}
+                    loading="lazy"
+                    className="h-full w-full object-cover"
+                  />
+                ) : null}
+              </div>
             ))}
           </div>
         </div>
@@ -139,9 +155,13 @@ function CasePage() {
                 className="group flex flex-col"
               >
                 <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-[8px] bg-[#ECE9E4] transition-opacity group-hover:opacity-90">
-                  <span className="text-3xl font-semibold tracking-tight text-ink/40">
-                    {o.name}
-                  </span>
+                  {o.heroImage ? (
+                    <img src={o.heroImage} alt={o.name} loading="lazy" className="h-full w-full object-cover" />
+                  ) : (
+                    <span className="text-3xl font-semibold tracking-tight text-ink/40">
+                      {o.name}
+                    </span>
+                  )}
                 </div>
                 <p className="mt-5 text-lg font-semibold text-ink">{o.name}</p>
                 <p className="mt-1 text-sm text-muted-foreground">{o.segment}</p>
