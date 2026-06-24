@@ -26,6 +26,16 @@ import img57 from "@/assets/geriacademy/geriacademy-page-0057.webp.asset.json";
 import img58 from "@/assets/geriacademy/geriacademy-page-0058.webp.asset.json";
 import img60 from "@/assets/geriacademy/geriacademy-page-0060.webp.asset.json";
 import img61 from "@/assets/geriacademy/geriacademy-page-0061.webp.asset.json";
+import imgJoanaBag from "@/assets/joana-ulmer/joana-ulmer-bag.webp.asset.json";
+import imgJoanaBanner from "@/assets/joana-ulmer/joana-ulmer-banner.webp.asset.json";
+import imgJoanaBillboardEvent from "@/assets/joana-ulmer/joana-ulmer-billboard-event.webp.asset.json";
+import imgJoanaBillboardQuote from "@/assets/joana-ulmer/joana-ulmer-billboard-quote.webp.asset.json";
+import imgJoanaEnvelope from "@/assets/joana-ulmer/joana-ulmer-envelope.webp.asset.json";
+import imgJoanaHoodies from "@/assets/joana-ulmer/joana-ulmer-hoodies.webp.asset.json";
+import imgJoanaLaptop from "@/assets/joana-ulmer/joana-ulmer-laptop.webp.asset.json";
+import imgJoanaPhone from "@/assets/joana-ulmer/joana-ulmer-phone.webp.asset.json";
+import imgJoanaProfileCard from "@/assets/joana-ulmer/joana-ulmer-profile-card.webp.asset.json";
+import imgJoanaSportwear from "@/assets/joana-ulmer/joana-ulmer-sportwear.webp.asset.json";
 
 export type CaseStudy = {
   slug: string;
@@ -44,18 +54,31 @@ export type CaseStudy = {
 export const cases: CaseStudy[] = [
   {
     slug: "joana-co",
-    name: "Joana co*",
-    segment: "Educação financeira",
+    name: "Joana Ulmer Co*",
+    segment: "Marca pessoal · Educação financeira",
     short:
-      "Posicionamento e identidade visual para uma marca pessoal no mercado de finanças pessoais.",
+      "Transformação da presença de uma profissional em uma marca pessoal com clareza, direção e narrativa para conectar com o público certo.",
     context:
-      "Joana atua há anos como educadora financeira, com uma audiência fiel construída no digital. Antes da Legacy, a comunicação dependia da figura pessoal e não traduzia o método em uma marca reconhecível.",
+      "Quando a Joana chegou até nós, o pedido era simples: um site. Mas bastaram algumas conversas para entendermos que o desafio era mais profundo. Ela sabia do impacto do que fazia, mas ainda não conseguia traduzir isso em palavras com a clareza que sua marca precisava.",
     challenge:
-      "Transformar uma marca pessoal em uma marca de educação financeira reconhecida, sem perder a proximidade que já era um diferencial.",
+      "Faltava definição sobre seus diferenciais, seu público e o posicionamento certo para sair de um mercado impessoal e repetitivo. O desafio era transformar sua presença profissional em uma marca pessoal que soubesse o que diz, conectasse com quem importa e comunicasse com clareza o valor que entrega.",
     delivery:
-      "Diagnóstico de mercado, definição de posicionamento, construção do tom de voz e sistema visual completo, incluindo logotipo, paleta, tipografia e templates de conteúdo.",
-    accent: "#cfff87",
+      "Começamos pelo trabalho estratégico e, juntos, construímos uma base sólida: clareza sobre quem a Joana é, o que entrega e como se destacar com autenticidade. O resultado foi uma marca com direção, consistência e uma narrativa capaz de comunicar com precisão ao público ideal em todos os pontos de contato.",
+    accent: "#f4ff85",
     accentText: "ink",
+    heroImage: imgJoanaBillboardQuote.url,
+    gallery: [
+      imgJoanaBillboardQuote.url,
+      imgJoanaBanner.url,
+      imgJoanaLaptop.url,
+      imgJoanaPhone.url,
+      imgJoanaProfileCard.url,
+      imgJoanaEnvelope.url,
+      imgJoanaBag.url,
+      imgJoanaHoodies.url,
+      imgJoanaSportwear.url,
+      imgJoanaBillboardEvent.url,
+    ],
   },
   {
     slug: "308-network",
@@ -89,7 +112,7 @@ export const cases: CaseStudy[] = [
       img308Insta.url,
       img308LogoPalavras.url,
     ],
-  },
+  }
   {
     slug: "moewa",
     name: "Moewa",
