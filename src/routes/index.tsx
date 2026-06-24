@@ -92,11 +92,6 @@ function Hero() {
 
 
 function About() {
-  const stats = [
-    { value: "8+", label: "anos de experiência" },
-    { value: "BR", label: "clientes em todo o Brasil" },
-    { value: "★", label: "grandes players atendidos" },
-  ];
   return (
     <section className="border-t border-ink/10">
       <div className="container-page py-32 md:py-40">
@@ -116,17 +111,6 @@ function About() {
               <span className="font-semibold text-ink">marca coesa, profissional e de alto padrão</span>.
             </p>
           </div>
-        </div>
-
-        <div className="mt-24 grid gap-12 sm:grid-cols-3">
-          {stats.map((s) => (
-            <div key={s.label}>
-              <p className="text-5xl font-semibold tracking-tight text-ink md:text-6xl">
-                {s.value}
-              </p>
-              <p className="mt-4 text-sm text-muted-foreground">{s.label}</p>
-            </div>
-          ))}
         </div>
       </div>
     </section>
