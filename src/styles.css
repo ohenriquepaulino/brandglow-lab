@@ -81,12 +81,13 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     font-feature-settings: "ss01", "cv11";
+    letter-spacing: -0.04em;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3 {
-    letter-spacing: -0.02em;
+    letter-spacing: -0.04em;
     font-weight: 700;
   }
 }
