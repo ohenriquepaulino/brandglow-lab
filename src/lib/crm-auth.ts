@@ -1,5 +1,5 @@
 export const CRM_USER = "legacybrandco";
-export const CRM_PASS = "Henrique05!!";
+export const CRM_PASS = "Henrique05!!.";
 const KEY = "lbc_crm_auth";
 
 export function isCrmAuthed(): boolean {
