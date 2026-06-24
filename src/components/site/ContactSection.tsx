@@ -1,17 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-
-const UTM_KEYS = [
-  "utm_source",
-  "utm_medium",
-  "utm_campaign",
-  "utm_term",
-  "utm_content",
-  "gclid",
-  "fbclid",
-] as const;
-
-type UtmData = Partial<Record<(typeof UTM_KEYS)[number], string>>;
+import { UTM_KEYS, captureUtmsFromUrl, type UtmData } from "@/lib/utm";
 
 function maskPhone(value: string) {
   const digits = value.replace(/\D/g, "").slice(0, 11);
@@ -36,27 +25,9 @@ export function ContactSection() {
   const [utms, setUtms] = useState<UtmData>({});
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      const stored = sessionStorage.getItem("lbc_utms");
-      if (stored) setUtms(JSON.parse(stored));
-      const params = new URLSearchParams(window.location.search);
-      const fresh: UtmData = {};
-      UTM_KEYS.forEach((k) => {
-        const v = params.get(k);
-        if (v) fresh[k] = v;
-      });
-      if (Object.keys(fresh).length) {
-        setUtms((prev) => {
-          const next = { ...prev, ...fresh };
-          sessionStorage.setItem("lbc_utms", JSON.stringify(next));
-          return next;
-        });
-      }
-    } catch {
-      /* ignore */
-    }
+    setUtms(captureUtmsFromUrl());
   }, []);
+
 
   const phoneValid = useMemo(
     () => phone.replace(/\D/g, "").length >= 10,
