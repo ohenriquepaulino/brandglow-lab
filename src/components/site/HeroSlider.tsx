@@ -53,7 +53,7 @@ export function HeroSlider({ slides, intervalMs = 5500 }: Props) {
           style={{ opacity: i === index ? 1 : 0 }}
         />
       ))}
-      <div className="absolute inset-0 bg-gradient-to-b from-ink/70 via-ink/60 to-ink/90" />
+      <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/70 to-transparent" />
     </div>
   );
 }
