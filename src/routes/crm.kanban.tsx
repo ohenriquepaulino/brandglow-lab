@@ -204,7 +204,7 @@ function KanbanPage() {
                     count={items.length}
                   >
                     {items.map((l) => (
-                      <LeadCard key={l.id} lead={l} onOpen={setOpened} />
+                      <LeadCard key={l.id} lead={l} onOpen={setOpened} onDelete={handleDelete} />
                     ))}
                   </Column>
                 );
