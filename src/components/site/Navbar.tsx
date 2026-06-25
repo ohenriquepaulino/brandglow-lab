@@ -15,7 +15,7 @@ export function Navbar() {
     <header className="sticky top-0 z-50 border-b border-ink/10 bg-background/90 backdrop-blur">
       <div className="container-page flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center" aria-label="Legacy BrandCo. — Início">
-          <img src={logoAsset.url} alt="Legacy BrandCo." className="h-5 w-auto md:h-6" />
+          <img src={logoAsset.url} alt="Legacy BrandCo." className="h-10 w-auto md:h-12" />
         </Link>
 
         <nav className="hidden items-center gap-10 md:flex">

@@ -62,14 +62,12 @@ function Hero() {
 
       <div className="container-page relative z-10 flex min-h-[82vh] flex-col justify-center py-24 md:py-32">
         <div className="fade-up max-w-3xl">
-          <div className="flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.24em] text-cream/70">
-            <span className="h-px w-8 bg-cream/50" />
-            <span>Legacy BrandCo. — Estratégia & Identidade</span>
-          </div>
-
-          <h1 className="mt-7 text-[40px] font-normal leading-[1.05] tracking-[-0.03em] text-cream sm:text-[52px] md:text-[64px]">
-            Criamos a <span className="font-semibold">estratégia</span> e a{" "}
-            <span className="font-semibold">identidade visual</span> da sua marca.
+          <h1 className="text-[40px] font-normal leading-[1.05] tracking-[-0.03em] text-cream sm:text-[52px] md:text-[64px]">
+            Criamos a <span className="font-semibold">estratégia</span>
+            <br />
+            e a <span className="font-semibold">identidade visual</span>
+            <br />
+            da sua marca.
           </h1>
 
           <p className="mt-8 max-w-xl text-[15px] leading-[1.7] text-cream/80 md:text-[17px]">
@@ -79,7 +77,7 @@ function Hero() {
             <span className="font-semibold text-cream">convença</span>.
           </p>
 
-          <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
+          <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:gap-5 sm:items-start">
             <a
               href="#contato"
               className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-lime-brand to-[#a8f25a] px-7 py-3.5 text-sm font-semibold text-ink transition-opacity hover:opacity-90"
