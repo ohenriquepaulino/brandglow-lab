@@ -15,6 +15,7 @@ import { Route as CrmIndexRouteImport } from './routes/crm.index'
 import { Route as CasesIndexRouteImport } from './routes/cases.index'
 import { Route as CrmKanbanRouteImport } from './routes/crm.kanban'
 import { Route as CasesSlugRouteImport } from './routes/cases.$slug'
+import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 
 const CrmRoute = CrmRouteImport.update({
   id: '/crm',
@@ -46,6 +47,12 @@ const CasesSlugRoute = CasesSlugRouteImport.update({
   path: '/cases/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LovableEmailQueueProcessRoute =
+  LovableEmailQueueProcessRouteImport.update({
+    id: '/lovable/email/queue/process',
+    path: '/lovable/email/queue/process',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByFullPath {
   '/crm/kanban': typeof CrmKanbanRoute
   '/cases/': typeof CasesIndexRoute
   '/crm/': typeof CrmIndexRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -61,6 +69,7 @@ export interface FileRoutesByTo {
   '/crm/kanban': typeof CrmKanbanRoute
   '/cases': typeof CasesIndexRoute
   '/crm': typeof CrmIndexRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -70,12 +79,26 @@ export interface FileRoutesById {
   '/crm/kanban': typeof CrmKanbanRoute
   '/cases/': typeof CasesIndexRoute
   '/crm/': typeof CrmIndexRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/crm' | '/cases/$slug' | '/crm/kanban' | '/cases/' | '/crm/'
+  fullPaths:
+    | '/'
+    | '/crm'
+    | '/cases/$slug'
+    | '/crm/kanban'
+    | '/cases/'
+    | '/crm/'
+    | '/lovable/email/queue/process'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/cases/$slug' | '/crm/kanban' | '/cases' | '/crm'
+  to:
+    | '/'
+    | '/cases/$slug'
+    | '/crm/kanban'
+    | '/cases'
+    | '/crm'
+    | '/lovable/email/queue/process'
   id:
     | '__root__'
     | '/'
@@ -84,6 +107,7 @@ export interface FileRouteTypes {
     | '/crm/kanban'
     | '/cases/'
     | '/crm/'
+    | '/lovable/email/queue/process'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -91,6 +115,7 @@ export interface RootRouteChildren {
   CrmRoute: typeof CrmRouteWithChildren
   CasesSlugRoute: typeof CasesSlugRoute
   CasesIndexRoute: typeof CasesIndexRoute
+  LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -137,6 +162,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CasesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lovable/email/queue/process': {
+      id: '/lovable/email/queue/process'
+      path: '/lovable/email/queue/process'
+      fullPath: '/lovable/email/queue/process'
+      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -157,17 +189,8 @@ const rootRouteChildren: RootRouteChildren = {
   CrmRoute: CrmRouteWithChildren,
   CasesSlugRoute: CasesSlugRoute,
   CasesIndexRoute: CasesIndexRoute,
+  LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
