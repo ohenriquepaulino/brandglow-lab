@@ -55,22 +55,40 @@ function Home() {
 
 function Hero() {
   return (
-    <section className="relative h-[calc(100vh-4rem)] min-h-[600px] w-full overflow-hidden">
-      <HeroSlider slides={heroSlides} />
-      <div className="container-page relative z-10 flex h-full flex-col justify-center pb-16 pt-24 md:justify-end md:pb-28 md:pt-0">
-        <div className="fade-up max-w-3xl">
-          <p className="mb-5 text-[11px] font-medium uppercase tracking-[0.22em] text-cream/70 md:mb-6 md:text-xs">
-            Legacy BrandCo. — Estratégia & Identidade
-          </p>
-          <h1 className="text-[36px] font-bold leading-[1.05] tracking-tight text-cream sm:text-[44px] md:text-[60px] md:leading-[1.05]">
-            Criamos a estratégia e a identidade visual da sua marca.
+    <section className="relative w-full overflow-hidden bg-ink text-cream">
+      {/* subtle texture / vignette */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.07]"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle at 20% 20%, rgba(255,255,255,0.35), transparent 55%), radial-gradient(circle at 85% 90%, rgba(207,255,135,0.18), transparent 60%)",
+        }}
+      />
+      <div className="container-page relative z-10 grid min-h-[calc(100vh-4rem)] grid-cols-1 items-center gap-12 py-20 md:grid-cols-12 md:gap-10 md:py-28">
+        {/* Left: copy */}
+        <div className="fade-up md:col-span-7">
+          <div className="flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.24em] text-cream/60">
+            <span className="h-px w-8 bg-cream/40" />
+            <span>Estratégia & Identidade Visual</span>
+          </div>
+
+          <h1 className="mt-7 text-[40px] font-bold leading-[0.98] tracking-[-0.02em] text-cream sm:text-[56px] md:text-[76px] lg:text-[88px]">
+            Marcas que
+            <br />
+            <span className="text-cream/40">posicionam,</span>
+            <br />
+            atraem
+            <br />
+            <span className="text-orange-brand">e convencem.</span>
           </h1>
-          <p className="mt-5 max-w-xl text-[15px] leading-[1.65] text-cream/85 sm:text-[16px] md:mt-7 md:text-[18px] md:leading-[1.7]">
-            Para negócios com um bom produto ou serviço que ainda não sabem
-            como comunicar isso com clareza e precisam de uma marca que{" "}
-            <span className="font-semibold text-cream">posicione, atraia e convença</span>.
+
+          <p className="mt-8 max-w-md text-[15px] leading-[1.7] text-cream/70 md:text-[16px]">
+            Consultoria de estratégia e identidade visual para negócios com
+            bom produto que ainda não comunicam isso com clareza.
           </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5 md:mt-10">
+
+          <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
             <a
               href="#contato"
               className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-lime-brand to-[#a8f25a] px-7 py-3.5 text-sm font-semibold text-ink transition-opacity hover:opacity-90"
@@ -79,16 +97,45 @@ function Hero() {
             </a>
             <a
               href="#cases"
-              className="inline-flex items-center justify-center text-sm font-medium text-cream/90 underline underline-offset-4 hover:text-cream"
+              className="inline-flex items-center text-sm font-medium text-cream/80 underline underline-offset-4 hover:text-cream"
             >
               Ver cases →
             </a>
+          </div>
+
+          {/* Credibility row */}
+          <dl className="mt-14 grid max-w-lg grid-cols-3 gap-6 border-t border-cream/15 pt-8">
+            <div>
+              <dt className="text-[11px] uppercase tracking-[0.18em] text-cream/50">Experiência</dt>
+              <dd className="mt-2 text-2xl font-bold text-cream">+8 anos</dd>
+            </div>
+            <div>
+              <dt className="text-[11px] uppercase tracking-[0.18em] text-cream/50">Atuação</dt>
+              <dd className="mt-2 text-2xl font-bold text-cream">Brasil</dd>
+            </div>
+            <div>
+              <dt className="text-[11px] uppercase tracking-[0.18em] text-cream/50">Método</dt>
+              <dd className="mt-2 text-2xl font-bold text-cream">80/20</dd>
+            </div>
+          </dl>
+        </div>
+
+        {/* Right: contained slider panel */}
+        <div className="md:col-span-5">
+          <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl border border-cream/10 bg-ink/40 shadow-2xl shadow-black/40">
+            <HeroSlider slides={heroSlides} />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-ink/80 to-transparent p-5">
+              <p className="text-[11px] uppercase tracking-[0.2em] text-cream/70">
+                Cases em destaque
+              </p>
+            </div>
           </div>
         </div>
       </div>
     </section>
   );
 }
+
 
 
 function About() {
