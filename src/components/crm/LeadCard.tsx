@@ -11,9 +11,11 @@ import {
 export function LeadCard({
   lead,
   onOpen,
+  onDelete,
 }: {
   lead: Lead;
   onOpen: (lead: Lead) => void;
+  onDelete: (lead: Lead) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({ id: lead.id });
@@ -27,14 +29,32 @@ export function LeadCard({
     <div
       ref={setNodeRef}
       style={{ ...style, borderColor: "#E0DED9" }}
-      className="group cursor-grab rounded-lg border bg-white p-3.5 shadow-sm active:cursor-grabbing"
+      className="group relative cursor-grab rounded-lg border bg-white p-3.5 shadow-sm active:cursor-grabbing"
       {...attributes}
       {...listeners}
     >
       <button
         type="button"
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (confirm(`Excluir o lead "${lead.nome}"? Esta ação não pode ser desfeita.`)) {
+            onDelete(lead);
+          }
+        }}
+        aria-label="Excluir lead"
+        className="absolute right-2 top-2 hidden h-6 w-6 items-center justify-center rounded-md text-neutral-400 hover:bg-neutral-100 hover:text-red-600 group-hover:flex"
+      >
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 6h18" />
+          <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+        </svg>
+      </button>
+      <button
+        type="button"
         onClick={() => onOpen(lead)}
-        className="w-full text-left"
+        className="w-full pr-6 text-left"
       >
         <div className="flex items-start justify-between gap-2">
           <p className="text-sm font-semibold text-neutral-900">{lead.nome}</p>
