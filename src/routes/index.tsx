@@ -61,8 +61,8 @@ function Hero() {
       </div>
 
       <div className="container-page relative z-10 flex min-h-[82vh] flex-col justify-center py-24 md:py-32">
-        <div className="fade-up max-w-3xl">
-          <h1 className="text-[40px] font-normal leading-[1.05] tracking-[-0.03em] text-cream sm:text-[52px] md:text-[64px]">
+        <div className="fade-up max-w-3xl text-center md:text-left">
+          <h1 className="text-[32px] font-normal leading-[1.1] tracking-[-0.03em] text-cream sm:text-[52px] md:text-[64px] md:leading-[1.05]">
             Criamos a <span className="font-semibold">estratégia</span>
             <br />
             e a <span className="font-semibold">identidade visual</span>
@@ -70,14 +70,14 @@ function Hero() {
             da sua marca.
           </h1>
 
-          <p className="mt-8 max-w-xl text-[15px] leading-[1.7] text-cream/80 md:text-[17px]">
+          <p className="mt-6 max-w-xl text-[15px] leading-[1.7] text-cream/80 md:mt-8 md:text-[17px] md:mx-0 mx-auto">
             Para negócios com um <span className="font-semibold text-cream">bom produto ou serviço</span> que ainda não sabem como comunicar isso com clareza e precisam de uma marca que{" "}
             <span className="font-semibold text-cream">posicione</span>,{" "}
             <span className="font-semibold text-cream">atraia</span> e{" "}
             <span className="font-semibold text-cream">convença</span>.
           </p>
 
-          <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:gap-5 sm:items-start">
+          <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:gap-5 md:items-start md:justify-start justify-center">
             <a
               href="#contato"
               className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-lime-brand to-[#a8f25a] px-7 py-3.5 text-sm font-semibold text-ink transition-opacity hover:opacity-90"
