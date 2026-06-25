@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { UTM_KEYS, captureUtmsFromUrl, type UtmData } from "@/lib/utm";
 
 function maskPhone(value: string) {
@@ -46,25 +45,30 @@ export function ContactSection() {
     if (!name.trim() || !phoneValid || !instagramValid || !revenue) return;
     setSubmitting(true);
     setSubmitError(null);
-    const { error } = await supabase.from("leads").insert({
-      nome: name.trim(),
-      whatsapp: phone,
-      instagram,
-      faturamento: revenue,
-      utm_source: utms.utm_source ?? null,
-      utm_medium: utms.utm_medium ?? null,
-      utm_campaign: utms.utm_campaign ?? null,
-      utm_content: utms.utm_content ?? null,
-      utm_term: utms.utm_term ?? null,
-      coluna: "novo-lead",
-    });
-    setSubmitting(false);
-    if (error) {
-      console.error("[contato] erro ao salvar", error);
+    try {
+      const res = await fetch("/api/public/leads/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nome: name.trim(),
+          whatsapp: phone,
+          instagram,
+          faturamento: revenue,
+          utm_source: utms.utm_source ?? null,
+          utm_medium: utms.utm_medium ?? null,
+          utm_campaign: utms.utm_campaign ?? null,
+          utm_content: utms.utm_content ?? null,
+          utm_term: utms.utm_term ?? null,
+        }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      setSubmitted(true);
+    } catch (err) {
+      console.error("[contato] erro ao enviar", err);
       setSubmitError("Não foi possível enviar agora. Tente novamente.");
-      return;
+    } finally {
+      setSubmitting(false);
     }
-    setSubmitted(true);
   }
 
   return (
