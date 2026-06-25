@@ -1,4 +1,4 @@
-import logoAsset from "@/assets/logo-legacy.png.asset.json";
+import logoAsset from "@/assets/logo-legacy-v2.png.asset.json";
 
 export function Footer() {
   return (
