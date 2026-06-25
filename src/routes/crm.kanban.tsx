@@ -62,6 +62,19 @@ function KanbanPage() {
     navigate({ to: "/crm" });
   }
 
+  async function handleDelete(lead: Lead) {
+    const prev = leads;
+    setLeads((p) => p.filter((l) => l.id !== lead.id));
+    if (opened?.id === lead.id) setOpened(null);
+    await supabase.from("historico_movimentacoes").delete().eq("lead_id", lead.id);
+    const { error } = await supabase.from("leads").delete().eq("id", lead.id);
+    if (error) {
+      console.error(error);
+      setLeads(prev);
+      alert("Não foi possível excluir o lead. Tente novamente.");
+    }
+  }
+
   const faturamentos = useMemo(
     () => Array.from(new Set(leads.map((l) => l.faturamento))).sort(),
     [leads],
