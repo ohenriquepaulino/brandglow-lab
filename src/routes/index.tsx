@@ -64,18 +64,19 @@ function Hero() {
         <div className="fade-up max-w-3xl">
           <div className="flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.24em] text-cream/70">
             <span className="h-px w-8 bg-cream/50" />
-            <span>Estratégia & Identidade Visual</span>
+            <span>Legacy BrandCo. — Estratégia & Identidade</span>
           </div>
 
-          <h1 className="mt-7 text-[40px] font-normal leading-[1.02] tracking-[-0.03em] text-cream sm:text-[56px] md:text-[72px]">
-            Marcas que <span className="font-semibold">posicionam</span>,{" "}
-            <span className="font-semibold">atraem</span> e{" "}
-            <span className="font-semibold">convencem</span>.
+          <h1 className="mt-7 text-[40px] font-normal leading-[1.05] tracking-[-0.03em] text-cream sm:text-[52px] md:text-[64px]">
+            Criamos a <span className="font-semibold">estratégia</span> e a{" "}
+            <span className="font-semibold">identidade visual</span> da sua marca.
           </h1>
 
-          <p className="mt-8 max-w-lg text-[15px] leading-[1.7] text-cream/80 md:text-[17px]">
-            Consultoria de <span className="font-semibold text-cream">estratégia</span> e{" "}
-            <span className="font-semibold text-cream">identidade visual</span> para negócios com bom produto que ainda não comunicam isso com clareza.
+          <p className="mt-8 max-w-xl text-[15px] leading-[1.7] text-cream/80 md:text-[17px]">
+            Para negócios com um <span className="font-semibold text-cream">bom produto ou serviço</span> que ainda não sabem como comunicar isso com clareza e precisam de uma marca que{" "}
+            <span className="font-semibold text-cream">posicione</span>,{" "}
+            <span className="font-semibold text-cream">atraia</span> e{" "}
+            <span className="font-semibold text-cream">convença</span>.
           </p>
 
           <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
