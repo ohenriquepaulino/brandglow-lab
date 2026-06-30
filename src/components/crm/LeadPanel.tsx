@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { apiListHistorico, apiUpdateAnotacoes } from "@/lib/crm-api";
 import {
   COLUNAS,
   formatDateTime,
@@ -24,23 +24,19 @@ export function LeadPanel({
 
   useEffect(() => {
     setAnotacoes(lead.anotacoes ?? "");
-    supabase
-      .from("historico_movimentacoes")
-      .select("*")
-      .eq("lead_id", lead.id)
-      .order("movido_em", { ascending: false })
-      .then(({ data }) => setHistorico((data as Movimentacao[]) ?? []));
+    apiListHistorico(lead.id)
+      .then((data) => setHistorico(data))
+      .catch((err) => console.error(err));
   }, [lead.id, lead.anotacoes]);
 
   async function saveAnotacoes() {
     if ((lead.anotacoes ?? "") === anotacoes) return;
-    const { data } = await supabase
-      .from("leads")
-      .update({ anotacoes })
-      .eq("id", lead.id)
-      .select()
-      .single();
-    if (data) onUpdated(data as Lead);
+    try {
+      const data = await apiUpdateAnotacoes(lead.id, anotacoes);
+      if (data) onUpdated(data);
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   const colunaLabel = (id: string) =>
