@@ -8,7 +8,11 @@ import {
   useSensors,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import { supabase } from "@/integrations/supabase/client";
+import {
+  apiDeleteLead,
+  apiListLeads,
+  apiUpdateColumn,
+} from "@/lib/crm-api";
 import {
   COLUNAS,
   crmLogout,
@@ -48,12 +52,12 @@ function KanbanPage() {
 
   async function loadLeads() {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("leads")
-      .select("*")
-      .order("criado_em", { ascending: false });
-    if (error) console.error(error);
-    setLeads((data as Lead[]) ?? []);
+    try {
+      const data = await apiListLeads();
+      setLeads(data);
+    } catch (err) {
+      console.error(err);
+    }
     setLoading(false);
   }
 
@@ -66,10 +70,10 @@ function KanbanPage() {
     const prev = leads;
     setLeads((p) => p.filter((l) => l.id !== lead.id));
     if (opened?.id === lead.id) setOpened(null);
-    await supabase.from("historico_movimentacoes").delete().eq("lead_id", lead.id);
-    const { error } = await supabase.from("leads").delete().eq("id", lead.id);
-    if (error) {
-      console.error(error);
+    try {
+      await apiDeleteLead(lead.id);
+    } catch (err) {
+      console.error(err);
       setLeads(prev);
       alert("Não foi possível excluir o lead. Tente novamente.");
     }
@@ -113,22 +117,14 @@ function KanbanPage() {
       prev.map((l) => (l.id === leadId ? { ...l, coluna: dest } : l)),
     );
 
-    const { error: e1 } = await supabase
-      .from("leads")
-      .update({ coluna: dest })
-      .eq("id", leadId);
-    if (e1) {
-      console.error(e1);
+    try {
+      await apiUpdateColumn(leadId, dest, origem);
+    } catch (err) {
+      console.error(err);
       setLeads((prev) =>
         prev.map((l) => (l.id === leadId ? { ...l, coluna: origem } : l)),
       );
-      return;
     }
-    await supabase.from("historico_movimentacoes").insert({
-      lead_id: leadId,
-      coluna_origem: origem,
-      coluna_destino: dest,
-    });
   }
 
   return (

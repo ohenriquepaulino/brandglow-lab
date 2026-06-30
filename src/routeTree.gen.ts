@@ -21,6 +21,7 @@ import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lova
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicLeadsSubmitRouteImport } from './routes/api/public/leads/submit'
+import { Route as ApiPublicCrmDataRouteImport } from './routes/api/public/crm/data'
 
 const CrmRoute = CrmRouteImport.update({
   id: '/crm',
@@ -85,6 +86,11 @@ const ApiPublicLeadsSubmitRoute = ApiPublicLeadsSubmitRouteImport.update({
   path: '/api/public/leads/submit',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCrmDataRoute = ApiPublicCrmDataRouteImport.update({
+  id: '/api/public/crm/data',
+  path: '/api/public/crm/data',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -95,6 +101,7 @@ export interface FileRoutesByFullPath {
   '/cases/': typeof CasesIndexRoute
   '/crm/': typeof CrmIndexRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/api/public/crm/data': typeof ApiPublicCrmDataRoute
   '/api/public/leads/submit': typeof ApiPublicLeadsSubmitRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/cases': typeof CasesIndexRoute
   '/crm': typeof CrmIndexRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/api/public/crm/data': typeof ApiPublicCrmDataRoute
   '/api/public/leads/submit': typeof ApiPublicLeadsSubmitRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -123,6 +131,7 @@ export interface FileRoutesById {
   '/cases/': typeof CasesIndexRoute
   '/crm/': typeof CrmIndexRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/api/public/crm/data': typeof ApiPublicCrmDataRoute
   '/api/public/leads/submit': typeof ApiPublicLeadsSubmitRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
     | '/cases/'
     | '/crm/'
     | '/lovable/email/suppression'
+    | '/api/public/crm/data'
     | '/api/public/leads/submit'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
@@ -152,6 +162,7 @@ export interface FileRouteTypes {
     | '/cases'
     | '/crm'
     | '/lovable/email/suppression'
+    | '/api/public/crm/data'
     | '/api/public/leads/submit'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
@@ -166,6 +177,7 @@ export interface FileRouteTypes {
     | '/cases/'
     | '/crm/'
     | '/lovable/email/suppression'
+    | '/api/public/crm/data'
     | '/api/public/leads/submit'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
@@ -179,6 +191,7 @@ export interface RootRouteChildren {
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   CasesIndexRoute: typeof CasesIndexRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
+  ApiPublicCrmDataRoute: typeof ApiPublicCrmDataRoute
   ApiPublicLeadsSubmitRoute: typeof ApiPublicLeadsSubmitRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
@@ -271,6 +284,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicLeadsSubmitRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/crm/data': {
+      id: '/api/public/crm/data'
+      path: '/api/public/crm/data'
+      fullPath: '/api/public/crm/data'
+      preLoaderRoute: typeof ApiPublicCrmDataRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -293,6 +313,7 @@ const rootRouteChildren: RootRouteChildren = {
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   CasesIndexRoute: CasesIndexRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
+  ApiPublicCrmDataRoute: ApiPublicCrmDataRoute,
   ApiPublicLeadsSubmitRoute: ApiPublicLeadsSubmitRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
@@ -301,13 +322,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

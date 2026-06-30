@@ -92,8 +92,9 @@ export const Route = createFileRoute("/api/public/leads/submit")({
         }
 
         const origin = new URL(request.url).origin;
-        // Fire-and-forget — do not block the user response on email
-        notify(origin, parsed);
+        // Await the enqueue so the worker doesn't exit before it runs.
+        // Enqueue is fast (pgmq insert); actual delivery happens in the cron.
+        await notify(origin, parsed);
 
         return Response.json({ success: true });
       },
