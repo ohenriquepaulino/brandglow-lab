@@ -55,27 +55,6 @@ const depoimentos = [
   },
 ];
 
-const etapas = [
-  {
-    numero: "01",
-    titulo: "Diagnóstico e Posicionamento",
-    descricao:
-      "Mapeamos o negócio, o mercado e o consumidor. Definimos como a marca deve se comportar, qual é o diferencial e o que ela vai comunicar.",
-  },
-  {
-    numero: "02",
-    titulo: "Estratégia de Marca",
-    descricao:
-      "Construímos o posicionamento, a mensagem central, a personalidade e o tom de voz. A marca ganha clareza sobre o que falar, para quem falar e como falar.",
-  },
-  {
-    numero: "03",
-    titulo: "Identidade Visual",
-    descricao:
-      "Criamos o sistema visual completo: logotipo, paleta de cores, tipografia, elementos de apoio e guia de marca para aplicação consistente.",
-  },
-];
-
 const fazSentido = [
   "Já tem um produto ou serviço que entrega resultado",
   "Vende, mas sente que cobra abaixo do que entrega",
@@ -87,20 +66,6 @@ const naoFazSentido = [
   "Está começando agora e ainda testando a oferta",
   "Procura só um logotipo rápido",
   "Não quer participar do processo de decisão",
-];
-
-const diagnostico = [
-  { numero: "01", texto: "Você preenche o formulário. Leva menos de um minuto." },
-  {
-    numero: "02",
-    texto:
-      "Analisamos seu perfil antes da conversa. Chegamos sabendo do que se trata.",
-  },
-  {
-    numero: "03",
-    texto:
-      "Sessão de 40 minutos por vídeo. Mostramos onde sua marca está perdendo valor e o que precisa ser resolvido primeiro. Você sai com essa leitura, contratando ou não.",
-  },
 ];
 
 function Label({ children }: { children: React.ReactNode }) {
@@ -140,12 +105,13 @@ function AdsPage() {
             <div className="ads-hero-copy">
               <Label>CONSULTORIA DE MARCA</Label>
               <h1 className="ads-h1">
-                Construímos a estratégia e a identidade visual da sua empresa
+                Construímos a <strong>estratégia</strong> e a{" "}
+                <strong>identidade visual</strong> da sua empresa
               </h1>
               <p className="ads-body ads-measure">
-                Em poucos dias você sai com sua identidade visual renovada e com
-                a comunicação clara para poder atender melhor seus clientes e
-                vender mais
+                Em <strong>poucos dias</strong> você sai com sua identidade
+                visual renovada e com a <strong>comunicação clara</strong> para
+                poder atender melhor seus clientes e <strong>vender mais</strong>
               </p>
             </div>
             <FormSlot />
@@ -172,17 +138,19 @@ function AdsPage() {
               <div>
                 <Label>SOBRE</Label>
                 <p className="ads-body ads-about-text">
-                  A Legacy BrandCo. é uma consultoria de estratégia de marca e
-                  identidade visual com mais de 8 anos de operação. Atendemos
+                  A Legacy BrandCo. é uma consultoria de{" "}
+                  <strong>estratégia de marca</strong> e{" "}
+                  <strong>identidade visual</strong> com{" "}
+                  <strong>mais de 8 anos</strong> de operação. Atendemos
                   negócios em todo o Brasil, de profissionais liberais a
                   empresas em crescimento.
                 </p>
               </div>
               <div>
                 <p className="ads-body ads-about-text">
-                  Nosso trabalho começa antes do visual. Entendemos o negócio, o
-                  mercado e o consumidor, e só depois traduzimos isso em uma
-                  marca.
+                  Nosso trabalho <strong>começa antes do visual</strong>.
+                  Entendemos o negócio, o mercado e o consumidor, e só depois
+                  traduzimos isso em uma marca.
                 </p>
               </div>
             </div>
@@ -201,26 +169,12 @@ function AdsPage() {
               </p>
             </div>
             <p className="ads-body ads-measure">
-              Antes de definir logotipo, cor ou tipografia, entendemos o que o
-              seu negócio faz, contra quem ele compete e quem precisa ser
-              convencido. A identidade visual é a conclusão desse processo, não
-              o começo dele.
+              Antes de definir logotipo, cor ou tipografia, entendemos{" "}
+              <strong>o que o seu negócio faz</strong>,{" "}
+              <strong>contra quem ele compete</strong> e{" "}
+              <strong>quem precisa ser convencido</strong>. A identidade visual é
+              a <strong>conclusão</strong> desse processo, não o começo dele.
             </p>
-          </div>
-        </section>
-
-        {/* Três etapas */}
-        <section className="ads-section">
-          <div className="ads-container">
-            <ul className="ads-steps">
-              {etapas.map((e) => (
-                <li key={e.numero} className="ads-step">
-                  <span className="ads-step-num">{e.numero}</span>
-                  <h3 className="ads-step-title">{e.titulo}</h3>
-                  <p className="ads-body ads-secondary">{e.descricao}</p>
-                </li>
-              ))}
-            </ul>
           </div>
         </section>
 
@@ -228,7 +182,9 @@ function AdsPage() {
         <section className="ads-section">
           <div className="ads-container">
             <Label>DEPOIMENTOS</Label>
-            <h2 className="ads-h2">O que dizem sobre o nosso trabalho</h2>
+            <h2 className="ads-h2">
+              O que dizem sobre o <strong>nosso trabalho</strong>
+            </h2>
             <div className="ads-testimonials">
               {depoimentos.map((d, i) => (
                 <figure key={i} className="ads-card ads-testimonial">
@@ -264,7 +220,9 @@ function AdsPage() {
             <Label>PARA QUEM É</Label>
             <div className="ads-fit">
               <div className="ads-fit-col">
-                <h2 className="ads-h3">Faz sentido se você</h2>
+                <h2 className="ads-h3">
+                  <strong>Faz sentido</strong> se você
+                </h2>
                 <ul className="ads-list">
                   {fazSentido.map((t) => (
                     <li key={t} className="ads-body">
@@ -274,7 +232,9 @@ function AdsPage() {
                 </ul>
               </div>
               <div className="ads-fit-col ads-fit-col-right">
-                <h2 className="ads-h3">Não faz sentido se você</h2>
+                <h2 className="ads-h3">
+                  <strong>Não faz sentido</strong> se você
+                </h2>
                 <ul className="ads-list ads-secondary">
                   {naoFazSentido.map((t) => (
                     <li key={t} className="ads-body">
@@ -297,12 +257,29 @@ function AdsPage() {
           <div className="ads-container">
             <Label>O DIAGNÓSTICO</Label>
             <div className="ads-diag">
-              {diagnostico.map((d) => (
-                <div key={d.numero}>
-                  <span className="ads-diag-num">{d.numero}</span>
-                  <p className="ads-body">{d.texto}</p>
-                </div>
-              ))}
+              <div>
+                <span className="ads-diag-num">01</span>
+                <p className="ads-body">
+                  Você preenche o formulário. Leva{" "}
+                  <strong>menos de um minuto</strong>.
+                </p>
+              </div>
+              <div>
+                <span className="ads-diag-num">02</span>
+                <p className="ads-body">
+                  <strong>Analisamos seu perfil</strong> antes da conversa.
+                  Chegamos sabendo do que se trata.
+                </p>
+              </div>
+              <div>
+                <span className="ads-diag-num">03</span>
+                <p className="ads-body">
+                  Sessão de <strong>40 minutos por vídeo</strong>. Mostramos{" "}
+                  <strong>onde sua marca está perdendo valor</strong> e o que
+                  precisa ser resolvido primeiro. Você sai com essa leitura,
+                  contratando ou não.
+                </p>
+              </div>
             </div>
           </div>
         </section>
@@ -312,10 +289,12 @@ function AdsPage() {
           <div className="ads-container ads-hero-grid">
             <div>
               <Label>DIAGNÓSTICO</Label>
-              <h2 className="ads-h2">Vamos olhar sua marca de perto.</h2>
+              <h2 className="ads-h2">
+                Vamos olhar sua marca <strong>de perto</strong>.
+              </h2>
               <p className="ads-body ads-measure">
                 Preencha o formulário. Nossa equipe analisa seu perfil e entra
-                em contato em até 1 dia útil para agendar.
+                em contato em <strong>até 1 dia útil</strong> para agendar.
               </p>
             </div>
             <FormSlot />
@@ -328,9 +307,10 @@ function AdsPage() {
           background: #F4F2EF;
           color: #121110;
           font-family: Inter, system-ui, sans-serif;
-          letter-spacing: normal;
+          letter-spacing: -0.02em;
           scroll-behavior: smooth;
         }
+        .ads-page strong { font-weight: 600; color: inherit; }
         .ads-container {
           max-width: 1200px;
           margin-inline: auto;
@@ -344,15 +324,16 @@ function AdsPage() {
         .ads-last { padding-bottom: 64px; }
         .ads-label {
           font-size: 11px; font-weight: 500; text-transform: uppercase;
-          letter-spacing: 0.12em; color: #D75631; margin: 0 0 16px;
+          letter-spacing: 0.1em; color: #D75631; margin: 0 0 16px;
         }
         .ads-h1 {
-          font-size: 34px; font-weight: 600; line-height: 1.1;
-          letter-spacing: -0.02em; margin: 0; font-style: normal;
+          font-size: 34px; font-weight: 400; line-height: 1.05;
+          letter-spacing: -0.035em; margin: 0; font-style: normal;
         }
-        .ads-h2 { font-size: 26px; font-weight: 600; line-height: 1.15; margin: 0 0 24px; }
-        .ads-h3 { font-size: 20px; font-weight: 600; line-height: 1.2; margin: 0 0 8px; }
-        .ads-body { font-size: 16px; font-weight: 400; line-height: 1.6; margin: 0; }
+        .ads-h1 strong { font-weight: 600; }
+        .ads-h2 { font-size: 26px; font-weight: 400; line-height: 1.1; letter-spacing: -0.03em; margin: 0 0 24px; }
+        .ads-h3 { font-size: 20px; font-weight: 400; line-height: 1.15; letter-spacing: -0.03em; margin: 0 0 8px; }
+        .ads-body { font-size: 16px; font-weight: 400; line-height: 1.4; letter-spacing: -0.02em; margin: 0; }
         .ads-measure { max-width: 40ch; margin-top: 24px; }
         .ads-secondary, .ads-secondary * { color: rgba(18,17,16,0.6); }
         .ads-accent { color: #D75631; }
@@ -368,13 +349,8 @@ function AdsPage() {
         .ads-about-text { max-width: 42ch; }
         .ads-method { display: grid; gap: 32px; }
         .ads-method-title {
-          font-size: 44px; font-weight: 700; line-height: 1; letter-spacing: -0.02em; margin: 0;
+          font-size: 44px; font-weight: 700; line-height: 0.95; letter-spacing: -0.035em; margin: 0;
         }
-        .ads-steps { list-style: none; margin: 0; padding: 0; border-top: 1px solid rgba(18,17,16,0.1); }
-        .ads-step { padding-block: 32px; border-bottom: 1px solid rgba(18,17,16,0.1); }
-        .ads-step-num { display: block; color: #D75631; font-weight: 500; font-size: 14px; }
-        .ads-step-title { font-size: 20px; font-weight: 600; margin: 8px 0 12px; }
-        .ads-step p { color: rgba(18,17,16,0.6); }
         .ads-testimonials { display: grid; gap: 24px; }
         .ads-testimonial { display: flex; flex-direction: column; }
         .ads-testimonial blockquote { margin: 0; }
@@ -412,6 +388,16 @@ function AdsPage() {
         .ads-form-slot > section > div > div > *:first-child { display: none !important; }
         .ads-form-slot > section > div > div > * + * { border: 0 !important; padding: 0 !important; }
 
+        /* Mobile: sem logo no topo, textos centralizados */
+        @media (max-width: 767px) {
+          .ads-topbar { display: none; }
+          .ads-page { text-align: center; }
+          .ads-measure, .ads-about-text { margin-inline: auto; }
+          .ads-person { justify-content: center; }
+          .ads-cta-row { justify-content: center; }
+          .ads-form-slot { text-align: left; }
+        }
+
         @media (min-width: 768px) {
           .ads-fullbleed img { height: 520px; }
           .ads-testimonials { grid-template-columns: repeat(3, 1fr); gap: 32px; }
@@ -437,11 +423,6 @@ function AdsPage() {
           .ads-about-cols { grid-column: 2; grid-template-columns: repeat(2, minmax(0, 420px)); gap: 80px; }
           .ads-method { grid-template-columns: 1fr 1fr; gap: 80px; }
           .ads-method-title { font-size: 72px; }
-          .ads-step {
-            display: grid; grid-template-columns: 60px 280px 1fr; gap: 24px;
-            padding-block: 40px; align-items: start;
-          }
-          .ads-step-title { margin: 0; }
           .ads-fit { grid-template-columns: 1fr 1fr; gap: 64px; }
           .ads-fit-col-right {
             border-top: 0; padding-top: 0; border-left: 1px solid rgba(18,17,16,0.1);
