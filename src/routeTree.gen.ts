@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as CrmRouteImport } from './routes/crm'
+import { Route as AdsRouteImport } from './routes/ads'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CrmIndexRouteImport } from './routes/crm.index'
 import { Route as CasesIndexRouteImport } from './routes/cases.index'
@@ -26,6 +27,11 @@ import { Route as ApiPublicCrmDataRouteImport } from './routes/api/public/crm/da
 const CrmRoute = CrmRouteImport.update({
   id: '/crm',
   path: '/crm',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdsRoute = AdsRouteImport.update({
+  id: '/ads',
+  path: '/ads',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -94,6 +100,7 @@ const ApiPublicCrmDataRoute = ApiPublicCrmDataRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ads': typeof AdsRoute
   '/crm': typeof CrmRouteWithChildren
   '/cases/$slug': typeof CasesSlugRoute
   '/crm/kanban': typeof CrmKanbanRoute
@@ -109,6 +116,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ads': typeof AdsRoute
   '/cases/$slug': typeof CasesSlugRoute
   '/crm/kanban': typeof CrmKanbanRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -124,6 +132,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ads': typeof AdsRoute
   '/crm': typeof CrmRouteWithChildren
   '/cases/$slug': typeof CasesSlugRoute
   '/crm/kanban': typeof CrmKanbanRoute
@@ -141,6 +150,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/ads'
     | '/crm'
     | '/cases/$slug'
     | '/crm/kanban'
@@ -156,6 +166,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/ads'
     | '/cases/$slug'
     | '/crm/kanban'
     | '/email/unsubscribe'
@@ -170,6 +181,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/ads'
     | '/crm'
     | '/cases/$slug'
     | '/crm/kanban'
@@ -186,6 +198,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdsRoute: typeof AdsRoute
   CrmRoute: typeof CrmRouteWithChildren
   CasesSlugRoute: typeof CasesSlugRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
@@ -205,6 +218,13 @@ declare module '@tanstack/react-router' {
       path: '/crm'
       fullPath: '/crm'
       preLoaderRoute: typeof CrmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ads': {
+      id: '/ads'
+      path: '/ads'
+      fullPath: '/ads'
+      preLoaderRoute: typeof AdsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -308,6 +328,7 @@ const CrmRouteWithChildren = CrmRoute._addFileChildren(CrmRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdsRoute: AdsRoute,
   CrmRoute: CrmRouteWithChildren,
   CasesSlugRoute: CasesSlugRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
