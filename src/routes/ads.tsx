@@ -146,17 +146,9 @@ function AdsPage() {
           </div>
         </section>
 
-        {/* Imagem full-bleed */}
+        {/* Slider full-bleed com imagens dos cases */}
         <section className="ads-fullbleed">
-          {/* SUBSTITUIR: imagem principal da dobra */}
-          <img
-            src={heroImage}
-            alt=""
-            aria-hidden="true"
-            width={1920}
-            height={1080}
-            loading="eager"
-          />
+          <AdsSlider />
         </section>
 
         {/* Sobre */}
