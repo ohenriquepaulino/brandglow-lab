@@ -83,18 +83,6 @@ function AdsSlider() {
   );
 }
 
-const fazSentido = [
-  "Já tem um produto ou serviço que entrega resultado",
-  "Vende, mas sente que cobra abaixo do que entrega",
-  "Cresceu e a marca ficou para trás",
-  "Parece igual aos seus concorrentes",
-];
-
-const naoFazSentido = [
-  "Está começando agora e ainda testando a oferta",
-  "Procura só um logotipo rápido",
-  "Não quer participar do processo de decisão",
-];
 
 function Label({ children }: { children: React.ReactNode }) {
   return (
@@ -199,7 +187,7 @@ function AdsPage() {
         </section>
 
         {/* Depoimentos */}
-        <section className="ads-section">
+        <section className="ads-section ads-section-dark">
           <div className="ads-container">
             <Label>DEPOIMENTOS</Label>
             <h2 className="ads-h2">
@@ -207,48 +195,10 @@ function AdsPage() {
             </h2>
             <div className="ads-testimonials">
               {depoimentos.map((d) => (
-                <figure key={d.src} className="ads-shot">
+                <figure key={d.src} className="ads-shot ads-shot-dark">
                   <img src={d.src} alt={d.alt} loading="lazy" decoding="async" />
                 </figure>
               ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Para quem é */}
-        <section className="ads-section">
-          <div className="ads-container">
-            <Label>PARA QUEM É</Label>
-            <div className="ads-fit">
-              <div className="ads-fit-col">
-                <h2 className="ads-h3">
-                  <strong>Faz sentido</strong> se você
-                </h2>
-                <ul className="ads-list">
-                  {fazSentido.map((t) => (
-                    <li key={t} className="ads-body">
-                      {t}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="ads-fit-col ads-fit-col-right">
-                <h2 className="ads-h3">
-                  <strong>Não faz sentido</strong> se você
-                </h2>
-                <ul className="ads-list ads-secondary">
-                  {naoFazSentido.map((t) => (
-                    <li key={t} className="ads-body">
-                      {t}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-            <div className="ads-cta-row">
-              <a href="#formulario" className="ads-cta">
-                Quero meu diagnóstico
-              </a>
             </div>
           </div>
         </section>
@@ -374,6 +324,21 @@ function AdsPage() {
         }
         .ads-diag { display: grid; gap: 32px; }
         .ads-diag-num { display: block; color: #D75631; font-size: 32px; font-weight: 600; margin-bottom: 12px; }
+
+        /* Depoimentos em dark mode */
+        .ads-section-dark {
+          background: #121110;
+          color: #F4F2EF;
+        }
+        .ads-section-dark .ads-h2,
+        .ads-section-dark .ads-h2 strong { color: #F4F2EF; }
+        .ads-section-dark .ads-shot-dark {
+          background: #1C1B1A;
+          border-color: rgba(244,242,239,0.10);
+        }
+        .ads-section-dark .ads-shot-dark img {
+          border-radius: 12px;
+        }
 
         /* Reaproveita o componente de formulário existente sem alterá-lo */
         .ads-form-slot > section { border: 0 !important; background: transparent !important; }
