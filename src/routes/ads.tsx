@@ -206,28 +206,9 @@ function AdsPage() {
               O que dizem sobre o <strong>nosso trabalho</strong>
             </h2>
             <div className="ads-testimonials">
-              {depoimentos.map((d, i) => (
-                <figure key={i} className="ads-card ads-testimonial">
-                  <blockquote className="ads-body">{d.texto}</blockquote>
-                  <div className="ads-spacer" />
-                  <figcaption className="ads-person">
-                    {d.foto ? (
-                      <img
-                        src={d.foto}
-                        alt={d.nome}
-                        className="ads-avatar"
-                        width={44}
-                        height={44}
-                        loading="lazy"
-                      />
-                    ) : (
-                      <span className="ads-avatar ads-avatar-empty" aria-hidden="true" />
-                    )}
-                    <span>
-                      <span className="ads-person-name">{d.nome}</span>
-                      <span className="ads-person-role">{d.cargo}</span>
-                    </span>
-                  </figcaption>
+              {depoimentos.map((d) => (
+                <figure key={d.src} className="ads-shot">
+                  <img src={d.src} alt={d.alt} loading="lazy" decoding="async" />
                 </figure>
               ))}
             </div>
