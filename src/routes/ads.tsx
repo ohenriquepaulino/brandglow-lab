@@ -1,7 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { ContactSection } from "@/components/site/ContactSection";
 import logo from "@/assets/logo-legacy-v2.png.asset.json";
-import heroImage from "@/assets/ads/ads-hero-placeholder.jpg";
+import img308OutBanner from "@/assets/308-network/308-network-out-banner.webp.asset.json";
+import imgMoewaPosterManifesto from "@/assets/moewa/moewa-poster-manifesto.png.asset.json";
+import imgGeri from "@/assets/geriacademy/geriacademy-page-0060.webp.asset.json";
+import imgJoanaBillboardQuote from "@/assets/joana-ulmer/joana-ulmer-billboard-quote.webp.asset.json";
+import print1 from "@/assets/ads/IMG_1693.png.asset.json";
+import print2 from "@/assets/ads/IMG_1694.png.asset.json";
+import print3 from "@/assets/ads/IMG_1695.png.asset.json";
+import print4 from "@/assets/ads/IMG_1696.png.asset.json";
+import print5 from "@/assets/ads/IMG_1697.png.asset.json";
 
 export const Route = createFileRoute("/ads")({
   head: () => ({
@@ -30,30 +39,49 @@ export const Route = createFileRoute("/ads")({
   component: AdsPage,
 });
 
-/* SUBSTITUIR: depoimentos reais. Editar array abaixo. */
+/* SUBSTITUIR: prints de depoimentos. Editar array abaixo. */
 const depoimentos = [
-  {
-    texto:
-      "Depoimento de exemplo. Substituir por texto do cliente descrevendo o que mudou no negócio depois do projeto.",
-    nome: "Nome do Cliente",
-    cargo: "Cargo, Empresa",
-    foto: "",
-  },
-  {
-    texto:
-      "Depoimento de exemplo. Substituir por texto do cliente descrevendo o que mudou no negócio depois do projeto.",
-    nome: "Nome do Cliente",
-    cargo: "Cargo, Empresa",
-    foto: "",
-  },
-  {
-    texto:
-      "Depoimento de exemplo. Substituir por texto do cliente descrevendo o que mudou no negócio depois do projeto.",
-    nome: "Nome do Cliente",
-    cargo: "Cargo, Empresa",
-    foto: "",
-  },
+  { src: print1.url, alt: "Mensagem de cliente elogiando o projeto" },
+  { src: print4.url, alt: "Mensagem de cliente sobre identidade visual" },
+  { src: print2.url, alt: "Mensagem de cliente sobre o resultado" },
+  { src: print5.url, alt: "Mensagem de cliente elogiando o trabalho" },
+  { src: print3.url, alt: "Mensagem de cliente sobre expectativas superadas" },
 ];
+
+const heroSlides = [
+  { src: img308OutBanner.url, alt: "" },
+  { src: imgMoewaPosterManifesto.url, alt: "" },
+  { src: imgGeri.url, alt: "" },
+  { src: imgJoanaBillboardQuote.url, alt: "" },
+];
+
+function AdsSlider() {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const id = window.setInterval(() => {
+      setIndex((i) => (i + 1) % heroSlides.length);
+    }, 5000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  return (
+    <div className="ads-slider">
+      {heroSlides.map((s, i) => (
+        <img
+          key={s.src}
+          src={s.src}
+          alt=""
+          aria-hidden="true"
+          loading={i === 0 ? "eager" : "lazy"}
+          decoding={i === 0 ? "sync" : "async"}
+          style={{ opacity: i === index ? 1 : 0 }}
+        />
+      ))}
+    </div>
+  );
+}
 
 const fazSentido = [
   "Já tem um produto ou serviço que entrega resultado",
@@ -118,17 +146,9 @@ function AdsPage() {
           </div>
         </section>
 
-        {/* Imagem full-bleed */}
+        {/* Slider full-bleed com imagens dos cases */}
         <section className="ads-fullbleed">
-          {/* SUBSTITUIR: imagem principal da dobra */}
-          <img
-            src={heroImage}
-            alt=""
-            aria-hidden="true"
-            width={1920}
-            height={1080}
-            loading="eager"
-          />
+          <AdsSlider />
         </section>
 
         {/* Sobre */}
@@ -186,28 +206,9 @@ function AdsPage() {
               O que dizem sobre o <strong>nosso trabalho</strong>
             </h2>
             <div className="ads-testimonials">
-              {depoimentos.map((d, i) => (
-                <figure key={i} className="ads-card ads-testimonial">
-                  <blockquote className="ads-body">{d.texto}</blockquote>
-                  <div className="ads-spacer" />
-                  <figcaption className="ads-person">
-                    {d.foto ? (
-                      <img
-                        src={d.foto}
-                        alt={d.nome}
-                        className="ads-avatar"
-                        width={44}
-                        height={44}
-                        loading="lazy"
-                      />
-                    ) : (
-                      <span className="ads-avatar ads-avatar-empty" aria-hidden="true" />
-                    )}
-                    <span>
-                      <span className="ads-person-name">{d.nome}</span>
-                      <span className="ads-person-role">{d.cargo}</span>
-                    </span>
-                  </figcaption>
+              {depoimentos.map((d) => (
+                <figure key={d.src} className="ads-shot">
+                  <img src={d.src} alt={d.alt} loading="lazy" decoding="async" />
                 </figure>
               ))}
             </div>
@@ -344,22 +345,17 @@ function AdsPage() {
           border-radius: 8px;
         }
         .ads-fullbleed { width: 100%; }
-        .ads-fullbleed img { display: block; width: 100%; height: 320px; object-fit: cover; }
-        .ads-about-cols { display: grid; gap: 32px; }
-        .ads-about-text { max-width: 42ch; }
-        .ads-method { display: grid; gap: 32px; }
-        .ads-method-title {
-          font-size: 44px; font-weight: 700; line-height: 0.95; letter-spacing: -0.035em; margin: 0;
+        .ads-slider { position: relative; width: 100%; height: 320px; background: #121110; overflow: hidden; }
+        .ads-slider img {
+          position: absolute; inset: 0; display: block; width: 100%; height: 100%;
+          object-fit: cover; transition: opacity 1200ms ease-in-out;
         }
-        .ads-testimonials { display: grid; gap: 24px; }
-        .ads-testimonial { display: flex; flex-direction: column; }
-        .ads-testimonial blockquote { margin: 0; }
-        .ads-spacer { flex: 1 1 auto; min-height: 24px; }
-        .ads-person { display: flex; align-items: center; gap: 12px; }
-        .ads-avatar { width: 44px; height: 44px; border-radius: 9999px; object-fit: cover; flex: 0 0 auto; }
-        .ads-avatar-empty { background: rgba(18,17,16,0.08); display: block; }
-        .ads-person-name { display: block; font-size: 15px; font-weight: 600; }
-        .ads-person-role { display: block; font-size: 13px; color: rgba(18,17,16,0.6); }
+        .ads-testimonials { display: grid; gap: 16px; }
+        .ads-shot {
+          margin: 0; background: #FFFFFF; border: 1px solid rgba(18,17,16,0.08);
+          border-radius: 12px; overflow: hidden; break-inside: avoid;
+        }
+        .ads-shot img { display: block; width: 100%; height: auto; }
         .ads-fit { display: grid; gap: 32px; }
         .ads-fit-col-right { border-top: 1px solid rgba(18,17,16,0.1); padding-top: 32px; }
         .ads-list { list-style: none; margin: 16px 0 0; padding: 0; }
@@ -393,19 +389,23 @@ function AdsPage() {
           .ads-topbar { display: none; }
           .ads-page { text-align: center; }
           .ads-measure, .ads-about-text { margin-inline: auto; }
-          .ads-person { justify-content: center; }
           .ads-cta-row { justify-content: center; }
           .ads-form-slot { text-align: left; }
         }
 
         @media (min-width: 768px) {
-          .ads-fullbleed img { height: 520px; }
-          .ads-testimonials { grid-template-columns: repeat(3, 1fr); gap: 32px; }
+          .ads-slider { height: 520px; }
+          .ads-testimonials {
+            display: block; columns: 2; column-gap: 24px;
+          }
+          .ads-shot { margin-bottom: 24px; display: inline-block; width: 100%; }
           .ads-diag { grid-template-columns: repeat(3, 1fr); gap: 48px; }
           .ads-cta { width: auto; }
         }
 
         @media (min-width: 1024px) {
+          .ads-testimonials { columns: 3; column-gap: 28px; }
+          .ads-shot { margin-bottom: 28px; }
           .ads-container { padding-inline: 80px; }
           .ads-topbar { height: 80px; }
           .ads-topbar-inner { justify-content: flex-start; }
