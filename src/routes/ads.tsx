@@ -404,6 +404,8 @@ function AdsPage() {
         }
 
         @media (min-width: 1024px) {
+          .ads-testimonials { columns: 3; column-gap: 28px; }
+          .ads-shot { margin-bottom: 28px; }
           .ads-container { padding-inline: 80px; }
           .ads-topbar { height: 80px; }
           .ads-topbar-inner { justify-content: flex-start; }
