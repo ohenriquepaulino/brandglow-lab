@@ -337,6 +337,21 @@ function AdsPage() {
         .ads-diag { display: grid; gap: 32px; }
         .ads-diag-num { display: block; color: #D75631; font-size: 32px; font-weight: 600; margin-bottom: 12px; }
 
+        /* Depoimentos em dark mode */
+        .ads-section-dark {
+          background: #121110;
+          color: #F4F2EF;
+        }
+        .ads-section-dark .ads-h2,
+        .ads-section-dark .ads-h2 strong { color: #F4F2EF; }
+        .ads-section-dark .ads-shot-dark {
+          background: #1C1B1A;
+          border-color: rgba(244,242,239,0.10);
+        }
+        .ads-section-dark .ads-shot-dark img {
+          border-radius: 12px;
+        }
+
         /* Reaproveita o componente de formulário existente sem alterá-lo */
         .ads-form-slot > section { border: 0 !important; background: transparent !important; }
         .ads-form-slot > section > div { padding: 0 !important; max-width: none !important; width: 100% !important; }
