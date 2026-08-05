@@ -345,22 +345,17 @@ function AdsPage() {
           border-radius: 8px;
         }
         .ads-fullbleed { width: 100%; }
-        .ads-fullbleed img { display: block; width: 100%; height: 320px; object-fit: cover; }
-        .ads-about-cols { display: grid; gap: 32px; }
-        .ads-about-text { max-width: 42ch; }
-        .ads-method { display: grid; gap: 32px; }
-        .ads-method-title {
-          font-size: 44px; font-weight: 700; line-height: 0.95; letter-spacing: -0.035em; margin: 0;
+        .ads-slider { position: relative; width: 100%; height: 320px; background: #121110; overflow: hidden; }
+        .ads-slider img {
+          position: absolute; inset: 0; display: block; width: 100%; height: 100%;
+          object-fit: cover; transition: opacity 1200ms ease-in-out;
         }
-        .ads-testimonials { display: grid; gap: 24px; }
-        .ads-testimonial { display: flex; flex-direction: column; }
-        .ads-testimonial blockquote { margin: 0; }
-        .ads-spacer { flex: 1 1 auto; min-height: 24px; }
-        .ads-person { display: flex; align-items: center; gap: 12px; }
-        .ads-avatar { width: 44px; height: 44px; border-radius: 9999px; object-fit: cover; flex: 0 0 auto; }
-        .ads-avatar-empty { background: rgba(18,17,16,0.08); display: block; }
-        .ads-person-name { display: block; font-size: 15px; font-weight: 600; }
-        .ads-person-role { display: block; font-size: 13px; color: rgba(18,17,16,0.6); }
+        .ads-testimonials { display: grid; gap: 16px; }
+        .ads-shot {
+          margin: 0; background: #FFFFFF; border: 1px solid rgba(18,17,16,0.08);
+          border-radius: 12px; overflow: hidden; break-inside: avoid;
+        }
+        .ads-shot img { display: block; width: 100%; height: auto; }
         .ads-fit { display: grid; gap: 32px; }
         .ads-fit-col-right { border-top: 1px solid rgba(18,17,16,0.1); padding-top: 32px; }
         .ads-list { list-style: none; margin: 16px 0 0; padding: 0; }
