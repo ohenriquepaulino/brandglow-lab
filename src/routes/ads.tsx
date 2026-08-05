@@ -199,7 +199,7 @@ function AdsPage() {
         </section>
 
         {/* Depoimentos */}
-        <section className="ads-section">
+        <section className="ads-section ads-section-dark">
           <div className="ads-container">
             <Label>DEPOIMENTOS</Label>
             <h2 className="ads-h2">
@@ -207,7 +207,7 @@ function AdsPage() {
             </h2>
             <div className="ads-testimonials">
               {depoimentos.map((d) => (
-                <figure key={d.src} className="ads-shot">
+                <figure key={d.src} className="ads-shot ads-shot-dark">
                   <img src={d.src} alt={d.alt} loading="lazy" decoding="async" />
                 </figure>
               ))}
