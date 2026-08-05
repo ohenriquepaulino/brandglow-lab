@@ -83,18 +83,6 @@ function AdsSlider() {
   );
 }
 
-const fazSentido = [
-  "Já tem um produto ou serviço que entrega resultado",
-  "Vende, mas sente que cobra abaixo do que entrega",
-  "Cresceu e a marca ficou para trás",
-  "Parece igual aos seus concorrentes",
-];
-
-const naoFazSentido = [
-  "Está começando agora e ainda testando a oferta",
-  "Procura só um logotipo rápido",
-  "Não quer participar do processo de decisão",
-];
 
 function Label({ children }: { children: React.ReactNode }) {
   return (
