@@ -389,14 +389,16 @@ function AdsPage() {
           .ads-topbar { display: none; }
           .ads-page { text-align: center; }
           .ads-measure, .ads-about-text { margin-inline: auto; }
-          .ads-person { justify-content: center; }
           .ads-cta-row { justify-content: center; }
           .ads-form-slot { text-align: left; }
         }
 
         @media (min-width: 768px) {
-          .ads-fullbleed img { height: 520px; }
-          .ads-testimonials { grid-template-columns: repeat(3, 1fr); gap: 32px; }
+          .ads-slider { height: 520px; }
+          .ads-testimonials {
+            display: block; columns: 2; column-gap: 24px;
+          }
+          .ads-shot { margin-bottom: 24px; display: inline-block; width: 100%; }
           .ads-diag { grid-template-columns: repeat(3, 1fr); gap: 48px; }
           .ads-cta { width: auto; }
         }
