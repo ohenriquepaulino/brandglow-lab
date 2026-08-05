@@ -215,44 +215,6 @@ function AdsPage() {
           </div>
         </section>
 
-        {/* Para quem é */}
-        <section className="ads-section">
-          <div className="ads-container">
-            <Label>PARA QUEM É</Label>
-            <div className="ads-fit">
-              <div className="ads-fit-col">
-                <h2 className="ads-h3">
-                  <strong>Faz sentido</strong> se você
-                </h2>
-                <ul className="ads-list">
-                  {fazSentido.map((t) => (
-                    <li key={t} className="ads-body">
-                      {t}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="ads-fit-col ads-fit-col-right">
-                <h2 className="ads-h3">
-                  <strong>Não faz sentido</strong> se você
-                </h2>
-                <ul className="ads-list ads-secondary">
-                  {naoFazSentido.map((t) => (
-                    <li key={t} className="ads-body">
-                      {t}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-            <div className="ads-cta-row">
-              <a href="#formulario" className="ads-cta">
-                Quero meu diagnóstico
-              </a>
-            </div>
-          </div>
-        </section>
-
         {/* Como funciona a conversa */}
         <section className="ads-section">
           <div className="ads-container">
