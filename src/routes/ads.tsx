@@ -39,30 +39,49 @@ export const Route = createFileRoute("/ads")({
   component: AdsPage,
 });
 
-/* SUBSTITUIR: depoimentos reais. Editar array abaixo. */
+/* SUBSTITUIR: prints de depoimentos. Editar array abaixo. */
 const depoimentos = [
-  {
-    texto:
-      "Depoimento de exemplo. Substituir por texto do cliente descrevendo o que mudou no negócio depois do projeto.",
-    nome: "Nome do Cliente",
-    cargo: "Cargo, Empresa",
-    foto: "",
-  },
-  {
-    texto:
-      "Depoimento de exemplo. Substituir por texto do cliente descrevendo o que mudou no negócio depois do projeto.",
-    nome: "Nome do Cliente",
-    cargo: "Cargo, Empresa",
-    foto: "",
-  },
-  {
-    texto:
-      "Depoimento de exemplo. Substituir por texto do cliente descrevendo o que mudou no negócio depois do projeto.",
-    nome: "Nome do Cliente",
-    cargo: "Cargo, Empresa",
-    foto: "",
-  },
+  { src: print1.url, alt: "Mensagem de cliente elogiando o projeto" },
+  { src: print4.url, alt: "Mensagem de cliente sobre identidade visual" },
+  { src: print2.url, alt: "Mensagem de cliente sobre o resultado" },
+  { src: print5.url, alt: "Mensagem de cliente elogiando o trabalho" },
+  { src: print3.url, alt: "Mensagem de cliente sobre expectativas superadas" },
 ];
+
+const heroSlides = [
+  { src: img308OutBanner.url, alt: "" },
+  { src: imgMoewaPosterManifesto.url, alt: "" },
+  { src: imgGeri.url, alt: "" },
+  { src: imgJoanaBillboardQuote.url, alt: "" },
+];
+
+function AdsSlider() {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const id = window.setInterval(() => {
+      setIndex((i) => (i + 1) % heroSlides.length);
+    }, 5000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  return (
+    <div className="ads-slider">
+      {heroSlides.map((s, i) => (
+        <img
+          key={s.src}
+          src={s.src}
+          alt=""
+          aria-hidden="true"
+          loading={i === 0 ? "eager" : "lazy"}
+          decoding={i === 0 ? "sync" : "async"}
+          style={{ opacity: i === index ? 1 : 0 }}
+        />
+      ))}
+    </div>
+  );
+}
 
 const fazSentido = [
   "Já tem um produto ou serviço que entrega resultado",
