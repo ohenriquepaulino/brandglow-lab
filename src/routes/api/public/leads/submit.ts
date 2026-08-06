@@ -12,6 +12,8 @@ const LeadSchema = z.object({
   utm_campaign: z.string().max(120).nullish(),
   utm_content: z.string().max(120).nullish(),
   utm_term: z.string().max(120).nullish(),
+  event_id: z.string().max(80).nullish(),
+  page_url: z.string().max(500).nullish(),
 });
 
 async function notify(origin: string, lead: z.infer<typeof LeadSchema>) {
@@ -45,6 +47,76 @@ async function notify(origin: string, lead: z.infer<typeof LeadSchema>) {
     }
   } catch (err) {
     console.error("[lead-notify] error", err);
+  }
+}
+
+async function sha256Hex(value: string) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+function readCookie(cookieHeader: string | null, name: string) {
+  if (!cookieHeader) return undefined;
+  for (const part of cookieHeader.split(";")) {
+    const [k, ...v] = part.trim().split("=");
+    if (k === name) return decodeURIComponent(v.join("="));
+  }
+  return undefined;
+}
+
+async function sendMetaLead(
+  request: Request,
+  lead: z.infer<typeof LeadSchema>,
+  eventId: string,
+  eventSourceUrl: string,
+) {
+  try {
+    const pixelId = process.env["META_PIXEL_ID"];
+    const token = process.env["META_CAPI_ACCESS_TOKEN"];
+    if (!pixelId || !token) {
+      console.error("[meta-capi] missing env");
+      return;
+    }
+    const cookies = request.headers.get("cookie");
+    const digits = lead.whatsapp.replace(/\D/g, "");
+    const phoneE164 = digits.length >= 10 ? `55${digits}` : digits;
+    const userData: Record<string, unknown> = {
+      client_user_agent: request.headers.get("user-agent") ?? undefined,
+      client_ip_address:
+        request.headers.get("cf-connecting-ip") ??
+        request.headers.get("x-forwarded-for")?.split(",")[0]?.trim(),
+      fbp: readCookie(cookies, "_fbp"),
+      fbc: readCookie(cookies, "_fbc"),
+      ph: [await sha256Hex(phoneE164)],
+      fn: [await sha256Hex(lead.nome.trim().toLowerCase().split(" ")[0] ?? "")],
+      country: [await sha256Hex("br")],
+    };
+    const res = await fetch(
+      `https://graph.facebook.com/v21.0/${pixelId}/events?access_token=${encodeURIComponent(token)}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          data: [
+            {
+              event_name: "Lead",
+              event_time: Math.floor(Date.now() / 1000),
+              event_id: eventId,
+              event_source_url: eventSourceUrl,
+              action_source: "website",
+              user_data: userData,
+            },
+          ],
+        }),
+      },
+    );
+    if (!res.ok) {
+      console.error("[meta-capi] failed", res.status, await res.text());
+    }
+  } catch (err) {
+    console.error("[meta-capi] error", err);
   }
 }
 
@@ -95,6 +167,12 @@ export const Route = createFileRoute("/api/public/leads/submit")({
         // Await the enqueue so the worker doesn't exit before it runs.
         // Enqueue is fast (pgmq insert); actual delivery happens in the cron.
         await notify(origin, parsed);
+        await sendMetaLead(
+          request,
+          parsed,
+          parsed.event_id ?? crypto.randomUUID(),
+          parsed.page_url ?? origin,
+        );
 
         return Response.json({ success: true });
       },

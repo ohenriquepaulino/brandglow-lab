@@ -46,6 +46,10 @@ export function ContactSection() {
     setSubmitting(true);
     setSubmitError(null);
     try {
+      const eventId =
+        typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? crypto.randomUUID()
+          : String(Date.now());
       const res = await fetch("/api/public/leads/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -59,9 +63,15 @@ export function ContactSection() {
           utm_campaign: utms.utm_campaign ?? null,
           utm_content: utms.utm_content ?? null,
           utm_term: utms.utm_term ?? null,
+          event_id: eventId,
+          page_url: window.location.href,
         }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const fbq = (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq;
+      if (typeof fbq === "function") {
+        fbq("track", "Lead", {}, { eventID: eventId });
+      }
       setSubmitted(true);
     } catch (err) {
       console.error("[contato] erro ao enviar", err);
