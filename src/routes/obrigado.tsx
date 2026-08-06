@@ -25,6 +25,21 @@ export const Route = createFileRoute("/obrigado")({
 });
 
 function ObrigadoPage() {
+  useEffect(() => {
+    captureUtmsFromUrl();
+    const eventId = new URLSearchParams(window.location.search).get("ev");
+    const fbq = (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq;
+    if (typeof fbq === "function") {
+      fbq(
+        "track",
+        "Lead",
+        {},
+        eventId ? { eventID: eventId } : undefined,
+      );
+    }
+  }, []);
+
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background px-6 py-16 text-center">
       <div className="fade-up max-w-xl">
