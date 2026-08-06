@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { UTM_KEYS, captureUtmsFromUrl, type UtmData } from "@/lib/utm";
 
 function maskPhone(value: string) {
@@ -15,7 +16,8 @@ function maskInstagram(value: string) {
   return cleaned ? `@${cleaned}` : "";
 }
 
-export function ContactSection() {
+export function ContactSection({ redirectTo }: { redirectTo?: string } = {}) {
+  const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -68,6 +70,19 @@ export function ContactSection() {
         }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      if (redirectTo) {
+        // O evento Lead do navegador dispara na pagina de obrigado,
+        // com o mesmo event_id enviado a Conversions API (deduplicacao).
+        const search: Record<string, string> = { ev: eventId };
+        UTM_KEYS.forEach((k) => {
+          const v = utms[k];
+          if (v) search[k] = v;
+        });
+        navigate({ to: redirectTo, search });
+        return;
+      }
+
       const fbq = (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq;
       if (typeof fbq === "function") {
         fbq("track", "Lead", {}, { eventID: eventId });
