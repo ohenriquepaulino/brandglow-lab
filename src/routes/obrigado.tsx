@@ -1,4 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { captureUtmsFromUrl } from "@/lib/utm";
+
 
 export const Route = createFileRoute("/obrigado")({
   head: () => ({
