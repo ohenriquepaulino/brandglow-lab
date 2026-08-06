@@ -93,7 +93,7 @@ function Label({ children }: { children: React.ReactNode }) {
 function FormSlot() {
   return (
     <div className="ads-card ads-form-slot">
-      <ContactSection />
+      <ContactSection redirectTo="/obrigado" />
     </div>
   );
 }
