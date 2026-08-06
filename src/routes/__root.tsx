@@ -130,6 +130,10 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
+        <script
+          id="meta-pixel"
+          dangerouslySetInnerHTML={{ __html: META_PIXEL_SCRIPT }}
+        />
       </head>
       <body>
         {children}
