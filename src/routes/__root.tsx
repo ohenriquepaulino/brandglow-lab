@@ -140,10 +140,23 @@ function RootShell({ children }: { children: ReactNode }) {
           id="meta-pixel"
           dangerouslySetInnerHTML={{ __html: META_PIXEL_SCRIPT }}
         />
+        <script
+          id="gtm-head"
+          dangerouslySetInnerHTML={{ __html: GTM_HEAD_SCRIPT }}
+        />
       </head>
       <body>
         {children}
         <Scripts />
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-TC7FD6LM"
+            height="0"
+            width="0"
+            style={{ display: "none", visibility: "hidden" }}
+            title="Google Tag Manager"
+          />
+        </noscript>
         <noscript>
           <img
             height="1"
