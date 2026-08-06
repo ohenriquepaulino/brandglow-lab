@@ -118,9 +118,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800;900&display=swap",
       },
     ],
-    scripts: [
-      { type: "text/javascript", innerHTML: META_PIXEL_SCRIPT },
-    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,
@@ -133,6 +130,10 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
+        <script
+          id="meta-pixel"
+          dangerouslySetInnerHTML={{ __html: META_PIXEL_SCRIPT }}
+        />
       </head>
       <body>
         {children}
