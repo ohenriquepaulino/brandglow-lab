@@ -154,8 +154,14 @@ export function ContactSection({
             </div>
           ) : (
             <form onSubmit={onSubmit} noValidate className="flex flex-col gap-6">
+              {formHint && (
+                <p className="text-sm font-medium text-ink/80">{formHint}</p>
+              )}
               <div className="grid gap-6 md:grid-cols-2">
-                <Field label="Nome completo">
+                <Field
+                  label="Nome completo"
+                  error={attempted && !nameValid ? "Informe seu nome completo" : undefined}
+                >
                   <input
                     required
                     type="text"
@@ -165,11 +171,15 @@ export function ContactSection({
                     minLength={2}
                     maxLength={100}
                     autoComplete="name"
-                    className="input-light"
+                    className={inputClass(nameValid || !attempted)}
                     placeholder="Seu nome"
+                    aria-invalid={attempted && !nameValid}
                   />
                 </Field>
-                <Field label="WhatsApp">
+                <Field
+                  label="WhatsApp"
+                  error={attempted && !phoneValid ? "Informe um WhatsApp válido" : undefined}
+                >
                   <input
                     required
                     type="tel"
@@ -180,12 +190,20 @@ export function ContactSection({
                     maxLength={16}
                     pattern="\(\d{2}\) \d{4,5}-\d{4}"
                     autoComplete="tel-national"
-                    className="input-light"
+                    className={inputClass(phoneValid || !attempted)}
                     placeholder="(00) 00000-0000"
+                    aria-invalid={attempted && !phoneValid}
                   />
                 </Field>
                 {!hideInstagram && (
-                  <Field label="@ do Instagram">
+                  <Field
+                    label="@ do Instagram"
+                    error={
+                      attempted && !instagramValid
+                        ? "Informe um @ válido"
+                        : undefined
+                    }
+                  >
                     <input
                       required
                       type="text"
@@ -194,18 +212,23 @@ export function ContactSection({
                       onChange={(e) => setInstagram(maskInstagram(e.target.value))}
                       minLength={3}
                       maxLength={31}
-                      className="input-light"
+                      className={inputClass(instagramValid || !attempted)}
                       placeholder="@suamarca"
+                      aria-invalid={attempted && !instagramValid}
                     />
                   </Field>
                 )}
-                <Field label={revenueLabel}>
+                <Field
+                  label={revenueLabel}
+                  error={attempted && !revenueValid ? "Selecione uma faixa" : undefined}
+                >
                   <select
                     required
                     name="revenue"
                     value={revenue}
                     onChange={(e) => setRevenue(e.target.value)}
-                    className="input-light"
+                    className={inputClass(revenueValid || !attempted)}
+                    aria-invalid={attempted && !revenueValid}
                   >
                     <option value="" disabled>
                       Selecione uma faixa
@@ -222,6 +245,12 @@ export function ContactSection({
                 utms[k] ? (
                   <input key={k} type="hidden" name={k} value={utms[k]} />
                 ) : null,
+              )}
+
+              {attempted && !formValid && (
+                <p className="text-sm font-medium text-red-600">
+                  Preencha os campos destacados para continuar.
+                </p>
               )}
 
               {submitError && (
