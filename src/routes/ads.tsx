@@ -41,11 +41,11 @@ export const Route = createFileRoute("/ads")({
 
 /* SUBSTITUIR: prints de depoimentos. Editar array abaixo. */
 const depoimentos = [
-  { src: print1.url, alt: "Mensagem de cliente elogiando o projeto" },
-  { src: print4.url, alt: "Mensagem de cliente sobre identidade visual" },
-  { src: print2.url, alt: "Mensagem de cliente sobre o resultado" },
-  { src: print5.url, alt: "Mensagem de cliente elogiando o trabalho" },
-  { src: print3.url, alt: "Mensagem de cliente sobre expectativas superadas" },
+  { src: print1.url, w: 900, h: 1314, alt: "Mensagem de cliente elogiando o projeto" },
+  { src: print4.url, w: 900, h: 495, alt: "Mensagem de cliente sobre identidade visual" },
+  { src: print2.url, w: 900, h: 1035, alt: "Mensagem de cliente sobre o resultado" },
+  { src: print5.url, w: 900, h: 722, alt: "Mensagem de cliente elogiando o trabalho" },
+  { src: print3.url, w: 900, h: 329, alt: "Mensagem de cliente sobre expectativas superadas" },
 ];
 
 const heroSlides = [
@@ -57,31 +57,40 @@ const heroSlides = [
 
 function AdsSlider() {
   const [index, setIndex] = useState(0);
+  const [loaded, setLoaded] = useState(1);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const id = window.setInterval(() => {
-      setIndex((i) => (i + 1) % heroSlides.length);
+      setIndex((i) => {
+        const next = (i + 1) % heroSlides.length;
+        setLoaded((l) => Math.max(l, next + 1));
+        return next;
+      });
     }, 5000);
     return () => window.clearInterval(id);
   }, []);
 
   return (
     <div className="ads-slider">
-      {heroSlides.map((s, i) => (
+      {heroSlides.slice(0, loaded).map((s, i) => (
         <img
           key={s.src}
           src={s.src}
           alt=""
           aria-hidden="true"
+          width={1600}
+          height={900}
           loading={i === 0 ? "eager" : "lazy"}
-          decoding={i === 0 ? "sync" : "async"}
+          decoding="async"
+          {...(i === 0 ? { fetchPriority: "high" as const } : {})}
           style={{ opacity: i === index ? 1 : 0 }}
         />
       ))}
     </div>
   );
 }
+
 
 
 function Label({ children }: { children: React.ReactNode }) {
