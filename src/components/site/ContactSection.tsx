@@ -301,13 +301,22 @@ export function ContactSection({
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  error,
+  children,
+}: {
+  label: string;
+  error?: string;
+  children: React.ReactNode;
+}) {
   return (
     <label className="flex flex-col gap-2">
       <span className="text-[11px] font-normal uppercase tracking-[0.18em] text-muted-foreground">
         {label}
       </span>
       {children}
+      {error && <span className="field-error">{error}</span>}
     </label>
   );
 }
