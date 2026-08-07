@@ -28,12 +28,14 @@ export function ContactSection({
   hideInstagram = false,
   revenueLabel = "Faturamento mensal",
   formHint,
+  ctaLabel = "Quero começar",
 }: {
   redirectTo?: string;
   redirectToNoRevenue?: string;
   hideInstagram?: boolean;
   revenueLabel?: string;
   formHint?: string;
+  ctaLabel?: string;
 } = {}) {
   const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false);
