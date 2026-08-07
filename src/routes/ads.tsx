@@ -74,22 +74,24 @@ function AdsSlider() {
   }, []);
 
   return (
-    <div className="ads-slider">
-      {heroSlides.slice(0, loaded).map((s, i) => (
-        <img
-          key={s.src}
-          src={s.src}
-          alt=""
-          aria-hidden="true"
-          width={1600}
-          height={900}
-          loading={i === 0 ? "eager" : "lazy"}
-          decoding="async"
-          {...(i === 0 ? { fetchPriority: "high" as const } : {})}
-          style={{ opacity: i === index ? 1 : 0 }}
-        />
-      ))}
-    </div>
+    <a href="#formulario" className="ads-slider-link" aria-label="Ir para o formulário">
+      <div className="ads-slider">
+        {heroSlides.slice(0, loaded).map((s, i) => (
+          <img
+            key={s.src}
+            src={s.src}
+            alt=""
+            aria-hidden="true"
+            width={1600}
+            height={900}
+            loading={i === 0 ? "eager" : "lazy"}
+            decoding="async"
+            {...(i === 0 ? { fetchPriority: "high" as const } : {})}
+            style={{ opacity: i === index ? 1 : 0 }}
+          />
+        ))}
+      </div>
+    </a>
   );
 }
 
