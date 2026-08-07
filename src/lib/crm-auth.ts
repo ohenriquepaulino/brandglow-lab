@@ -34,7 +34,7 @@ export type Lead = {
   id: string;
   nome: string;
   whatsapp: string;
-  instagram: string;
+  instagram: string | null;
   faturamento: string;
   utm_source: string | null;
   utm_medium: string | null;
@@ -53,6 +53,12 @@ export type Movimentacao = {
   coluna_destino: string;
   movido_em: string;
 };
+
+export const SEM_FATURAMENTO = "Ainda não estou faturando";
+
+export function isSemFaturamento(lead: { faturamento: string | null }): boolean {
+  return (lead.faturamento ?? "").trim().toLowerCase() === SEM_FATURAMENTO.toLowerCase();
+}
 
 export function whatsappDigits(value: string): string {
   return value.replace(/\D/g, "");

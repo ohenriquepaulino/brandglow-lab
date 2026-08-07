@@ -5,13 +5,14 @@ import { z } from "zod";
 const LeadSchema = z.object({
   nome: z.string().trim().min(2).max(100),
   whatsapp: z.string().trim().min(10).max(20),
-  instagram: z.string().trim().min(2).max(40),
+  instagram: z.string().trim().max(40).nullish(),
   faturamento: z.string().trim().min(1).max(80),
   utm_source: z.string().max(120).nullish(),
   utm_medium: z.string().max(120).nullish(),
   utm_campaign: z.string().max(120).nullish(),
   utm_content: z.string().max(120).nullish(),
   utm_term: z.string().max(120).nullish(),
+  skip_meta: z.boolean().nullish(),
   event_id: z.string().max(80).nullish(),
   page_url: z.string().max(500).nullish(),
 });
@@ -35,6 +36,7 @@ async function notify(origin: string, lead: z.infer<typeof LeadSchema>) {
         templateName: "new-lead",
         templateData: {
           ...lead,
+          instagram: lead.instagram?.trim() ? lead.instagram : "—",
           recebido_em: new Date().toLocaleString("pt-BR", {
             timeZone: "America/Sao_Paulo",
           }),
@@ -148,7 +150,7 @@ export const Route = createFileRoute("/api/public/leads/submit")({
         const { error: insertError } = await supabase.from("leads").insert({
           nome: parsed.nome,
           whatsapp: parsed.whatsapp,
-          instagram: parsed.instagram,
+          instagram: parsed.instagram?.trim() ? parsed.instagram : null,
           faturamento: parsed.faturamento,
           utm_source: parsed.utm_source ?? null,
           utm_medium: parsed.utm_medium ?? null,
@@ -167,12 +169,14 @@ export const Route = createFileRoute("/api/public/leads/submit")({
         // Await the enqueue so the worker doesn't exit before it runs.
         // Enqueue is fast (pgmq insert); actual delivery happens in the cron.
         await notify(origin, parsed);
-        await sendMetaLead(
-          request,
-          parsed,
-          parsed.event_id ?? crypto.randomUUID(),
-          parsed.page_url ?? origin,
-        );
+        if (!parsed.skip_meta) {
+          await sendMetaLead(
+            request,
+            parsed,
+            parsed.event_id ?? crypto.randomUUID(),
+            parsed.page_url ?? origin,
+          );
+        }
 
         return Response.json({ success: true });
       },

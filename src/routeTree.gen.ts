@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TksRouteImport } from './routes/tks'
 import { Route as ObrigadoRouteImport } from './routes/obrigado'
 import { Route as CrmRouteImport } from './routes/crm'
 import { Route as AdsRouteImport } from './routes/ads'
@@ -25,6 +26,11 @@ import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/e
 import { Route as ApiPublicLeadsSubmitRouteImport } from './routes/api/public/leads/submit'
 import { Route as ApiPublicCrmDataRouteImport } from './routes/api/public/crm/data'
 
+const TksRoute = TksRouteImport.update({
+  id: '/tks',
+  path: '/tks',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ObrigadoRoute = ObrigadoRouteImport.update({
   id: '/obrigado',
   path: '/obrigado',
@@ -109,6 +115,7 @@ export interface FileRoutesByFullPath {
   '/ads': typeof AdsRoute
   '/crm': typeof CrmRouteWithChildren
   '/obrigado': typeof ObrigadoRoute
+  '/tks': typeof TksRoute
   '/cases/$slug': typeof CasesSlugRoute
   '/crm/kanban': typeof CrmKanbanRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -125,6 +132,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ads': typeof AdsRoute
   '/obrigado': typeof ObrigadoRoute
+  '/tks': typeof TksRoute
   '/cases/$slug': typeof CasesSlugRoute
   '/crm/kanban': typeof CrmKanbanRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -143,6 +151,7 @@ export interface FileRoutesById {
   '/ads': typeof AdsRoute
   '/crm': typeof CrmRouteWithChildren
   '/obrigado': typeof ObrigadoRoute
+  '/tks': typeof TksRoute
   '/cases/$slug': typeof CasesSlugRoute
   '/crm/kanban': typeof CrmKanbanRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -162,6 +171,7 @@ export interface FileRouteTypes {
     | '/ads'
     | '/crm'
     | '/obrigado'
+    | '/tks'
     | '/cases/$slug'
     | '/crm/kanban'
     | '/email/unsubscribe'
@@ -178,6 +188,7 @@ export interface FileRouteTypes {
     | '/'
     | '/ads'
     | '/obrigado'
+    | '/tks'
     | '/cases/$slug'
     | '/crm/kanban'
     | '/email/unsubscribe'
@@ -195,6 +206,7 @@ export interface FileRouteTypes {
     | '/ads'
     | '/crm'
     | '/obrigado'
+    | '/tks'
     | '/cases/$slug'
     | '/crm/kanban'
     | '/email/unsubscribe'
@@ -213,6 +225,7 @@ export interface RootRouteChildren {
   AdsRoute: typeof AdsRoute
   CrmRoute: typeof CrmRouteWithChildren
   ObrigadoRoute: typeof ObrigadoRoute
+  TksRoute: typeof TksRoute
   CasesSlugRoute: typeof CasesSlugRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   CasesIndexRoute: typeof CasesIndexRoute
@@ -226,6 +239,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/tks': {
+      id: '/tks'
+      path: '/tks'
+      fullPath: '/tks'
+      preLoaderRoute: typeof TksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/obrigado': {
       id: '/obrigado'
       path: '/obrigado'
@@ -351,6 +371,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdsRoute: AdsRoute,
   CrmRoute: CrmRouteWithChildren,
   ObrigadoRoute: ObrigadoRoute,
+  TksRoute: TksRoute,
   CasesSlugRoute: CasesSlugRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   CasesIndexRoute: CasesIndexRoute,
@@ -364,13 +385,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

@@ -140,7 +140,7 @@ export type Database = {
           criado_em: string
           faturamento: string
           id: string
-          instagram: string
+          instagram: string | null
           nome: string
           utm_campaign: string | null
           utm_content: string | null
@@ -155,7 +155,7 @@ export type Database = {
           criado_em?: string
           faturamento: string
           id?: string
-          instagram: string
+          instagram?: string | null
           nome: string
           utm_campaign?: string | null
           utm_content?: string | null
@@ -170,7 +170,7 @@ export type Database = {
           criado_em?: string
           faturamento?: string
           id?: string
-          instagram?: string
+          instagram?: string | null
           nome?: string
           utm_campaign?: string | null
           utm_content?: string | null

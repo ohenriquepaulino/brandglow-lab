@@ -4,6 +4,7 @@ import {
   formatDate,
   instagramHandle,
   instagramHref,
+  isSemFaturamento,
   whatsappHref,
   type Lead,
 } from "@/lib/crm-auth";
@@ -20,6 +21,8 @@ export function LeadCard({
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({ id: lead.id });
 
+  const semFaturamento = isSemFaturamento(lead);
+
   const style = {
     transform: CSS.Translate.toString(transform),
     opacity: isDragging ? 0.4 : 1,
@@ -29,10 +32,16 @@ export function LeadCard({
     <div
       ref={setNodeRef}
       style={{ ...style, borderColor: "#E0DED9" }}
-      className="group relative cursor-grab rounded-lg border bg-white p-3.5 shadow-sm active:cursor-grabbing"
+      className="group relative cursor-grab overflow-hidden rounded-lg border bg-white p-3.5 shadow-sm active:cursor-grabbing"
       {...attributes}
       {...listeners}
     >
+      {semFaturamento && (
+        <span
+          aria-hidden="true"
+          className="absolute left-0 top-0 h-full w-1.5 bg-red-600"
+        />
+      )}
       <button
         type="button"
         onPointerDown={(e) => e.stopPropagation()}
@@ -60,7 +69,13 @@ export function LeadCard({
           <p className="text-sm font-semibold text-neutral-900">{lead.nome}</p>
         </div>
         <div className="mt-2 flex flex-wrap gap-1.5">
-          <span className="inline-flex items-center rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-700">
+          <span
+            className={
+              semFaturamento
+                ? "inline-flex items-center rounded-full bg-red-600 px-2 py-0.5 text-[11px] font-semibold text-white"
+                : "inline-flex items-center rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-700"
+            }
+          >
             {lead.faturamento}
           </span>
           {lead.utm_source && (
@@ -72,18 +87,20 @@ export function LeadCard({
         </div>
       </button>
 
-      <div className="mt-3 flex items-center gap-2 text-xs text-neutral-700">
-        <a
-          href={instagramHref(lead.instagram)}
-          target="_blank"
-          rel="noreferrer"
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={(e) => e.stopPropagation()}
-          className="hover:text-neutral-900 hover:underline"
-        >
-          @{instagramHandle(lead.instagram)}
-        </a>
-      </div>
+      {lead.instagram?.trim() && (
+        <div className="mt-3 flex items-center gap-2 text-xs text-neutral-700">
+          <a
+            href={instagramHref(lead.instagram)}
+            target="_blank"
+            rel="noreferrer"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
+            className="hover:text-neutral-900 hover:underline"
+          >
+            @{instagramHandle(lead.instagram)}
+          </a>
+        </div>
+      )}
 
       <div className="mt-1.5 flex items-center justify-between text-xs text-neutral-600">
         <span>{lead.whatsapp}</span>

@@ -102,7 +102,7 @@ function KanbanPage() {
       if (fUtm && l.utm_source !== fUtm) return false;
       if (q) {
         const inName = l.nome.toLowerCase().includes(q);
-        const inIg = l.instagram.toLowerCase().includes(q);
+        const inIg = (l.instagram ?? "").toLowerCase().includes(q);
         if (!inName && !inIg) return false;
       }
       return true;
