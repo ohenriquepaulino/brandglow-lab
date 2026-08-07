@@ -23,11 +23,13 @@ export function ContactSection({
   redirectToNoRevenue,
   hideInstagram = false,
   revenueLabel = "Faturamento mensal",
+  formHint,
 }: {
   redirectTo?: string;
   redirectToNoRevenue?: string;
   hideInstagram?: boolean;
   revenueLabel?: string;
+  formHint?: string;
 } = {}) {
   const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false);
@@ -36,12 +38,13 @@ export function ContactSection({
   const [instagram, setInstagram] = useState("@");
   const [revenue, setRevenue] = useState("");
   const [utms, setUtms] = useState<UtmData>({});
+  const [attempted, setAttempted] = useState(false);
 
   useEffect(() => {
     setUtms(captureUtmsFromUrl());
   }, []);
 
-
+  const nameValid = useMemo(() => name.trim().length >= 2, [name]);
   const phoneValid = useMemo(
     () => phone.replace(/\D/g, "").length >= 10,
     [phone],
@@ -50,15 +53,24 @@ export function ContactSection({
     () => hideInstagram || instagram.replace(/[^A-Za-z0-9._]/g, "").length >= 2,
     [hideInstagram, instagram],
   );
+  const revenueValid = useMemo(() => revenue.length > 0, [revenue]);
+  const formValid = useMemo(
+    () => nameValid && phoneValid && instagramValid && revenueValid,
+    [nameValid, phoneValid, instagramValid, revenueValid],
+  );
 
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!name.trim() || !phoneValid || !instagramValid || !revenue) return;
+    if (!formValid) {
+      setAttempted(true);
+      return;
+    }
     setSubmitting(true);
     setSubmitError(null);
+    setAttempted(false);
     try {
       const eventId =
         typeof crypto !== "undefined" && "randomUUID" in crypto
