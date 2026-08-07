@@ -3,14 +3,14 @@ import { useEffect, useState } from "react";
 import { ContactSection } from "@/components/site/ContactSection";
 import logo from "@/assets/logo-legacy-v2.png.asset.json";
 import img308OutBanner from "@/assets/308-network/308-network-out-banner.webp.asset.json";
-import imgMoewaPosterManifesto from "@/assets/moewa/moewa-poster-manifesto.png.asset.json";
+import imgMoewaPosterManifesto from "@/assets/ads/moewa-poster-manifesto.webp.asset.json";
 import imgGeri from "@/assets/geriacademy/geriacademy-page-0060.webp.asset.json";
 import imgJoanaBillboardQuote from "@/assets/joana-ulmer/joana-ulmer-billboard-quote.webp.asset.json";
-import print1 from "@/assets/ads/IMG_1693.png.asset.json";
-import print2 from "@/assets/ads/IMG_1694.png.asset.json";
-import print3 from "@/assets/ads/IMG_1695.png.asset.json";
-import print4 from "@/assets/ads/IMG_1696.png.asset.json";
-import print5 from "@/assets/ads/IMG_1697.png.asset.json";
+import print1 from "@/assets/ads/IMG_1693.webp.asset.json";
+import print2 from "@/assets/ads/IMG_1694.webp.asset.json";
+import print3 from "@/assets/ads/IMG_1695.webp.asset.json";
+import print4 from "@/assets/ads/IMG_1696.webp.asset.json";
+import print5 from "@/assets/ads/IMG_1697.webp.asset.json";
 
 export const Route = createFileRoute("/ads")({
   head: () => ({
