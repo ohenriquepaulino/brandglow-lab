@@ -16,6 +16,10 @@ function maskInstagram(value: string) {
   return cleaned ? `@${cleaned}` : "";
 }
 
+function inputClass(valid: boolean) {
+  return valid ? "input-light" : "input-light input-error";
+}
+
 export const NO_REVENUE_OPTION = "Ainda não estou faturando";
 
 export function ContactSection({
