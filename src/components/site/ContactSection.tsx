@@ -16,6 +16,10 @@ function maskInstagram(value: string) {
   return cleaned ? `@${cleaned}` : "";
 }
 
+function inputClass(valid: boolean) {
+  return valid ? "input-light" : "input-light input-error";
+}
+
 export const NO_REVENUE_OPTION = "Ainda não estou faturando";
 
 export function ContactSection({
@@ -23,11 +27,13 @@ export function ContactSection({
   redirectToNoRevenue,
   hideInstagram = false,
   revenueLabel = "Faturamento mensal",
+  formHint,
 }: {
   redirectTo?: string;
   redirectToNoRevenue?: string;
   hideInstagram?: boolean;
   revenueLabel?: string;
+  formHint?: string;
 } = {}) {
   const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false);
@@ -36,12 +42,13 @@ export function ContactSection({
   const [instagram, setInstagram] = useState("@");
   const [revenue, setRevenue] = useState("");
   const [utms, setUtms] = useState<UtmData>({});
+  const [attempted, setAttempted] = useState(false);
 
   useEffect(() => {
     setUtms(captureUtmsFromUrl());
   }, []);
 
-
+  const nameValid = useMemo(() => name.trim().length >= 2, [name]);
   const phoneValid = useMemo(
     () => phone.replace(/\D/g, "").length >= 10,
     [phone],
@@ -50,15 +57,24 @@ export function ContactSection({
     () => hideInstagram || instagram.replace(/[^A-Za-z0-9._]/g, "").length >= 2,
     [hideInstagram, instagram],
   );
+  const revenueValid = useMemo(() => revenue.length > 0, [revenue]);
+  const formValid = useMemo(
+    () => nameValid && phoneValid && instagramValid && revenueValid,
+    [nameValid, phoneValid, instagramValid, revenueValid],
+  );
 
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!name.trim() || !phoneValid || !instagramValid || !revenue) return;
+    if (!formValid) {
+      setAttempted(true);
+      return;
+    }
     setSubmitting(true);
     setSubmitError(null);
+    setAttempted(false);
     try {
       const eventId =
         typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -142,8 +158,14 @@ export function ContactSection({
             </div>
           ) : (
             <form onSubmit={onSubmit} noValidate className="flex flex-col gap-6">
+              {formHint && (
+                <p className="text-sm font-medium text-ink/80">{formHint}</p>
+              )}
               <div className="grid gap-6 md:grid-cols-2">
-                <Field label="Nome completo">
+                <Field
+                  label="Nome completo"
+                  error={attempted && !nameValid ? "Informe seu nome completo" : undefined}
+                >
                   <input
                     required
                     type="text"
@@ -153,11 +175,15 @@ export function ContactSection({
                     minLength={2}
                     maxLength={100}
                     autoComplete="name"
-                    className="input-light"
+                    className={inputClass(nameValid || !attempted)}
                     placeholder="Seu nome"
+                    aria-invalid={attempted && !nameValid}
                   />
                 </Field>
-                <Field label="WhatsApp">
+                <Field
+                  label="WhatsApp"
+                  error={attempted && !phoneValid ? "Informe um WhatsApp válido" : undefined}
+                >
                   <input
                     required
                     type="tel"
@@ -168,12 +194,20 @@ export function ContactSection({
                     maxLength={16}
                     pattern="\(\d{2}\) \d{4,5}-\d{4}"
                     autoComplete="tel-national"
-                    className="input-light"
+                    className={inputClass(phoneValid || !attempted)}
                     placeholder="(00) 00000-0000"
+                    aria-invalid={attempted && !phoneValid}
                   />
                 </Field>
                 {!hideInstagram && (
-                  <Field label="@ do Instagram">
+                  <Field
+                    label="@ do Instagram"
+                    error={
+                      attempted && !instagramValid
+                        ? "Informe um @ válido"
+                        : undefined
+                    }
+                  >
                     <input
                       required
                       type="text"
@@ -182,18 +216,23 @@ export function ContactSection({
                       onChange={(e) => setInstagram(maskInstagram(e.target.value))}
                       minLength={3}
                       maxLength={31}
-                      className="input-light"
+                      className={inputClass(instagramValid || !attempted)}
                       placeholder="@suamarca"
+                      aria-invalid={attempted && !instagramValid}
                     />
                   </Field>
                 )}
-                <Field label={revenueLabel}>
+                <Field
+                  label={revenueLabel}
+                  error={attempted && !revenueValid ? "Selecione uma faixa" : undefined}
+                >
                   <select
                     required
                     name="revenue"
                     value={revenue}
                     onChange={(e) => setRevenue(e.target.value)}
-                    className="input-light"
+                    className={inputClass(revenueValid || !attempted)}
+                    aria-invalid={attempted && !revenueValid}
                   >
                     <option value="" disabled>
                       Selecione uma faixa
@@ -210,6 +249,12 @@ export function ContactSection({
                 utms[k] ? (
                   <input key={k} type="hidden" name={k} value={utms[k]} />
                 ) : null,
+              )}
+
+              {attempted && !formValid && (
+                <p className="text-sm font-medium text-red-600">
+                  Preencha os campos destacados para continuar.
+                </p>
               )}
 
               {submitError && (
@@ -243,6 +288,13 @@ export function ContactSection({
         }
         .input-light::placeholder { color: #9c9a94; }
         .input-light:focus { border-color: #121110; }
+        .input-light.input-error { border-color: #D75631; background: rgba(215,86,49,0.04); }
+        .input-light.input-error:focus { border-color: #D75631; }
+        .field-error {
+          font-size: 12px;
+          line-height: 1.3;
+          color: #D75631;
+        }
         select.input-light {
           appearance: none;
           background-image: linear-gradient(45deg, transparent 50%, #121110 50%), linear-gradient(135deg, #121110 50%, transparent 50%);
@@ -256,13 +308,22 @@ export function ContactSection({
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  error,
+  children,
+}: {
+  label: string;
+  error?: string;
+  children: React.ReactNode;
+}) {
   return (
     <label className="flex flex-col gap-2">
       <span className="text-[11px] font-normal uppercase tracking-[0.18em] text-muted-foreground">
         {label}
       </span>
       {children}
+      {error && <span className="field-error">{error}</span>}
     </label>
   );
 }
