@@ -89,6 +89,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-TC7FD6LM');`;
 
+const CLARITY_SCRIPT = `(function(c,l,a,r,i,t,y){
+c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+})(window, document, "clarity", "script", "xyl21t9jeh");`;
+
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
     meta: [
@@ -143,6 +149,10 @@ function RootShell({ children }: { children: ReactNode }) {
         <script
           id="gtm-head"
           dangerouslySetInnerHTML={{ __html: GTM_HEAD_SCRIPT }}
+        />
+        <script
+          id="ms-clarity"
+          dangerouslySetInnerHTML={{ __html: CLARITY_SCRIPT }}
         />
       </head>
       <body>
