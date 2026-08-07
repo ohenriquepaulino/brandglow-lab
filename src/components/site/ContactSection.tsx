@@ -28,12 +28,14 @@ export function ContactSection({
   hideInstagram = false,
   revenueLabel = "Faturamento mensal",
   formHint,
+  ctaLabel = "Quero começar",
 }: {
   redirectTo?: string;
   redirectToNoRevenue?: string;
   hideInstagram?: boolean;
   revenueLabel?: string;
   formHint?: string;
+  ctaLabel?: string;
 } = {}) {
   const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false);
@@ -266,7 +268,7 @@ export function ContactSection({
                 disabled={submitting}
                 className="mt-2 inline-flex w-fit items-center justify-center rounded-full bg-gradient-to-r from-lime-brand to-[#a8f25a] px-8 py-4 text-sm font-semibold text-ink transition-opacity hover:opacity-90 disabled:opacity-60"
               >
-                {submitting ? "Enviando..." : "Quero começar"}
+                {submitting ? "Enviando..." : ctaLabel}
               </button>
             </form>
           )}
