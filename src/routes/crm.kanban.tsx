@@ -48,17 +48,21 @@ function KanbanPage() {
       return;
     }
     loadLeads();
+    const timer = setInterval(() => {
+      void loadLeads(true);
+    }, 30000);
+    return () => clearInterval(timer);
   }, [navigate]);
 
-  async function loadLeads() {
-    setLoading(true);
+  async function loadLeads(silent = false) {
+    if (!silent) setLoading(true);
     try {
       const data = await apiListLeads();
       setLeads(data);
     } catch (err) {
       console.error(err);
     }
-    setLoading(false);
+    if (!silent) setLoading(false);
   }
 
   function handleLogout() {
@@ -137,14 +141,24 @@ function KanbanPage() {
         style={{ borderColor: "#E0DED9" }}
       >
         <p className="text-sm font-semibold text-neutral-900">Legacy BrandCo.</p>
-        <button
-          onClick={handleLogout}
-          className="rounded-md border px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50"
-          style={{ borderColor: "#E0DED9" }}
-        >
-          Sair
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => void loadLeads()}
+            className="rounded-md border px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50"
+            style={{ borderColor: "#E0DED9" }}
+          >
+            Atualizar
+          </button>
+          <button
+            onClick={handleLogout}
+            className="rounded-md border px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50"
+            style={{ borderColor: "#E0DED9" }}
+          >
+            Sair
+          </button>
+        </div>
       </header>
+
 
       <div className="px-6 pt-5">
         <div className="flex flex-wrap items-end gap-3">
