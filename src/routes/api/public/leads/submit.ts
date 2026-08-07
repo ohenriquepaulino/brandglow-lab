@@ -36,6 +36,7 @@ async function notify(origin: string, lead: z.infer<typeof LeadSchema>) {
         templateName: "new-lead",
         templateData: {
           ...lead,
+          instagram: lead.instagram?.trim() ? lead.instagram : "—",
           recebido_em: new Date().toLocaleString("pt-BR", {
             timeZone: "America/Sao_Paulo",
           }),
