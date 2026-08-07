@@ -335,6 +335,8 @@ function AdsPage() {
           border-radius: 12px; overflow: hidden; break-inside: avoid;
         }
         .ads-shot img { display: block; width: 100%; height: auto; }
+        .ads-shot-link { display: block; text-decoration: none; color: inherit; break-inside: avoid; }
+        .ads-slider-link { display: block; }
         .ads-fit { display: grid; gap: 32px; }
         .ads-fit-col-right { border-top: 1px solid rgba(18,17,16,0.1); padding-top: 32px; }
         .ads-list { list-style: none; margin: 16px 0 0; padding: 0; }
