@@ -394,7 +394,8 @@ function AdsPage() {
           .ads-testimonials {
             display: block; columns: 2; column-gap: 24px;
           }
-          .ads-shot { margin-bottom: 24px; display: inline-block; width: 100%; }
+          .ads-shot { margin-bottom: 0; }
+          .ads-shot-link { margin-bottom: 24px; display: inline-block; width: 100%; }
           .ads-diag { grid-template-columns: repeat(3, 1fr); gap: 48px; }
           .ads-cta { width: auto; }
         }
