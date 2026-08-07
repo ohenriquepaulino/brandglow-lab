@@ -109,6 +109,7 @@ function FormSlot() {
         redirectToNoRevenue="/tks"
         hideInstagram
         revenueLabel="Faturamento mensal da empresa"
+        formHint="Preencha com suas informações"
       />
     </div>
   );
