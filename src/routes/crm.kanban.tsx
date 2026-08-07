@@ -48,17 +48,21 @@ function KanbanPage() {
       return;
     }
     loadLeads();
+    const timer = setInterval(() => {
+      void loadLeads(true);
+    }, 30000);
+    return () => clearInterval(timer);
   }, [navigate]);
 
-  async function loadLeads() {
-    setLoading(true);
+  async function loadLeads(silent = false) {
+    if (!silent) setLoading(true);
     try {
       const data = await apiListLeads();
       setLeads(data);
     } catch (err) {
       console.error(err);
     }
-    setLoading(false);
+    if (!silent) setLoading(false);
   }
 
   function handleLogout() {
