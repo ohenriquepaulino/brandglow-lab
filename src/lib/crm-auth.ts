@@ -1,5 +1,11 @@
 export const CRM_USER = "legacybrandco";
 export const CRM_PASS = "Henrique05!!.";
+
+const CRM_USERS: { user: string; pass: string }[] = [
+  { user: CRM_USER, pass: CRM_PASS },
+  { user: "lais", pass: "Henrique05!!." },
+];
+
 const KEY = "lbc_crm_auth";
 
 export function isCrmAuthed(): boolean {
@@ -8,12 +14,15 @@ export function isCrmAuthed(): boolean {
 }
 
 export function crmLogin(user: string, pass: string): boolean {
-  if (user.trim() === CRM_USER && pass === CRM_PASS) {
+  const u = user.trim().toLowerCase();
+  const ok = CRM_USERS.some((c) => c.user.toLowerCase() === u && c.pass === pass);
+  if (ok) {
     sessionStorage.setItem(KEY, "1");
     return true;
   }
   return false;
 }
+
 
 export function crmLogout() {
   sessionStorage.removeItem(KEY);
