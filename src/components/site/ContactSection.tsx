@@ -16,7 +16,19 @@ function maskInstagram(value: string) {
   return cleaned ? `@${cleaned}` : "";
 }
 
-export function ContactSection({ redirectTo }: { redirectTo?: string } = {}) {
+export const NO_REVENUE_OPTION = "Ainda não estou faturando";
+
+export function ContactSection({
+  redirectTo,
+  redirectToNoRevenue,
+  hideInstagram = false,
+  revenueLabel = "Faturamento mensal",
+}: {
+  redirectTo?: string;
+  redirectToNoRevenue?: string;
+  hideInstagram?: boolean;
+  revenueLabel?: string;
+} = {}) {
   const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false);
   const [name, setName] = useState("");
@@ -35,8 +47,8 @@ export function ContactSection({ redirectTo }: { redirectTo?: string } = {}) {
     [phone],
   );
   const instagramValid = useMemo(
-    () => instagram.replace(/[^A-Za-z0-9._]/g, "").length >= 2,
-    [instagram],
+    () => hideInstagram || instagram.replace(/[^A-Za-z0-9._]/g, "").length >= 2,
+    [hideInstagram, instagram],
   );
 
   const [submitting, setSubmitting] = useState(false);
@@ -58,8 +70,9 @@ export function ContactSection({ redirectTo }: { redirectTo?: string } = {}) {
         body: JSON.stringify({
           nome: name.trim(),
           whatsapp: phone,
-          instagram,
+          instagram: hideInstagram ? null : instagram,
           faturamento: revenue,
+          skip_meta: revenue === NO_REVENUE_OPTION,
           utm_source: utms.utm_source ?? null,
           utm_medium: utms.utm_medium ?? null,
           utm_campaign: utms.utm_campaign ?? null,
@@ -71,7 +84,10 @@ export function ContactSection({ redirectTo }: { redirectTo?: string } = {}) {
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-      if (redirectTo) {
+      const noRevenue = revenue === NO_REVENUE_OPTION;
+      const target = noRevenue ? (redirectToNoRevenue ?? redirectTo) : redirectTo;
+
+      if (target) {
         // O evento Lead do navegador dispara na pagina de obrigado,
         // com o mesmo event_id enviado a Conversions API (deduplicacao).
         const search: Record<string, string> = { ev: eventId };
@@ -79,12 +95,12 @@ export function ContactSection({ redirectTo }: { redirectTo?: string } = {}) {
           const v = utms[k];
           if (v) search[k] = v;
         });
-        navigate({ to: redirectTo, search });
+        navigate({ to: target, search });
         return;
       }
 
       const fbq = (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq;
-      if (typeof fbq === "function") {
+      if (!noRevenue && typeof fbq === "function") {
         fbq("track", "Lead", {}, { eventID: eventId });
       }
       setSubmitted(true);
@@ -156,20 +172,22 @@ export function ContactSection({ redirectTo }: { redirectTo?: string } = {}) {
                     placeholder="(00) 00000-0000"
                   />
                 </Field>
-                <Field label="@ do Instagram">
-                  <input
-                    required
-                    type="text"
-                    name="instagram"
-                    value={instagram}
-                    onChange={(e) => setInstagram(maskInstagram(e.target.value))}
-                    minLength={3}
-                    maxLength={31}
-                    className="input-light"
-                    placeholder="@suamarca"
-                  />
-                </Field>
-                <Field label="Faturamento mensal">
+                {!hideInstagram && (
+                  <Field label="@ do Instagram">
+                    <input
+                      required
+                      type="text"
+                      name="instagram"
+                      value={instagram}
+                      onChange={(e) => setInstagram(maskInstagram(e.target.value))}
+                      minLength={3}
+                      maxLength={31}
+                      className="input-light"
+                      placeholder="@suamarca"
+                    />
+                  </Field>
+                )}
+                <Field label={revenueLabel}>
                   <select
                     required
                     name="revenue"
@@ -180,6 +198,7 @@ export function ContactSection({ redirectTo }: { redirectTo?: string } = {}) {
                     <option value="" disabled>
                       Selecione uma faixa
                     </option>
+                    <option>{NO_REVENUE_OPTION}</option>
                     <option>De R$ 6.000 a R$ 10.000</option>
                     <option>De R$ 10.000 a R$ 20.000</option>
                     <option>Acima de R$ 20.000</option>

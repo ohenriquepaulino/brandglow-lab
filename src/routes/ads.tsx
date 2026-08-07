@@ -93,7 +93,12 @@ function Label({ children }: { children: React.ReactNode }) {
 function FormSlot() {
   return (
     <div className="ads-card ads-form-slot">
-      <ContactSection redirectTo="/obrigado" />
+      <ContactSection
+        redirectTo="/obrigado"
+        redirectToNoRevenue="/tks"
+        hideInstagram
+        revenueLabel="Faturamento mensal da empresa"
+      />
     </div>
   );
 }
