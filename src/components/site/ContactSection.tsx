@@ -288,6 +288,13 @@ export function ContactSection({
         }
         .input-light::placeholder { color: #9c9a94; }
         .input-light:focus { border-color: #121110; }
+        .input-light.input-error { border-color: #D75631; background: rgba(215,86,49,0.04); }
+        .input-light.input-error:focus { border-color: #D75631; }
+        .field-error {
+          font-size: 12px;
+          line-height: 1.3;
+          color: #D75631;
+        }
         select.input-light {
           appearance: none;
           background-image: linear-gradient(45deg, transparent 50%, #121110 50%), linear-gradient(135deg, #121110 50%, transparent 50%);
