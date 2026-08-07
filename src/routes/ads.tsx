@@ -210,7 +210,7 @@ function AdsPage() {
             <div className="ads-testimonials">
               {depoimentos.map((d) => (
                 <figure key={d.src} className="ads-shot ads-shot-dark">
-                  <img src={d.src} alt={d.alt} loading="lazy" decoding="async" />
+                  <img src={d.src} alt={d.alt} width={d.w} height={d.h} loading="lazy" decoding="async" />
                 </figure>
               ))}
             </div>
