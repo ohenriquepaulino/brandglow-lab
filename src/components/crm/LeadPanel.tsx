@@ -5,6 +5,7 @@ import {
   formatDateTime,
   instagramHandle,
   instagramHref,
+  isSemFaturamento,
   whatsappHref,
   type Lead,
   type Movimentacao,
@@ -93,17 +94,27 @@ export function LeadPanel({
               </a>
             </div>
           </Row>
-          <Row label="Instagram">
-            <a
-              href={instagramHref(lead.instagram)}
-              target="_blank"
-              rel="noreferrer"
-              className="text-neutral-900 hover:underline"
-            >
-              @{instagramHandle(lead.instagram)}
-            </a>
+          {lead.instagram?.trim() && (
+            <Row label="Instagram">
+              <a
+                href={instagramHref(lead.instagram)}
+                target="_blank"
+                rel="noreferrer"
+                className="text-neutral-900 hover:underline"
+              >
+                @{instagramHandle(lead.instagram)}
+              </a>
+            </Row>
+          )}
+          <Row label="Faturamento">
+            {isSemFaturamento(lead) ? (
+              <span className="inline-flex items-center rounded-full bg-red-600 px-2 py-0.5 text-[11px] font-semibold text-white">
+                {lead.faturamento}
+              </span>
+            ) : (
+              lead.faturamento
+            )}
           </Row>
-          <Row label="Faturamento">{lead.faturamento}</Row>
           <Row label="Entrada">{formatDateTime(lead.criado_em)}</Row>
         </dl>
 
