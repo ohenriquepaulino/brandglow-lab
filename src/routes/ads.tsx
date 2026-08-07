@@ -185,6 +185,30 @@ function AdsPage() {
           </div>
         </section>
 
+        {/* Depoimentos */}
+        <section className="ads-section ads-section-dark">
+          <div className="ads-container">
+            <Label>DEPOIMENTOS</Label>
+            <h2 className="ads-h2">
+              O que dizem sobre o <strong>nosso trabalho</strong>
+            </h2>
+            <div className="ads-testimonials">
+              {depoimentos.map((d) => (
+                <a key={d.src} href="#formulario" className="ads-shot-link">
+                  <figure className="ads-shot ads-shot-dark">
+                    <img src={d.src} alt={d.alt} width={d.w} height={d.h} loading="lazy" decoding="async" />
+                  </figure>
+                </a>
+              ))}
+            </div>
+            <div className="ads-cta-row">
+              <a href="#formulario" className="ads-cta">
+                Quero saber mais
+              </a>
+            </div>
+          </div>
+        </section>
+
         {/* Método 80/20 */}
         <section className="ads-section">
           <div className="ads-container ads-method">
@@ -206,54 +230,39 @@ function AdsPage() {
           </div>
         </section>
 
-        {/* Depoimentos */}
-        <section className="ads-section ads-section-dark">
-          <div className="ads-container">
-            <Label>DEPOIMENTOS</Label>
-            <h2 className="ads-h2">
-              O que dizem sobre o <strong>nosso trabalho</strong>
-            </h2>
-            <div className="ads-testimonials">
-              {depoimentos.map((d) => (
-                <figure key={d.src} className="ads-shot ads-shot-dark">
-                  <img src={d.src} alt={d.alt} width={d.w} height={d.h} loading="lazy" decoding="async" />
-                </figure>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Como funciona a conversa */}
-        <section className="ads-section">
-          <div className="ads-container">
-            <Label>O DIAGNÓSTICO</Label>
-            <div className="ads-diag">
-              <div>
-                <span className="ads-diag-num">01</span>
-                <p className="ads-body">
-                  Você preenche o formulário. Leva{" "}
-                  <strong>menos de um minuto</strong>.
-                </p>
-              </div>
-              <div>
-                <span className="ads-diag-num">02</span>
-                <p className="ads-body">
-                  <strong>Analisamos seu perfil</strong> antes da conversa.
-                  Chegamos sabendo do que se trata.
-                </p>
-              </div>
-              <div>
-                <span className="ads-diag-num">03</span>
-                <p className="ads-body">
-                  Sessão de <strong>40 minutos por vídeo</strong>. Mostramos{" "}
-                  <strong>onde sua marca está perdendo valor</strong> e o que
-                  precisa ser resolvido primeiro. Você sai com essa leitura,
-                  contratando ou não.
-                </p>
+        {/* Como funciona a conversa (oculta, pode ser reativada) */}
+        {false && (
+          <section className="ads-section">
+            <div className="ads-container">
+              <Label>O DIAGNÓSTICO</Label>
+              <div className="ads-diag">
+                <div>
+                  <span className="ads-diag-num">01</span>
+                  <p className="ads-body">
+                    Você preenche o formulário. Leva{" "}
+                    <strong>menos de um minuto</strong>.
+                  </p>
+                </div>
+                <div>
+                  <span className="ads-diag-num">02</span>
+                  <p className="ads-body">
+                    <strong>Analisamos seu perfil</strong> antes da conversa.
+                    Chegamos sabendo do que se trata.
+                  </p>
+                </div>
+                <div>
+                  <span className="ads-diag-num">03</span>
+                  <p className="ads-body">
+                    Sessão de <strong>40 minutos por vídeo</strong>. Mostramos{" "}
+                    <strong>onde sua marca está perdendo valor</strong> e o que
+                    precisa ser resolvido primeiro. Você sai com essa leitura,
+                    contratando ou não.
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* Formulário final */}
         <section id="formulario" className="ads-section ads-last">
