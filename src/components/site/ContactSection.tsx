@@ -364,7 +364,35 @@ export function ContactSection({
           background-repeat: no-repeat;
           padding-right: 2.5rem;
         }
+        .suggest-wrap { position: relative; }
+        .suggest-list {
+          position: absolute;
+          z-index: 30;
+          top: calc(100% + 4px);
+          left: 0;
+          right: 0;
+          margin: 0;
+          padding: 4px;
+          list-style: none;
+          background: #fff;
+          border: 1px solid #d0cec9;
+          border-radius: 10px;
+          box-shadow: 0 8px 24px rgba(18,17,16,0.08);
+          max-height: 220px;
+          overflow-y: auto;
+        }
+        .suggest-item {
+          padding: 0.5rem 0.65rem;
+          border-radius: 7px;
+          font-size: 14px;
+          color: #121110;
+          cursor: pointer;
+        }
+        .suggest-item[aria-selected="true"], .suggest-item:hover {
+          background: #f4f2ef;
+        }
       `}</style>
+
     </section>
   );
 }
