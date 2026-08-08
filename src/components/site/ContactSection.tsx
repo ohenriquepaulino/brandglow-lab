@@ -64,6 +64,7 @@ export function ContactSection({
   revenueLabel = "Faturamento mensal",
   formHint,
   ctaLabel = "Quero começar",
+  showProfession = false,
 }: {
   redirectTo?: string;
   redirectToNoRevenue?: string;
@@ -71,6 +72,7 @@ export function ContactSection({
   revenueLabel?: string;
   formHint?: string;
   ctaLabel?: string;
+  showProfession?: boolean;
 } = {}) {
   const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false);
@@ -78,6 +80,7 @@ export function ContactSection({
   const [phone, setPhone] = useState("");
   const [instagram, setInstagram] = useState("@");
   const [revenue, setRevenue] = useState("");
+  const [profession, setProfession] = useState("");
   const [utms, setUtms] = useState<UtmData>({});
   const [attempted, setAttempted] = useState(false);
 
@@ -95,10 +98,15 @@ export function ContactSection({
     [hideInstagram, instagram],
   );
   const revenueValid = useMemo(() => revenue.length > 0, [revenue]);
-  const formValid = useMemo(
-    () => nameValid && phoneValid && instagramValid && revenueValid,
-    [nameValid, phoneValid, instagramValid, revenueValid],
+  const professionValid = useMemo(
+    () => !showProfession || profession.trim().length >= 2,
+    [showProfession, profession],
   );
+  const formValid = useMemo(
+    () => nameValid && phoneValid && instagramValid && revenueValid && professionValid,
+    [nameValid, phoneValid, instagramValid, revenueValid, professionValid],
+  );
+
 
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
