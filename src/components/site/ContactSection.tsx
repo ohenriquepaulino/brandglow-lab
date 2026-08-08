@@ -289,7 +289,9 @@ export function ContactSection({
                     <option>De R$ 10.000 a R$ 20.000</option>
                     <option>Acima de R$ 20.000</option>
                   </select>
+                </Field>
                 {showProfession && (
+
                   <ProfessionField
                     value={profession}
                     onChange={setProfession}
