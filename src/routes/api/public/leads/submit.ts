@@ -154,6 +154,8 @@ export const Route = createFileRoute("/api/public/leads/submit")({
           whatsapp: parsed.whatsapp,
           instagram: parsed.instagram?.trim() ? parsed.instagram : null,
           faturamento: parsed.faturamento,
+          profissao: parsed.profissao?.trim() ? parsed.profissao.trim() : null,
+
           utm_source: parsed.utm_source ?? null,
           utm_medium: parsed.utm_medium ?? null,
           utm_campaign: parsed.utm_campaign ?? null,
