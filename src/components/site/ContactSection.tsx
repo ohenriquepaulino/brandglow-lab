@@ -1,6 +1,41 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { UTM_KEYS, captureUtmsFromUrl, type UtmData } from "@/lib/utm";
+
+const PROFISSOES = [
+  "Advocacia",
+  "Arquitetura",
+  "Estética e beleza",
+  "Odontologia",
+  "Medicina",
+  "Nutrição",
+  "Psicologia",
+  "Fisioterapia",
+  "Personal trainer",
+  "Contabilidade",
+  "Consultoria",
+  "Marketing",
+  "Infoprodutos",
+  "Moda",
+  "Alimentação e restaurantes",
+  "Imobiliário",
+  "Construção civil",
+  "Educação",
+  "Tecnologia",
+  "E-commerce",
+  "Turismo",
+  "Pet",
+  "Eventos",
+  "Outro",
+];
+
+function normalize(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
 
 function maskPhone(value: string) {
   const digits = value.replace(/\D/g, "").slice(0, 11);
