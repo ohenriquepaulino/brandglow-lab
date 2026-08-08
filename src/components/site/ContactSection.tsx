@@ -289,8 +289,20 @@ export function ContactSection({
                     <option>De R$ 10.000 a R$ 20.000</option>
                     <option>Acima de R$ 20.000</option>
                   </select>
-                </Field>
+                {showProfession && (
+                  <ProfessionField
+                    value={profession}
+                    onChange={setProfession}
+                    error={
+                      attempted && !professionValid
+                        ? "Informe sua área de atuação"
+                        : undefined
+                    }
+                    invalid={attempted && !professionValid}
+                  />
+                )}
               </div>
+
 
               {UTM_KEYS.map((k) =>
                 utms[k] ? (
