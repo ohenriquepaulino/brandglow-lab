@@ -7,6 +7,8 @@ const LeadSchema = z.object({
   whatsapp: z.string().trim().min(10).max(20),
   instagram: z.string().trim().max(40).nullish(),
   faturamento: z.string().trim().min(1).max(80),
+  profissao: z.string().trim().max(80).nullish(),
+
   utm_source: z.string().max(120).nullish(),
   utm_medium: z.string().max(120).nullish(),
   utm_campaign: z.string().max(120).nullish(),
