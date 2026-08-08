@@ -32,6 +32,8 @@ const NewLeadEmail = ({
   whatsapp = "—",
   instagram = "—",
   faturamento = "—",
+  profissao = "—",
+
   utm_source,
   utm_medium,
   utm_campaign,
