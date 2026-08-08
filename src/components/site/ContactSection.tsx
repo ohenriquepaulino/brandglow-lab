@@ -133,6 +133,8 @@ export function ContactSection({
           whatsapp: phone,
           instagram: hideInstagram ? null : instagram,
           faturamento: revenue,
+          profissao: showProfession ? profession.trim() : null,
+
           skip_meta: revenue === NO_REVENUE_OPTION,
           utm_source: utms.utm_source ?? null,
           utm_medium: utms.utm_medium ?? null,
