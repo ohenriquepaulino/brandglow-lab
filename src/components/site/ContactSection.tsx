@@ -416,3 +416,108 @@ function Field({
     </label>
   );
 }
+
+function ProfessionField({
+  value,
+  onChange,
+  error,
+  invalid,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  error?: string;
+  invalid?: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(-1);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  const options = useMemo(() => {
+    const q = normalize(value.trim());
+    if (q.length < 2) return [];
+    return PROFISSOES.filter((p) => normalize(p).includes(q))
+      .filter((p) => normalize(p) !== q)
+      .slice(0, 6);
+  }, [value]);
+
+  useEffect(() => {
+    function onDocClick(e: MouseEvent) {
+      if (!wrapRef.current?.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, []);
+
+  function select(option: string) {
+    onChange(option);
+    setOpen(false);
+    setActive(-1);
+  }
+
+  const showList = open && options.length > 0;
+
+  return (
+    <Field label="Qual é a sua principal área de atuação?" error={error}>
+      <div className="suggest-wrap" ref={wrapRef}>
+        <input
+          required
+          type="text"
+          name="profissao"
+          value={value}
+          onChange={(e) => {
+            onChange(e.target.value.slice(0, 80));
+            setOpen(true);
+            setActive(-1);
+          }}
+          onFocus={() => setOpen(true)}
+          onKeyDown={(e) => {
+            if (!showList) return;
+            if (e.key === "ArrowDown") {
+              e.preventDefault();
+              setActive((i) => (i + 1) % options.length);
+            } else if (e.key === "ArrowUp") {
+              e.preventDefault();
+              setActive((i) => (i <= 0 ? options.length - 1 : i - 1));
+            } else if (e.key === "Enter" && active >= 0) {
+              e.preventDefault();
+              select(options[active]!);
+            } else if (e.key === "Escape") {
+              setOpen(false);
+            }
+          }}
+          autoComplete="off"
+          maxLength={80}
+          role="combobox"
+          aria-expanded={showList}
+          aria-autocomplete="list"
+          aria-controls="profissao-suggest"
+          aria-activedescendant={
+            showList && active >= 0 ? `profissao-opt-${active}` : undefined
+          }
+          className={inputClass(!invalid)}
+          placeholder="Ex.: Odontologia, Advocacia, Moda..."
+          aria-invalid={invalid}
+        />
+        {showList && (
+          <ul className="suggest-list" id="profissao-suggest" role="listbox">
+            {options.map((option, i) => (
+              <li
+                key={option}
+                id={`profissao-opt-${i}`}
+                role="option"
+                aria-selected={i === active}
+                className="suggest-item"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  select(option);
+                }}
+              >
+                {option}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </Field>
+  );
+}
