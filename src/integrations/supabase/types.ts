@@ -142,6 +142,7 @@ export type Database = {
           id: string
           instagram: string | null
           nome: string
+          profissao: string | null
           utm_campaign: string | null
           utm_content: string | null
           utm_medium: string | null
@@ -157,6 +158,7 @@ export type Database = {
           id?: string
           instagram?: string | null
           nome: string
+          profissao?: string | null
           utm_campaign?: string | null
           utm_content?: string | null
           utm_medium?: string | null
@@ -172,6 +174,7 @@ export type Database = {
           id?: string
           instagram?: string | null
           nome?: string
+          profissao?: string | null
           utm_campaign?: string | null
           utm_content?: string | null
           utm_medium?: string | null

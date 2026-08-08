@@ -115,6 +115,10 @@ export function LeadPanel({
               lead.faturamento
             )}
           </Row>
+          {lead.profissao?.trim() && (
+            <Row label="Área de atuação">{lead.profissao}</Row>
+          )}
+
           <Row label="Entrada">{formatDateTime(lead.criado_em)}</Row>
         </dl>
 

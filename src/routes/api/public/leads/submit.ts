@@ -7,6 +7,8 @@ const LeadSchema = z.object({
   whatsapp: z.string().trim().min(10).max(20),
   instagram: z.string().trim().max(40).nullish(),
   faturamento: z.string().trim().min(1).max(80),
+  profissao: z.string().trim().max(80).nullish(),
+
   utm_source: z.string().max(120).nullish(),
   utm_medium: z.string().max(120).nullish(),
   utm_campaign: z.string().max(120).nullish(),
@@ -37,6 +39,8 @@ async function notify(origin: string, lead: z.infer<typeof LeadSchema>) {
         templateData: {
           ...lead,
           instagram: lead.instagram?.trim() ? lead.instagram : "—",
+          profissao: lead.profissao?.trim() ? lead.profissao : "—",
+
           recebido_em: new Date().toLocaleString("pt-BR", {
             timeZone: "America/Sao_Paulo",
           }),
@@ -152,6 +156,8 @@ export const Route = createFileRoute("/api/public/leads/submit")({
           whatsapp: parsed.whatsapp,
           instagram: parsed.instagram?.trim() ? parsed.instagram : null,
           faturamento: parsed.faturamento,
+          profissao: parsed.profissao?.trim() ? parsed.profissao.trim() : null,
+
           utm_source: parsed.utm_source ?? null,
           utm_medium: parsed.utm_medium ?? null,
           utm_campaign: parsed.utm_campaign ?? null,

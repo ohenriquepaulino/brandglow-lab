@@ -1,6 +1,41 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { UTM_KEYS, captureUtmsFromUrl, type UtmData } from "@/lib/utm";
+
+const PROFISSOES = [
+  "Advocacia",
+  "Arquitetura",
+  "Estética e beleza",
+  "Odontologia",
+  "Medicina",
+  "Nutrição",
+  "Psicologia",
+  "Fisioterapia",
+  "Personal trainer",
+  "Contabilidade",
+  "Consultoria",
+  "Marketing",
+  "Infoprodutos",
+  "Moda",
+  "Alimentação e restaurantes",
+  "Imobiliário",
+  "Construção civil",
+  "Educação",
+  "Tecnologia",
+  "E-commerce",
+  "Turismo",
+  "Pet",
+  "Eventos",
+  "Outro",
+];
+
+function normalize(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
 
 function maskPhone(value: string) {
   const digits = value.replace(/\D/g, "").slice(0, 11);
@@ -29,6 +64,7 @@ export function ContactSection({
   revenueLabel = "Faturamento mensal",
   formHint,
   ctaLabel = "Quero começar",
+  showProfession = false,
 }: {
   redirectTo?: string;
   redirectToNoRevenue?: string;
@@ -36,6 +72,7 @@ export function ContactSection({
   revenueLabel?: string;
   formHint?: string;
   ctaLabel?: string;
+  showProfession?: boolean;
 } = {}) {
   const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false);
@@ -43,6 +80,7 @@ export function ContactSection({
   const [phone, setPhone] = useState("");
   const [instagram, setInstagram] = useState("@");
   const [revenue, setRevenue] = useState("");
+  const [profession, setProfession] = useState("");
   const [utms, setUtms] = useState<UtmData>({});
   const [attempted, setAttempted] = useState(false);
 
@@ -60,10 +98,15 @@ export function ContactSection({
     [hideInstagram, instagram],
   );
   const revenueValid = useMemo(() => revenue.length > 0, [revenue]);
-  const formValid = useMemo(
-    () => nameValid && phoneValid && instagramValid && revenueValid,
-    [nameValid, phoneValid, instagramValid, revenueValid],
+  const professionValid = useMemo(
+    () => !showProfession || profession.trim().length >= 2,
+    [showProfession, profession],
   );
+  const formValid = useMemo(
+    () => nameValid && phoneValid && instagramValid && revenueValid && professionValid,
+    [nameValid, phoneValid, instagramValid, revenueValid, professionValid],
+  );
+
 
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -90,6 +133,8 @@ export function ContactSection({
           whatsapp: phone,
           instagram: hideInstagram ? null : instagram,
           faturamento: revenue,
+          profissao: showProfession ? profession.trim() : null,
+
           skip_meta: revenue === NO_REVENUE_OPTION,
           utm_source: utms.utm_source ?? null,
           utm_medium: utms.utm_medium ?? null,
@@ -245,7 +290,21 @@ export function ContactSection({
                     <option>Acima de R$ 20.000</option>
                   </select>
                 </Field>
+                {showProfession && (
+
+                  <ProfessionField
+                    value={profession}
+                    onChange={setProfession}
+                    error={
+                      attempted && !professionValid
+                        ? "Informe sua área de atuação"
+                        : undefined
+                    }
+                    invalid={attempted && !professionValid}
+                  />
+                )}
               </div>
+
 
               {UTM_KEYS.map((k) =>
                 utms[k] ? (
@@ -305,7 +364,35 @@ export function ContactSection({
           background-repeat: no-repeat;
           padding-right: 2.5rem;
         }
+        .suggest-wrap { position: relative; }
+        .suggest-list {
+          position: absolute;
+          z-index: 30;
+          top: calc(100% + 4px);
+          left: 0;
+          right: 0;
+          margin: 0;
+          padding: 4px;
+          list-style: none;
+          background: #fff;
+          border: 1px solid #d0cec9;
+          border-radius: 10px;
+          box-shadow: 0 8px 24px rgba(18,17,16,0.08);
+          max-height: 220px;
+          overflow-y: auto;
+        }
+        .suggest-item {
+          padding: 0.5rem 0.65rem;
+          border-radius: 7px;
+          font-size: 14px;
+          color: #121110;
+          cursor: pointer;
+        }
+        .suggest-item[aria-selected="true"], .suggest-item:hover {
+          background: #f4f2ef;
+        }
       `}</style>
+
     </section>
   );
 }
@@ -327,5 +414,110 @@ function Field({
       {children}
       {error && <span className="field-error">{error}</span>}
     </label>
+  );
+}
+
+function ProfessionField({
+  value,
+  onChange,
+  error,
+  invalid,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  error?: string;
+  invalid?: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(-1);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  const options = useMemo(() => {
+    const q = normalize(value.trim());
+    if (q.length < 2) return [];
+    return PROFISSOES.filter((p) => normalize(p).includes(q))
+      .filter((p) => normalize(p) !== q)
+      .slice(0, 6);
+  }, [value]);
+
+  useEffect(() => {
+    function onDocClick(e: MouseEvent) {
+      if (!wrapRef.current?.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, []);
+
+  function select(option: string) {
+    onChange(option);
+    setOpen(false);
+    setActive(-1);
+  }
+
+  const showList = open && options.length > 0;
+
+  return (
+    <Field label="Qual é a sua principal área de atuação?" error={error}>
+      <div className="suggest-wrap" ref={wrapRef}>
+        <input
+          required
+          type="text"
+          name="profissao"
+          value={value}
+          onChange={(e) => {
+            onChange(e.target.value.slice(0, 80));
+            setOpen(true);
+            setActive(-1);
+          }}
+          onFocus={() => setOpen(true)}
+          onKeyDown={(e) => {
+            if (!showList) return;
+            if (e.key === "ArrowDown") {
+              e.preventDefault();
+              setActive((i) => (i + 1) % options.length);
+            } else if (e.key === "ArrowUp") {
+              e.preventDefault();
+              setActive((i) => (i <= 0 ? options.length - 1 : i - 1));
+            } else if (e.key === "Enter" && active >= 0) {
+              e.preventDefault();
+              select(options[active]!);
+            } else if (e.key === "Escape") {
+              setOpen(false);
+            }
+          }}
+          autoComplete="off"
+          maxLength={80}
+          role="combobox"
+          aria-expanded={showList}
+          aria-autocomplete="list"
+          aria-controls="profissao-suggest"
+          aria-activedescendant={
+            showList && active >= 0 ? `profissao-opt-${active}` : undefined
+          }
+          className={inputClass(!invalid)}
+          placeholder="Ex.: Odontologia, Advocacia, Moda..."
+          aria-invalid={invalid}
+        />
+        {showList && (
+          <ul className="suggest-list" id="profissao-suggest" role="listbox">
+            {options.map((option, i) => (
+              <li
+                key={option}
+                id={`profissao-opt-${i}`}
+                role="option"
+                aria-selected={i === active}
+                className="suggest-item"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  select(option);
+                }}
+              >
+                {option}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </Field>
   );
 }

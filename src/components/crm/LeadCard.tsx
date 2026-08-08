@@ -68,6 +68,10 @@ export function LeadCard({
         <div className="flex items-start justify-between gap-2">
           <p className="text-sm font-semibold text-neutral-900">{lead.nome}</p>
         </div>
+        {lead.profissao?.trim() && (
+          <p className="mt-1 text-xs text-neutral-500">{lead.profissao}</p>
+        )}
+
         <div className="mt-2 flex flex-wrap gap-1.5">
           <span
             className={

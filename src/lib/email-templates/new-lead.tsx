@@ -17,6 +17,8 @@ interface Props {
   whatsapp?: string;
   instagram?: string;
   faturamento?: string;
+  profissao?: string;
+
   utm_source?: string | null;
   utm_medium?: string | null;
   utm_campaign?: string | null;
@@ -30,6 +32,8 @@ const NewLeadEmail = ({
   whatsapp = "—",
   instagram = "—",
   faturamento = "—",
+  profissao = "—",
+
   utm_source,
   utm_medium,
   utm_campaign,
@@ -64,6 +68,8 @@ const NewLeadEmail = ({
           <Row label="WhatsApp" value={whatsapp} />
           <Row label="Instagram" value={instagram} />
           <Row label="Faturamento mensal" value={faturamento} />
+          <Row label="Área de atuação" value={profissao} />
+
 
           {utms.length > 0 && (
             <>
@@ -105,6 +111,8 @@ export const template = {
     whatsapp: "(11) 99999-0000",
     instagram: "@maria.marca",
     faturamento: "De R$ 10.000 a R$ 20.000",
+    profissao: "Odontologia",
+
     utm_source: "instagram",
     utm_medium: "bio",
     utm_campaign: "lancamento",
