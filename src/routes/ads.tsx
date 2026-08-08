@@ -110,10 +110,12 @@ function FormSlot() {
         redirectTo="/obrigado"
         redirectToNoRevenue="/tks"
         hideInstagram
+        showProfession
         revenueLabel="Faturamento mensal da empresa"
         formHint="Preencha com suas informações para entender como funciona"
         ctaLabel="Quero saber mais"
       />
+
     </div>
   );
 }
