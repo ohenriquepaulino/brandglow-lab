@@ -111,6 +111,8 @@ export const template = {
     whatsapp: "(11) 99999-0000",
     instagram: "@maria.marca",
     faturamento: "De R$ 10.000 a R$ 20.000",
+    profissao: "Odontologia",
+
     utm_source: "instagram",
     utm_medium: "bio",
     utm_campaign: "lancamento",
