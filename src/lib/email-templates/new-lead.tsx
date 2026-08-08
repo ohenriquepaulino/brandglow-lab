@@ -68,6 +68,8 @@ const NewLeadEmail = ({
           <Row label="WhatsApp" value={whatsapp} />
           <Row label="Instagram" value={instagram} />
           <Row label="Faturamento mensal" value={faturamento} />
+          <Row label="Área de atuação" value={profissao} />
+
 
           {utms.length > 0 && (
             <>
