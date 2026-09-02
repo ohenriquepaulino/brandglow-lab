@@ -213,6 +213,17 @@ function KanbanPage() {
           >
             Limpar filtros
           </button>
+          <button
+            onClick={() => setShowPerdidos((v) => !v)}
+            aria-pressed={showPerdidos}
+            className="rounded-md border px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+            style={{
+              borderColor: "#E0DED9",
+              background: showPerdidos ? "#ECE9E4" : undefined,
+            }}
+          >
+            {showPerdidos ? "Ocultar perdidos" : "Ver perdidos"}
+          </button>
           <div className="ml-auto text-xs text-neutral-500">
             {filtered.length} de {leads.length} leads
           </div>
@@ -225,7 +236,7 @@ function KanbanPage() {
         ) : (
           <DndContext sensors={sensors} onDragEnd={onDragEnd}>
             <div className="flex gap-4 overflow-x-auto pb-6">
-              {COLUNAS.map((col) => {
+              {(showPerdidos ? [...COLUNAS, COLUNA_PERDIDO] : COLUNAS).map((col) => {
                 const items = filtered.filter((l) => l.coluna === col.id);
                 return (
                   <Column
@@ -236,11 +247,20 @@ function KanbanPage() {
                     count={items.length}
                   >
                     {items.map((l) => (
-                      <LeadCard key={l.id} lead={l} onOpen={setOpened} onDelete={handleDelete} />
+                      <LeadCard
+                        key={l.id}
+                        lead={l}
+                        onOpen={setOpened}
+                        onDelete={handleDelete}
+                        onMove={(lead, coluna) => void moveLead(lead.id, coluna)}
+                      />
                     ))}
                   </Column>
                 );
               })}
+            </div>
+          </DndContext>
+        )}
             </div>
           </DndContext>
         )}
