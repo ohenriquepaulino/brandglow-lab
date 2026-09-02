@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { apiListHistorico, apiUpdateAnotacoes } from "@/lib/crm-api";
 import {
-  COLUNAS,
+  TODAS_COLUNAS,
   formatDateTime,
   instagramHandle,
   instagramHref,
