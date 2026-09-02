@@ -39,6 +39,7 @@ function KanbanPage() {
   const [fFat, setFFat] = useState("");
   const [fUtm, setFUtm] = useState("");
   const [search, setSearch] = useState("");
+  const [showPerdidos, setShowPerdidos] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
