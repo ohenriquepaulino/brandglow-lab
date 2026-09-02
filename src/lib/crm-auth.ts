@@ -29,15 +29,33 @@ export function crmLogout() {
 }
 
 export const COLUNAS = [
-  { id: "novo-lead", label: "Novo lead", accent: "#D75631" },
-  { id: "contato-feito", label: "Contato feito", accent: "#121110" },
-  { id: "em-qualificacao", label: "Em qualificação", accent: "#121110" },
-  { id: "proposta-enviada", label: "Proposta enviada", accent: "#121110" },
-  { id: "fechado", label: "Fechado", accent: "#CFFF87" },
-  { id: "perdido", label: "Perdido", accent: "#AAAAAA" },
+  { id: "novo-lead", label: "Oportunidades", accent: "#D75631" },
+  { id: "aguardando-resposta", label: "Aguardando resposta", accent: "#121110" },
+  { id: "conversando", label: "Conversando", accent: "#121110" },
+  { id: "reuniao-agendada", label: "Reunião agendada", accent: "#121110" },
+  { id: "fechamento", label: "Fechamento", accent: "#121110" },
+  { id: "ganho", label: "Ganho", accent: "#CFFF87" },
+  { id: "potencial-futuro", label: "Potencial futuro", accent: "#121110" },
 ] as const;
 
-export type ColunaId = (typeof COLUNAS)[number]["id"];
+export const COLUNA_PERDIDO = { id: "perdido", label: "Perdido", accent: "#AAAAAA" } as const;
+
+export const TODAS_COLUNAS = [...COLUNAS, COLUNA_PERDIDO];
+
+const LEGACY_COLUNAS: Record<string, string> = {
+  "contato-feito": "aguardando-resposta",
+  "em-qualificacao": "conversando",
+  "proposta-enviada": "fechamento",
+  fechado: "ganho",
+};
+
+export function normalizeColuna(id: string): string {
+  const mapped = LEGACY_COLUNAS[id] ?? id;
+  return TODAS_COLUNAS.some((c) => c.id === mapped) ? mapped : "novo-lead";
+}
+
+export type ColunaId = string;
+
 
 export type Lead = {
   id: string;
