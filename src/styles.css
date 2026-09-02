@@ -119,3 +119,20 @@
 @utility fade-up {
   animation: fade-up 0.7s ease-out both;
 }
+
+.scrollbar-kanban {
+  scrollbar-width: thin;
+  scrollbar-color: #b0aba4 #e0ded9;
+}
+.scrollbar-kanban::-webkit-scrollbar {
+  height: 8px;
+  background: #e0ded9;
+  border-radius: 4px;
+}
+.scrollbar-kanban::-webkit-scrollbar-thumb {
+  background: #b0aba4;
+  border-radius: 4px;
+}
+.scrollbar-kanban::-webkit-scrollbar-thumb:hover {
+  background: #9a948b;
+}

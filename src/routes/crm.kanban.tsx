@@ -235,7 +235,7 @@ function KanbanPage() {
           <p className="text-sm text-neutral-500">Carregando leads...</p>
         ) : (
           <DndContext sensors={sensors} onDragEnd={onDragEnd}>
-            <div className="flex gap-4 overflow-x-auto pb-6">
+            <div className="scrollbar-kanban flex gap-4 overflow-x-auto pb-6">
               {(showPerdidos ? [...COLUNAS, COLUNA_PERDIDO] : COLUNAS).map((col) => {
                 const items = filtered.filter((l) => l.coluna === col.id);
                 return (
@@ -305,7 +305,7 @@ function Column({
 }) {
   const { setNodeRef, isOver } = useDroppable({ id });
   return (
-    <div className="flex w-72 shrink-0 flex-col">
+    <div className="flex w-60 shrink-0 flex-col">
       <div
         className="rounded-t-md bg-white px-3 pt-2.5 pb-2"
         style={{ borderTop: `3px solid ${accent}` }}
