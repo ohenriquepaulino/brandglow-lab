@@ -261,9 +261,6 @@ function KanbanPage() {
             </div>
           </DndContext>
         )}
-            </div>
-          </DndContext>
-        )}
       </main>
 
       {opened && (
