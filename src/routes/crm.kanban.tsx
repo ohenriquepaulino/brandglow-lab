@@ -112,10 +112,7 @@ function KanbanPage() {
     });
   }, [leads, fFat, fUtm, search]);
 
-  async function onDragEnd(e: DragEndEvent) {
-    const leadId = String(e.active.id);
-    const dest = e.over?.id ? String(e.over.id) : null;
-    if (!dest) return;
+  async function moveLead(leadId: string, dest: string) {
     const lead = leads.find((l) => l.id === leadId);
     if (!lead || lead.coluna === dest) return;
 
@@ -123,6 +120,9 @@ function KanbanPage() {
     setLeads((prev) =>
       prev.map((l) => (l.id === leadId ? { ...l, coluna: dest } : l)),
     );
+    if (opened?.id === leadId) {
+      setOpened((p) => (p ? { ...p, coluna: dest } : p));
+    }
 
     try {
       await apiUpdateColumn(leadId, dest, origem);
@@ -132,6 +132,12 @@ function KanbanPage() {
         prev.map((l) => (l.id === leadId ? { ...l, coluna: origem } : l)),
       );
     }
+  }
+
+  async function onDragEnd(e: DragEndEvent) {
+    const dest = e.over?.id ? String(e.over.id) : null;
+    if (!dest) return;
+    await moveLead(String(e.active.id), dest);
   }
 
   return (
