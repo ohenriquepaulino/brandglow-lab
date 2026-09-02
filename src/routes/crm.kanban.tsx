@@ -15,8 +15,10 @@ import {
 } from "@/lib/crm-api";
 import {
   COLUNAS,
+  COLUNA_PERDIDO,
   crmLogout,
   isCrmAuthed,
+  normalizeColuna,
   type ColunaId,
   type Lead,
 } from "@/lib/crm-auth";
@@ -37,6 +39,7 @@ function KanbanPage() {
   const [fFat, setFFat] = useState("");
   const [fUtm, setFUtm] = useState("");
   const [search, setSearch] = useState("");
+  const [showPerdidos, setShowPerdidos] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -58,7 +61,7 @@ function KanbanPage() {
     if (!silent) setLoading(true);
     try {
       const data = await apiListLeads();
-      setLeads(data);
+      setLeads(data.map((l) => ({ ...l, coluna: normalizeColuna(l.coluna) })));
     } catch (err) {
       console.error(err);
     }
@@ -109,10 +112,7 @@ function KanbanPage() {
     });
   }, [leads, fFat, fUtm, search]);
 
-  async function onDragEnd(e: DragEndEvent) {
-    const leadId = String(e.active.id);
-    const dest = e.over?.id ? String(e.over.id) : null;
-    if (!dest) return;
+  async function moveLead(leadId: string, dest: string) {
     const lead = leads.find((l) => l.id === leadId);
     if (!lead || lead.coluna === dest) return;
 
@@ -120,6 +120,9 @@ function KanbanPage() {
     setLeads((prev) =>
       prev.map((l) => (l.id === leadId ? { ...l, coluna: dest } : l)),
     );
+    if (opened?.id === leadId) {
+      setOpened((p) => (p ? { ...p, coluna: dest } : p));
+    }
 
     try {
       await apiUpdateColumn(leadId, dest, origem);
@@ -129,6 +132,12 @@ function KanbanPage() {
         prev.map((l) => (l.id === leadId ? { ...l, coluna: origem } : l)),
       );
     }
+  }
+
+  async function onDragEnd(e: DragEndEvent) {
+    const dest = e.over?.id ? String(e.over.id) : null;
+    if (!dest) return;
+    await moveLead(String(e.active.id), dest);
   }
 
   return (
@@ -204,6 +213,17 @@ function KanbanPage() {
           >
             Limpar filtros
           </button>
+          <button
+            onClick={() => setShowPerdidos((v) => !v)}
+            aria-pressed={showPerdidos}
+            className="rounded-md border px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+            style={{
+              borderColor: "#E0DED9",
+              background: showPerdidos ? "#ECE9E4" : undefined,
+            }}
+          >
+            {showPerdidos ? "Ocultar perdidos" : "Ver perdidos"}
+          </button>
           <div className="ml-auto text-xs text-neutral-500">
             {filtered.length} de {leads.length} leads
           </div>
@@ -216,7 +236,7 @@ function KanbanPage() {
         ) : (
           <DndContext sensors={sensors} onDragEnd={onDragEnd}>
             <div className="flex gap-4 overflow-x-auto pb-6">
-              {COLUNAS.map((col) => {
+              {(showPerdidos ? [...COLUNAS, COLUNA_PERDIDO] : COLUNAS).map((col) => {
                 const items = filtered.filter((l) => l.coluna === col.id);
                 return (
                   <Column
@@ -227,7 +247,13 @@ function KanbanPage() {
                     count={items.length}
                   >
                     {items.map((l) => (
-                      <LeadCard key={l.id} lead={l} onOpen={setOpened} onDelete={handleDelete} />
+                      <LeadCard
+                        key={l.id}
+                        lead={l}
+                        onOpen={setOpened}
+                        onDelete={handleDelete}
+                        onMove={(lead, coluna) => void moveLead(lead.id, coluna)}
+                      />
                     ))}
                   </Column>
                 );

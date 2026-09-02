@@ -1,6 +1,9 @@
+import { useEffect, useRef, useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import {
+  COLUNAS,
+  COLUNA_PERDIDO,
   formatDate,
   instagramHandle,
   instagramHref,
@@ -13,15 +16,30 @@ export function LeadCard({
   lead,
   onOpen,
   onDelete,
+  onMove,
 }: {
   lead: Lead;
   onOpen: (lead: Lead) => void;
   onDelete: (lead: Lead) => void;
+  onMove: (lead: Lead, coluna: string) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({ id: lead.id });
 
   const semFaturamento = isSemFaturamento(lead);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    function onDocDown(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", onDocDown);
+    return () => document.removeEventListener("mousedown", onDocDown);
+  }, [menuOpen]);
 
   const style = {
     transform: CSS.Translate.toString(transform),
@@ -32,7 +50,7 @@ export function LeadCard({
     <div
       ref={setNodeRef}
       style={{ ...style, borderColor: "#E0DED9" }}
-      className="group relative cursor-grab overflow-hidden rounded-lg border bg-white p-3.5 shadow-sm active:cursor-grabbing"
+      className="group relative cursor-grab overflow-visible rounded-lg border bg-white p-3.5 shadow-sm active:cursor-grabbing"
       {...attributes}
       {...listeners}
     >
@@ -42,6 +60,64 @@ export function LeadCard({
           className="absolute left-0 top-0 h-full w-1.5 bg-red-600"
         />
       )}
+      <div
+        ref={menuRef}
+        className="absolute right-2 top-2 z-20"
+        onPointerDown={(e) => e.stopPropagation()}
+      >
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setMenuOpen((v) => !v);
+          }}
+          aria-label="Ações do lead"
+          className="flex h-6 w-6 items-center justify-center rounded-md text-neutral-400 hover:bg-neutral-100 hover:text-neutral-800"
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <circle cx="12" cy="5" r="1.7" />
+            <circle cx="12" cy="12" r="1.7" />
+            <circle cx="12" cy="19" r="1.7" />
+          </svg>
+        </button>
+        {menuOpen && (
+          <div
+            className="absolute right-0 top-7 w-52 rounded-md border bg-white py-1 shadow-lg"
+            style={{ borderColor: "#E0DED9" }}
+          >
+            <p className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-neutral-400">
+              Mover para
+            </p>
+            {COLUNAS.map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                disabled={lead.coluna === c.id}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setMenuOpen(false);
+                  onMove(lead, c.id);
+                }}
+                className="block w-full px-3 py-1.5 text-left text-xs text-neutral-700 hover:bg-neutral-50 disabled:cursor-default disabled:text-neutral-300"
+              >
+                {c.label}
+              </button>
+            ))}
+            <div className="my-1 border-t" style={{ borderColor: "#E0DED9" }} />
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setMenuOpen(false);
+                onMove(lead, COLUNA_PERDIDO.id);
+              }}
+              className="block w-full px-3 py-1.5 text-left text-xs font-medium text-red-600 hover:bg-red-50"
+            >
+              Marcar como perdido
+            </button>
+          </div>
+        )}
+      </div>
       <button
         type="button"
         onPointerDown={(e) => e.stopPropagation()}
@@ -52,7 +128,7 @@ export function LeadCard({
           }
         }}
         aria-label="Excluir lead"
-        className="absolute right-2 top-2 hidden h-6 w-6 items-center justify-center rounded-md text-neutral-400 hover:bg-neutral-100 hover:text-red-600 group-hover:flex"
+        className="absolute right-9 top-2 hidden h-6 w-6 items-center justify-center rounded-md text-neutral-400 hover:bg-neutral-100 hover:text-red-600 group-hover:flex"
       >
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M3 6h18" />
@@ -63,8 +139,9 @@ export function LeadCard({
       <button
         type="button"
         onClick={() => onOpen(lead)}
-        className="w-full pr-6 text-left"
+        className="w-full pr-12 text-left"
       >
+
         <div className="flex items-start justify-between gap-2">
           <p className="text-sm font-semibold text-neutral-900">{lead.nome}</p>
         </div>
