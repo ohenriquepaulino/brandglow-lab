@@ -15,8 +15,10 @@ import {
 } from "@/lib/crm-api";
 import {
   COLUNAS,
+  COLUNA_PERDIDO,
   crmLogout,
   isCrmAuthed,
+  normalizeColuna,
   type ColunaId,
   type Lead,
 } from "@/lib/crm-auth";
