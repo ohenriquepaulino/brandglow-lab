@@ -41,7 +41,7 @@ export function LeadPanel({
   }
 
   const colunaLabel = (id: string) =>
-    COLUNAS.find((c) => c.id === id)?.label ?? id;
+    TODAS_COLUNAS.find((c) => c.id === id)?.label ?? id;
 
   const utms = [
     ["utm_source", lead.utm_source],
