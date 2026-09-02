@@ -61,7 +61,7 @@ function KanbanPage() {
     if (!silent) setLoading(true);
     try {
       const data = await apiListLeads();
-      setLeads(data);
+      setLeads(data.map((l) => ({ ...l, coluna: normalizeColuna(l.coluna) })));
     } catch (err) {
       console.error(err);
     }
