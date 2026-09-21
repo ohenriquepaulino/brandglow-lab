@@ -17,6 +17,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as CrmIndexRouteImport } from './routes/crm.index'
 import { Route as CasesIndexRouteImport } from './routes/cases.index'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
+import { Route as CrmTarefasRouteImport } from './routes/crm.tarefas'
 import { Route as CrmKanbanRouteImport } from './routes/crm.kanban'
 import { Route as CasesSlugRouteImport } from './routes/cases.$slug'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
@@ -24,6 +25,7 @@ import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lova
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicLeadsSubmitRouteImport } from './routes/api/public/leads/submit'
+import { Route as ApiPublicCrmTasksRouteImport } from './routes/api/public/crm/tasks'
 import { Route as ApiPublicCrmDataRouteImport } from './routes/api/public/crm/data'
 
 const TksRoute = TksRouteImport.update({
@@ -66,6 +68,11 @@ const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   path: '/email/unsubscribe',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CrmTarefasRoute = CrmTarefasRouteImport.update({
+  id: '/tarefas',
+  path: '/tarefas',
+  getParentRoute: () => CrmRoute,
+} as any)
 const CrmKanbanRoute = CrmKanbanRouteImport.update({
   id: '/kanban',
   path: '/kanban',
@@ -104,6 +111,11 @@ const ApiPublicLeadsSubmitRoute = ApiPublicLeadsSubmitRouteImport.update({
   path: '/api/public/leads/submit',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCrmTasksRoute = ApiPublicCrmTasksRouteImport.update({
+  id: '/api/public/crm/tasks',
+  path: '/api/public/crm/tasks',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicCrmDataRoute = ApiPublicCrmDataRouteImport.update({
   id: '/api/public/crm/data',
   path: '/api/public/crm/data',
@@ -118,11 +130,13 @@ export interface FileRoutesByFullPath {
   '/tks': typeof TksRoute
   '/cases/$slug': typeof CasesSlugRoute
   '/crm/kanban': typeof CrmKanbanRoute
+  '/crm/tarefas': typeof CrmTarefasRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/cases/': typeof CasesIndexRoute
   '/crm/': typeof CrmIndexRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/api/public/crm/data': typeof ApiPublicCrmDataRoute
+  '/api/public/crm/tasks': typeof ApiPublicCrmTasksRoute
   '/api/public/leads/submit': typeof ApiPublicLeadsSubmitRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -135,11 +149,13 @@ export interface FileRoutesByTo {
   '/tks': typeof TksRoute
   '/cases/$slug': typeof CasesSlugRoute
   '/crm/kanban': typeof CrmKanbanRoute
+  '/crm/tarefas': typeof CrmTarefasRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/cases': typeof CasesIndexRoute
   '/crm': typeof CrmIndexRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/api/public/crm/data': typeof ApiPublicCrmDataRoute
+  '/api/public/crm/tasks': typeof ApiPublicCrmTasksRoute
   '/api/public/leads/submit': typeof ApiPublicLeadsSubmitRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -154,11 +170,13 @@ export interface FileRoutesById {
   '/tks': typeof TksRoute
   '/cases/$slug': typeof CasesSlugRoute
   '/crm/kanban': typeof CrmKanbanRoute
+  '/crm/tarefas': typeof CrmTarefasRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/cases/': typeof CasesIndexRoute
   '/crm/': typeof CrmIndexRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/api/public/crm/data': typeof ApiPublicCrmDataRoute
+  '/api/public/crm/tasks': typeof ApiPublicCrmTasksRoute
   '/api/public/leads/submit': typeof ApiPublicLeadsSubmitRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -174,11 +192,13 @@ export interface FileRouteTypes {
     | '/tks'
     | '/cases/$slug'
     | '/crm/kanban'
+    | '/crm/tarefas'
     | '/email/unsubscribe'
     | '/cases/'
     | '/crm/'
     | '/lovable/email/suppression'
     | '/api/public/crm/data'
+    | '/api/public/crm/tasks'
     | '/api/public/leads/submit'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
@@ -191,11 +211,13 @@ export interface FileRouteTypes {
     | '/tks'
     | '/cases/$slug'
     | '/crm/kanban'
+    | '/crm/tarefas'
     | '/email/unsubscribe'
     | '/cases'
     | '/crm'
     | '/lovable/email/suppression'
     | '/api/public/crm/data'
+    | '/api/public/crm/tasks'
     | '/api/public/leads/submit'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
@@ -209,11 +231,13 @@ export interface FileRouteTypes {
     | '/tks'
     | '/cases/$slug'
     | '/crm/kanban'
+    | '/crm/tarefas'
     | '/email/unsubscribe'
     | '/cases/'
     | '/crm/'
     | '/lovable/email/suppression'
     | '/api/public/crm/data'
+    | '/api/public/crm/tasks'
     | '/api/public/leads/submit'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
@@ -231,6 +255,7 @@ export interface RootRouteChildren {
   CasesIndexRoute: typeof CasesIndexRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPublicCrmDataRoute: typeof ApiPublicCrmDataRoute
+  ApiPublicCrmTasksRoute: typeof ApiPublicCrmTasksRoute
   ApiPublicLeadsSubmitRoute: typeof ApiPublicLeadsSubmitRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
@@ -295,6 +320,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmailUnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/crm/tarefas': {
+      id: '/crm/tarefas'
+      path: '/tarefas'
+      fullPath: '/crm/tarefas'
+      preLoaderRoute: typeof CrmTarefasRouteImport
+      parentRoute: typeof CrmRoute
+    }
     '/crm/kanban': {
       id: '/crm/kanban'
       path: '/kanban'
@@ -344,6 +376,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicLeadsSubmitRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/crm/tasks': {
+      id: '/api/public/crm/tasks'
+      path: '/api/public/crm/tasks'
+      fullPath: '/api/public/crm/tasks'
+      preLoaderRoute: typeof ApiPublicCrmTasksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/crm/data': {
       id: '/api/public/crm/data'
       path: '/api/public/crm/data'
@@ -356,11 +395,13 @@ declare module '@tanstack/react-router' {
 
 interface CrmRouteChildren {
   CrmKanbanRoute: typeof CrmKanbanRoute
+  CrmTarefasRoute: typeof CrmTarefasRoute
   CrmIndexRoute: typeof CrmIndexRoute
 }
 
 const CrmRouteChildren: CrmRouteChildren = {
   CrmKanbanRoute: CrmKanbanRoute,
+  CrmTarefasRoute: CrmTarefasRoute,
   CrmIndexRoute: CrmIndexRoute,
 }
 
@@ -377,6 +418,7 @@ const rootRouteChildren: RootRouteChildren = {
   CasesIndexRoute: CasesIndexRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ApiPublicCrmDataRoute: ApiPublicCrmDataRoute,
+  ApiPublicCrmTasksRoute: ApiPublicCrmTasksRoute,
   ApiPublicLeadsSubmitRoute: ApiPublicLeadsSubmitRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,

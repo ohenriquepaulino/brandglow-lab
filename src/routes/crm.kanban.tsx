@@ -8,11 +8,7 @@ import {
   useSensors,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import {
-  apiDeleteLead,
-  apiListLeads,
-  apiUpdateColumn,
-} from "@/lib/crm-api";
+import { apiDeleteLead, apiListLeads, apiUpdateColumn } from "@/lib/crm-api";
 import {
   COLUNAS,
   COLUNA_PERDIDO,
@@ -24,6 +20,7 @@ import {
 } from "@/lib/crm-auth";
 import { LeadCard } from "@/components/crm/LeadCard";
 import { LeadPanel } from "@/components/crm/LeadPanel";
+import { CrmSidebar } from "@/components/crm/Sidebar";
 
 export const Route = createFileRoute("/crm/kanban")({
   ssr: false,
@@ -41,9 +38,7 @@ function KanbanPage() {
   const [search, setSearch] = useState("");
   const [showPerdidos, setShowPerdidos] = useState(false);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
-  );
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
   useEffect(() => {
     if (!isCrmAuthed()) {
@@ -91,10 +86,7 @@ function KanbanPage() {
     [leads],
   );
   const utmSources = useMemo(
-    () =>
-      Array.from(
-        new Set(leads.map((l) => l.utm_source).filter(Boolean) as string[]),
-      ).sort(),
+    () => Array.from(new Set(leads.map((l) => l.utm_source).filter(Boolean) as string[])).sort(),
     [leads],
   );
 
@@ -117,9 +109,7 @@ function KanbanPage() {
     if (!lead || lead.coluna === dest) return;
 
     const origem = lead.coluna;
-    setLeads((prev) =>
-      prev.map((l) => (l.id === leadId ? { ...l, coluna: dest } : l)),
-    );
+    setLeads((prev) => prev.map((l) => (l.id === leadId ? { ...l, coluna: dest } : l)));
     if (opened?.id === leadId) {
       setOpened((p) => (p ? { ...p, coluna: dest } : p));
     }
@@ -128,9 +118,7 @@ function KanbanPage() {
       await apiUpdateColumn(leadId, dest, origem);
     } catch (err) {
       console.error(err);
-      setLeads((prev) =>
-        prev.map((l) => (l.id === leadId ? { ...l, coluna: origem } : l)),
-      );
+      setLeads((prev) => prev.map((l) => (l.id === leadId ? { ...l, coluna: origem } : l)));
     }
   }
 
@@ -141,140 +129,145 @@ function KanbanPage() {
   }
 
   return (
-    <div
-      className="min-h-screen"
-      style={{ background: "#F4F2EF", fontFamily: "Inter, system-ui, sans-serif" }}
-    >
-      <header
-        className="flex items-center justify-between border-b bg-white px-6 py-3"
-        style={{ borderColor: "#E0DED9" }}
-      >
-        <p className="text-sm font-semibold text-neutral-900">Legacy BrandCo.</p>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => void loadLeads()}
-            className="rounded-md border px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50"
-            style={{ borderColor: "#E0DED9" }}
-          >
-            Atualizar
-          </button>
-          <button
-            onClick={handleLogout}
-            className="rounded-md border px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50"
-            style={{ borderColor: "#E0DED9" }}
-          >
-            Sair
-          </button>
-        </div>
-      </header>
-
-
-      <div className="px-6 pt-5">
-        <div className="flex flex-wrap items-end gap-3">
-          <Filter label="Faturamento">
-            <select
-              value={fFat}
-              onChange={(e) => setFFat(e.target.value)}
-              className="rounded-md border bg-white px-3 py-2 text-sm outline-none"
+    <div className="flex min-h-screen" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+      <CrmSidebar />
+      <div className="min-h-screen flex-1" style={{ background: "#F4F2EF" }}>
+        <header
+          className="flex items-center justify-between border-b bg-white px-6 py-3"
+          style={{ borderColor: "#E0DED9" }}
+        >
+          <p className="text-sm font-semibold text-neutral-900">Legacy BrandCo.</p>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => void loadLeads()}
+              className="rounded-md border px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50"
               style={{ borderColor: "#E0DED9" }}
             >
-              <option value="">Todos</option>
-              {faturamentos.map((f) => (
-                <option key={f} value={f}>{f}</option>
-              ))}
-            </select>
-          </Filter>
-          <Filter label="UTM Source">
-            <select
-              value={fUtm}
-              onChange={(e) => setFUtm(e.target.value)}
-              className="rounded-md border bg-white px-3 py-2 text-sm outline-none"
+              Atualizar
+            </button>
+            <button
+              onClick={handleLogout}
+              className="rounded-md border px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50"
               style={{ borderColor: "#E0DED9" }}
             >
-              <option value="">Todos</option>
-              {utmSources.map((u) => (
-                <option key={u} value={u}>{u}</option>
-              ))}
-            </select>
-          </Filter>
-          <Filter label="Buscar">
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Nome ou @instagram"
-              className="w-64 rounded-md border bg-white px-3 py-2 text-sm outline-none"
+              Sair
+            </button>
+          </div>
+        </header>
+
+        <div className="px-6 pt-5">
+          <div className="flex flex-wrap items-end gap-3">
+            <Filter label="Faturamento">
+              <select
+                value={fFat}
+                onChange={(e) => setFFat(e.target.value)}
+                className="rounded-md border bg-white px-3 py-2 text-sm outline-none"
+                style={{ borderColor: "#E0DED9" }}
+              >
+                <option value="">Todos</option>
+                {faturamentos.map((f) => (
+                  <option key={f} value={f}>
+                    {f}
+                  </option>
+                ))}
+              </select>
+            </Filter>
+            <Filter label="UTM Source">
+              <select
+                value={fUtm}
+                onChange={(e) => setFUtm(e.target.value)}
+                className="rounded-md border bg-white px-3 py-2 text-sm outline-none"
+                style={{ borderColor: "#E0DED9" }}
+              >
+                <option value="">Todos</option>
+                {utmSources.map((u) => (
+                  <option key={u} value={u}>
+                    {u}
+                  </option>
+                ))}
+              </select>
+            </Filter>
+            <Filter label="Buscar">
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Nome ou @instagram"
+                className="w-64 rounded-md border bg-white px-3 py-2 text-sm outline-none"
+                style={{ borderColor: "#E0DED9" }}
+              />
+            </Filter>
+            <button
+              onClick={() => {
+                setFFat("");
+                setFUtm("");
+                setSearch("");
+              }}
+              className="rounded-md border px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
               style={{ borderColor: "#E0DED9" }}
-            />
-          </Filter>
-          <button
-            onClick={() => { setFFat(""); setFUtm(""); setSearch(""); }}
-            className="rounded-md border px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
-            style={{ borderColor: "#E0DED9" }}
-          >
-            Limpar filtros
-          </button>
-          <button
-            onClick={() => setShowPerdidos((v) => !v)}
-            aria-pressed={showPerdidos}
-            className="rounded-md border px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
-            style={{
-              borderColor: "#E0DED9",
-              background: showPerdidos ? "#ECE9E4" : undefined,
-            }}
-          >
-            {showPerdidos ? "Ocultar perdidos" : "Ver perdidos"}
-          </button>
-          <div className="ml-auto text-xs text-neutral-500">
-            {filtered.length} de {leads.length} leads
+            >
+              Limpar filtros
+            </button>
+            <button
+              onClick={() => setShowPerdidos((v) => !v)}
+              aria-pressed={showPerdidos}
+              className="rounded-md border px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+              style={{
+                borderColor: "#E0DED9",
+                background: showPerdidos ? "#ECE9E4" : undefined,
+              }}
+            >
+              {showPerdidos ? "Ocultar perdidos" : "Ver perdidos"}
+            </button>
+            <div className="ml-auto text-xs text-neutral-500">
+              {filtered.length} de {leads.length} leads
+            </div>
           </div>
         </div>
-      </div>
 
-      <main className="px-6 py-6">
-        {loading ? (
-          <p className="text-sm text-neutral-500">Carregando leads...</p>
-        ) : (
-          <DndContext sensors={sensors} onDragEnd={onDragEnd}>
-            <div className="scrollbar-kanban flex gap-4 overflow-x-auto pb-6">
-              {(showPerdidos ? [...COLUNAS, COLUNA_PERDIDO] : COLUNAS).map((col) => {
-                const items = filtered.filter((l) => l.coluna === col.id);
-                return (
-                  <Column
-                    key={col.id}
-                    id={col.id}
-                    label={col.label}
-                    accent={col.accent}
-                    count={items.length}
-                  >
-                    {items.map((l) => (
-                      <LeadCard
-                        key={l.id}
-                        lead={l}
-                        onOpen={setOpened}
-                        onDelete={handleDelete}
-                        onMove={(lead, coluna) => void moveLead(lead.id, coluna)}
-                      />
-                    ))}
-                  </Column>
-                );
-              })}
-            </div>
-          </DndContext>
+        <main className="px-6 py-6">
+          {loading ? (
+            <p className="text-sm text-neutral-500">Carregando leads...</p>
+          ) : (
+            <DndContext sensors={sensors} onDragEnd={onDragEnd}>
+              <div className="scrollbar-kanban flex gap-4 overflow-x-auto pb-6">
+                {(showPerdidos ? [...COLUNAS, COLUNA_PERDIDO] : COLUNAS).map((col) => {
+                  const items = filtered.filter((l) => l.coluna === col.id);
+                  return (
+                    <Column
+                      key={col.id}
+                      id={col.id}
+                      label={col.label}
+                      accent={col.accent}
+                      count={items.length}
+                    >
+                      {items.map((l) => (
+                        <LeadCard
+                          key={l.id}
+                          lead={l}
+                          onOpen={setOpened}
+                          onDelete={handleDelete}
+                          onMove={(lead, coluna) => void moveLead(lead.id, coluna)}
+                        />
+                      ))}
+                    </Column>
+                  );
+                })}
+              </div>
+            </DndContext>
+          )}
+        </main>
+
+        {opened && (
+          <LeadPanel
+            lead={opened}
+            onClose={() => setOpened(null)}
+            onUpdated={(updated) => {
+              setLeads((prev) => prev.map((l) => (l.id === updated.id ? updated : l)));
+              setOpened(updated);
+            }}
+          />
         )}
-      </main>
-
-      {opened && (
-        <LeadPanel
-          lead={opened}
-          onClose={() => setOpened(null)}
-          onUpdated={(updated) => {
-            setLeads((prev) =>
-              prev.map((l) => (l.id === updated.id ? updated : l)),
-            );
-            setOpened(updated);
-          }}
-        />
-      )}
+      </div>
     </div>
   );
 }
@@ -311,9 +304,7 @@ function Column({
         style={{ borderTop: `3px solid ${accent}` }}
       >
         <div className="flex items-center justify-between">
-          <p className="text-xs font-semibold uppercase tracking-wide text-neutral-800">
-            {label}
-          </p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-neutral-800">{label}</p>
           <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-700">
             {count}
           </span>
