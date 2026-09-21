@@ -1,9 +1,44 @@
 import { useEffect, useRef, useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { FileText, Trash2 } from "lucide-react";
+import { Check, FileText, StickyNote, Trash2 } from "lucide-react";
 import { formatDateTime } from "@/lib/crm-auth";
 import type { Task } from "@/lib/tasks-api";
+
+function isPending(id: string) {
+  return id.startsWith("temp-");
+}
+
+function RoundCheckbox({
+  checked,
+  disabled,
+  onToggle,
+}: {
+  checked: boolean;
+  disabled?: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="checkbox"
+      aria-checked={checked}
+      disabled={disabled}
+      onPointerDown={(e) => e.stopPropagation()}
+      onClick={(e) => {
+        e.stopPropagation();
+        onToggle();
+      }}
+      className="mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border-2 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+      style={{
+        borderColor: checked ? "#121110" : "#D6D3CE",
+        background: checked ? "#121110" : "transparent",
+      }}
+    >
+      {checked && <Check size={11} strokeWidth={3} className="text-white" />}
+    </button>
+  );
+}
 
 export function TaskItem({
   task,
@@ -24,17 +59,20 @@ export function TaskItem({
   const [tituloDraft, setTituloDraft] = useState(task.titulo);
   const [expanded, setExpanded] = useState(false);
   const [descDraft, setDescDraft] = useState(task.descricao ?? "");
+  const [settling, setSettling] = useState(false);
   const tituloRef = useRef<HTMLInputElement | null>(null);
+
+  const pending = isPending(task.id);
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: task.id,
-    disabled: !sortable,
+    disabled: !sortable || pending,
   });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
+    opacity: isDragging ? 0.5 : pending ? 0.6 : 1,
   };
 
   useEffect(() => {
@@ -55,31 +93,32 @@ export function TaskItem({
     if (descDraft !== (task.descricao ?? "")) onUpdateDescricao(task, descDraft);
   }
 
+  function handleToggle() {
+    if (pending) return;
+    // pequena animação de saída antes da tarefa trocar de seção
+    setSettling(true);
+    window.setTimeout(() => setSettling(false), 180);
+    onToggle(task);
+  }
+
+  const temTexto = !!task.descricao?.trim();
+
   return (
     <div
       ref={setNodeRef}
       style={{ ...style, borderColor: "#E0DED9" }}
-      className="group rounded-md border bg-white transition-all duration-200"
+      className={
+        "group rounded-lg border bg-white transition-all duration-200 " +
+        (settling ? "scale-[0.98] opacity-60" : "scale-100 opacity-100")
+      }
     >
       <div
         className="flex items-start gap-2 px-2.5 py-2"
-        {...(sortable ? { ...attributes, ...listeners } : {})}
+        {...(sortable && !pending ? { ...attributes, ...listeners } : {})}
       >
-        <input
-          type="checkbox"
-          checked={task.concluida}
-          onChange={(e) => {
-            e.stopPropagation();
-            onToggle(task);
-          }}
-          onPointerDown={(e) => e.stopPropagation()}
-          className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-neutral-900"
-        />
+        <RoundCheckbox checked={task.concluida} disabled={pending} onToggle={handleToggle} />
 
-        <div
-          className="min-w-0 flex-1 cursor-pointer"
-          onClick={() => !editingTitulo && setExpanded((v) => !v)}
-        >
+        <div className="min-w-0 flex-1">
           {editingTitulo ? (
             <input
               ref={tituloRef}
@@ -102,22 +141,16 @@ export function TaskItem({
             <p
               onClick={(e) => {
                 e.stopPropagation();
-                setEditingTitulo(true);
+                if (!pending) setEditingTitulo(true);
               }}
               onPointerDown={(e) => e.stopPropagation()}
               className={
-                task.concluida
+                (task.concluida
                   ? "truncate text-sm text-neutral-400 line-through"
-                  : "truncate text-sm text-neutral-900"
+                  : "truncate text-sm text-neutral-900") + (pending ? "" : " cursor-text")
               }
             >
               {task.titulo}
-              {task.descricao?.trim() && (
-                <FileText
-                  size={12}
-                  className="ml-1.5 inline-block shrink-0 align-middle text-neutral-400"
-                />
-              )}
             </p>
           )}
 
@@ -130,13 +163,32 @@ export function TaskItem({
 
         <button
           type="button"
+          disabled={pending}
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            setExpanded((v) => !v);
+          }}
+          aria-label={temTexto ? "Ver nota" : "Adicionar nota"}
+          aria-pressed={expanded}
+          className={
+            "flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 disabled:pointer-events-none " +
+            (temTexto || expanded ? "flex" : "hidden group-hover:flex")
+          }
+        >
+          {temTexto ? <FileText size={14} /> : <StickyNote size={14} />}
+        </button>
+
+        <button
+          type="button"
+          disabled={pending}
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => {
             e.stopPropagation();
             if (confirm(`Excluir a tarefa "${task.titulo}"?`)) onDelete(task);
           }}
           aria-label="Excluir tarefa"
-          className="hidden h-6 w-6 shrink-0 items-center justify-center rounded-md text-neutral-400 hover:bg-neutral-100 hover:text-red-600 group-hover:flex"
+          className="hidden h-6 w-6 shrink-0 items-center justify-center rounded-md text-neutral-400 hover:bg-neutral-100 hover:text-red-600 group-hover:flex disabled:pointer-events-none"
         >
           <Trash2 size={14} />
         </button>
@@ -152,8 +204,9 @@ export function TaskItem({
             value={descDraft}
             onChange={(e) => setDescDraft(e.target.value)}
             onBlur={saveDescricao}
-            placeholder="Adicionar descrição..."
+            placeholder="Adicionar nota..."
             rows={2}
+            autoFocus
             className="w-full resize-none rounded border px-2 py-1.5 text-xs text-neutral-700 outline-none"
             style={{ borderColor: "#E0DED9" }}
           />

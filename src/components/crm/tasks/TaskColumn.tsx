@@ -39,6 +39,7 @@ export function TaskColumn({
 
   const pendentes = tasks.filter((t) => !t.concluida).sort((a, b) => a.ordem - b.ordem);
   const concluidas = tasks.filter((t) => t.concluida);
+  const pending = list.id.startsWith("temp-");
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
@@ -64,6 +65,7 @@ export function TaskColumn({
 
   function submitNovaTarefa(e: React.FormEvent) {
     e.preventDefault();
+    if (pending) return;
     const trimmed = novaTarefa.trim();
     if (!trimmed) return;
     onAddTask(list, trimmed);
@@ -111,8 +113,13 @@ export function TaskColumn({
             />
           ) : (
             <p
-              onClick={() => setRenaming(true)}
-              className="cursor-pointer truncate text-xs font-semibold uppercase tracking-wide text-neutral-800"
+              onClick={() => {
+                if (!pending) setRenaming(true);
+              }}
+              className={
+                "truncate text-xs font-semibold uppercase tracking-wide text-neutral-800" +
+                (pending ? "" : " cursor-pointer")
+              }
             >
               {list.nome}
             </p>
@@ -134,16 +141,18 @@ export function TaskColumn({
               >
                 <button
                   type="button"
+                  disabled={pending}
                   onClick={() => {
                     setMenuOpen(false);
                     setRenaming(true);
                   }}
-                  className="block w-full px-3 py-1.5 text-left text-xs text-neutral-700 hover:bg-neutral-50"
+                  className="block w-full px-3 py-1.5 text-left text-xs text-neutral-700 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
                 >
                   Renomear lista
                 </button>
                 <button
                   type="button"
+                  disabled={pending}
                   onClick={() => {
                     setMenuOpen(false);
                     const pendentesN = tasks.length;
@@ -153,7 +162,7 @@ export function TaskColumn({
                         : `Excluir a lista "${list.nome}"?`;
                     if (confirm(msg)) onDeleteList(list);
                   }}
-                  className="block w-full px-3 py-1.5 text-left text-xs font-medium text-red-600 hover:bg-red-50"
+                  className="block w-full px-3 py-1.5 text-left text-xs font-medium text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
                 >
                   Excluir lista
                 </button>
@@ -169,7 +178,7 @@ export function TaskColumn({
       >
         <form
           onSubmit={submitNovaTarefa}
-          className="flex items-center gap-1.5 rounded-md border bg-white px-2 py-1.5"
+          className="flex items-center gap-1.5 rounded-md border bg-white px-2 py-1.5 disabled:opacity-50"
           style={{ borderColor: "#E0DED9" }}
         >
           <Plus size={16} className="shrink-0 text-neutral-400" />
@@ -177,8 +186,9 @@ export function TaskColumn({
             ref={novaTarefaRef}
             value={novaTarefa}
             onChange={(e) => setNovaTarefa(e.target.value)}
-            placeholder="Adicionar uma tarefa"
-            className="w-full bg-transparent text-sm outline-none placeholder:text-neutral-400"
+            disabled={pending}
+            placeholder={pending ? "Salvando lista..." : "Adicionar uma tarefa"}
+            className="w-full bg-transparent text-sm outline-none placeholder:text-neutral-400 disabled:cursor-not-allowed"
           />
         </form>
 
