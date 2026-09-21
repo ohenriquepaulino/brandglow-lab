@@ -275,3 +275,8 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+
+---
+
+<!-- Teste de edição via Claude Cowork — 2026-09-21T14:51:22Z -->
