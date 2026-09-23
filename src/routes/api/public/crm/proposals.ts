@@ -21,10 +21,6 @@ const PatchSchema = z
       .string()
       .regex(/^\d{4}-\d{2}-\d{2}$/)
       .nullable(),
-    whatsapp: z
-      .string()
-      .regex(/^[0-9]{12,13}$/)
-      .nullable(),
   })
   .partial()
   .strict();
@@ -53,7 +49,6 @@ const COPY_COLUMNS = [
   "cash_note",
   "deadline_days",
   "valid_until",
-  "whatsapp",
 ] as const;
 
 function unauthorized() {

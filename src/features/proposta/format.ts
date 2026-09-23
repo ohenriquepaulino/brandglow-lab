@@ -88,10 +88,3 @@ export function makeSlug(name: string) {
 
 export const isValidSlug = (s: string) =>
   /^[a-z0-9]+(-[a-z0-9]+)*$/.test(s) && s.length >= 3 && s.length <= 80;
-
-/** Só dígitos; aceita 12 ou 13 dígitos (55 + DDD + número). */
-export function normalizeWhatsapp(v: string) {
-  const d = v.replace(/\D/g, "");
-  return d.length ? d : "";
-}
-export const isValidWhatsapp = (v: string) => /^[0-9]{12,13}$/.test(v);

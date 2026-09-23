@@ -8,7 +8,6 @@ import {
   type ProposalPatch,
 } from "../api";
 import { publicProposalUrl } from "../defaults";
-import { isValidWhatsapp, normalizeWhatsapp } from "../format";
 import type { Proposal } from "../types";
 
 const BORDER = "#E0DED9";
@@ -35,7 +34,6 @@ export default function ProposalEditPage({
   const [patch, setPatch] = useState<ProposalPatch>({});
   const [saving, setSaving] = useState(false);
   const [copiado, setCopiado] = useState(false);
-  const [waInput, setWaInput] = useState("");
   // Barra fixa (o body do site tem overflow-x: hidden, que anula o sticky); o espaçador acompanha a altura dela.
   const barRef = useRef<HTMLDivElement>(null);
   const [barHeight, setBarHeight] = useState(0);
@@ -43,7 +41,6 @@ export default function ProposalEditPage({
 
   const dirty = Object.keys(patch).length > 0;
   const draft: Proposal | null = proposal ? { ...proposal, ...patch } : null;
-  const waError = waInput !== "" && !isValidWhatsapp(normalizeWhatsapp(waInput));
 
   useEffect(() => {
     let alive = true;
@@ -52,7 +49,6 @@ export default function ProposalEditPage({
         if (!alive) return;
         if (!p) return setStatus("notfound");
         setProposal(p);
-        setWaInput(p.whatsapp ?? "");
         setStatus("ok");
       })
       .catch((err) => {
@@ -76,10 +72,6 @@ export default function ProposalEditPage({
 
   const save = useCallback(async () => {
     if (!proposal?.id || saving || !dirty) return;
-    if (waError) {
-      alert("Confira o WhatsApp: use DDI + DDD + número, só dígitos. Ex: 5511999998888.");
-      return;
-    }
     setSaving(true);
     try {
       const saved = await updateProposal(proposal.id, patch);
@@ -90,7 +82,7 @@ export default function ProposalEditPage({
       alert("Não foi possível salvar. Tente novamente.");
     }
     setSaving(false);
-  }, [proposal, patch, saving, dirty, waError]);
+  }, [proposal, patch, saving, dirty]);
 
   // Ctrl/Cmd + S salva. O blur antes garante que o texto em edição entre no salvamento.
   const saveRef = useRef(save);
@@ -182,7 +174,7 @@ export default function ProposalEditPage({
     <div>
       <div
         ref={barRef}
-        className="fixed inset-x-0 top-0 z-[60] border-b bg-white px-4 py-2"
+        className="fixed inset-x-0 top-0 z-[60] border-b bg-white px-4 py-2 print:hidden"
         style={{ borderColor: BORDER, fontFamily: "Inter, system-ui, sans-serif" }}
       >
         <div className="flex flex-wrap items-center gap-2">
@@ -279,23 +271,6 @@ export default function ProposalEditPage({
             />
           </label>
           <label className="flex items-center gap-1.5">
-            WhatsApp do botão
-            <input
-              value={waInput}
-              onChange={(e) => {
-                const v = e.target.value;
-                setWaInput(v);
-                const digits = normalizeWhatsapp(v);
-                edit({ whatsapp: digits || null });
-              }}
-              placeholder="5511999998888"
-              inputMode="tel"
-              className={`${field} w-36`}
-              style={{ borderColor: waError ? "#dc2626" : BORDER }}
-            />
-            {waError && <span className="text-red-600">Use DDI + DDD + número</span>}
-          </label>
-          <label className="flex items-center gap-1.5">
             <input
               type="checkbox"
               checked={draft.show_diagnosis}
@@ -309,8 +284,8 @@ export default function ProposalEditPage({
         </div>
       </div>
 
-      <div style={{ height: barHeight }} aria-hidden />
-      <ProposalView proposal={draft} chrome={false} onEdit={edit} />
+      <div className="print:hidden" style={{ height: barHeight }} aria-hidden />
+      <ProposalView proposal={draft} onEdit={edit} topOffset={barHeight} />
     </div>
   );
 }

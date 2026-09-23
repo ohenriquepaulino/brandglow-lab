@@ -19,7 +19,6 @@ const PUBLIC_COLUMNS = [
   "cash_note",
   "deadline_days",
   "valid_until",
-  "whatsapp",
   "updated_at",
 ].join(",");
 

@@ -54,6 +54,7 @@ export default function PublicProposalPage({ slug }: { slug: string }) {
         placeItems: "center",
         background: "#b8ff80",
         padding: 24,
+        fontSize: 17,
       }}
     >
       <div style={{ textAlign: "center", maxWidth: 420 }}>

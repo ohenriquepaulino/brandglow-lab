@@ -18,7 +18,7 @@ export const BRAND = {
   logoLight: ASSET("brand/legacy-logo-branco.webp"),
   sealDark: ASSET("brand/legacy-selo-preto.webp"),
   sealLight: ASSET("brand/legacy-selo-branco.webp"),
-  team: [1, 2, 3, 4, 5].map((n) => ASSET(`team/equipe-${n}.webp`)),
+  team: [1, 2, 3, 4, 5].map((n) => ASSET(`team/equipe-${n}.jpg`)),
 };
 
 export const DEFAULT_DELIVERABLES: Deliverable[] = [

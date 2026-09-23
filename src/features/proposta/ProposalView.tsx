@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import "./proposta.css";
 import type { CaseStudy, Proposal } from "./types";
 import { BRAND, DEFAULT_DELIVERABLES, DIAGNOSIS_PLACEHOLDERS } from "./defaults";
@@ -6,9 +14,13 @@ import { LOCAL_BACKUP_IMAGES, resolveCases } from "./cases";
 import { brlNumber, brlShort, fmtDate, parseBrl, pricing, validity } from "./format";
 import { usePrintPdf } from "./usePrintPdf";
 
+/** Tamanho fixo de cada slide. A tela e o PDF usam o mesmo quadro. */
+const SLIDE_W = 1920;
+const SLIDE_H = 1080;
+
 interface Props {
   proposal: Proposal;
-  /** Barra fixa, índice, progresso e atalhos de teclado. Desligue no preview do editor. */
+  /** Controles de apresentação (contador, setas, índice, PDF, tela cheia). */
   chrome?: boolean;
   /** Mostra os textos-guia quando o diagnóstico está vazio (só no editor). */
   showPlaceholders?: boolean;
@@ -16,6 +28,8 @@ interface Props {
   autoPrint?: boolean;
   /** Modo de edição do CRM: textos e valores viram editáveis com um clique. */
   onEdit?: (patch: Partial<Proposal>) => void;
+  /** Altura de uma barra fixa acima da proposta (a barra de edição do CRM). */
+  topOffset?: number;
 }
 
 type TextField =
@@ -38,6 +52,7 @@ export default function ProposalView({
   showPlaceholders: showPh = false,
   autoPrint = false,
   onEdit,
+  topOffset = 0,
 }: Props) {
   const showPlaceholders = showPh || !!onEdit;
   const rootRef = useRef<HTMLDivElement>(null);
@@ -47,7 +62,7 @@ export default function ProposalView({
   const price = pricing(p);
   const valid = validity(p.valid_until);
 
-  /** Texto editável no modo de edição; texto puro para o cliente. */
+  /** Texto editável no modo de edição; texto puro na apresentação. */
   const txt = (field: TextField, shown: string, placeholder: string) =>
     onEdit ? (
       <EditText
@@ -90,26 +105,65 @@ export default function ProposalView({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoPrint]);
 
-  /* ---------- Barra fixa, progresso e capítulo atual ---------- */
-  const [showBar, setShowBar] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [active, setActive] = useState("inicio");
+  /* ---------- Escala: cada slide 1920x1080 cabe inteiro na área visível ---------- */
+  const [fit, setFit] = useState({ s: 1, h: SLIDE_H });
+
+  useLayoutEffect(() => {
+    const el = rootRef.current;
+    if (!el) return;
+    const update = () => {
+      const h = Math.max(200, window.innerHeight - topOffset);
+      const w = el.clientWidth || window.innerWidth;
+      setFit({ s: Math.min(w / SLIDE_W, h / SLIDE_H), h });
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    window.addEventListener("resize", update);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", update);
+    };
+  }, [topOffset]);
+
+  // Um slide por tela ao rolar.
+  useEffect(() => {
+    const html = document.documentElement;
+    const prev = { snap: html.style.scrollSnapType, pad: html.style.scrollPaddingTop };
+    html.style.scrollSnapType = "y mandatory";
+    html.style.scrollPaddingTop = `${topOffset}px`;
+    return () => {
+      html.style.scrollSnapType = prev.snap;
+      html.style.scrollPaddingTop = prev.pad;
+    };
+  }, [topOffset]);
+
+  /* ---------- Slide atual ---------- */
+  const [current, setCurrent] = useState(0);
+  const [total, setTotal] = useState(0);
+  const [chapterId, setChapterId] = useState("inicio");
   const [indexOpen, setIndexOpen] = useState(false);
 
+  const frames = useCallback(
+    () => [...(rootRef.current?.querySelectorAll<HTMLElement>(".lbc-frame") ?? [])],
+    [],
+  );
+
   useEffect(() => {
-    if (!chrome) return;
     const onScroll = () => {
-      const y = window.scrollY;
-      const h = document.documentElement.scrollHeight - window.innerHeight;
-      setProgress(h > 0 ? (y / h) * 100 : 0);
-      setShowBar(y > window.innerHeight * 0.6);
-      const secs = rootRef.current?.querySelectorAll<HTMLElement>("[data-chap]") ?? [];
-      let current = "inicio";
-      secs.forEach((s) => {
-        if (s.getBoundingClientRect().top <= window.innerHeight * 0.35)
-          current = s.dataset.chap || current;
+      const list = frames();
+      setTotal(list.length);
+      let best = 0;
+      let bestDist = Infinity;
+      list.forEach((f, i) => {
+        const d = Math.abs(f.getBoundingClientRect().top - topOffset);
+        if (d < bestDist) {
+          bestDist = d;
+          best = i;
+        }
       });
-      setActive(current);
+      setCurrent(best);
+      setChapterId(list[best]?.dataset.chap || "inicio");
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -118,13 +172,30 @@ export default function ProposalView({
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, [chrome]);
+  }, [frames, topOffset, cases.length, showDiag]);
+
+  const goTo = useCallback(
+    (i: number) => {
+      const list = frames();
+      const target = list[Math.max(0, Math.min(list.length - 1, i))];
+      if (!target) return;
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      target.scrollIntoView({ behavior: reduce ? "auto" : "smooth" });
+    },
+    [frames],
+  );
+
+  const toggleFullscreen = () => {
+    if (document.fullscreenElement) void document.exitFullscreen();
+    else void document.documentElement.requestFullscreen?.();
+  };
 
   /* ---------- Lightbox ---------- */
   const [lb, setLb] = useState<{ images: string[]; i: number; name: string } | null>(null);
   const closeLb = () => setLb(null);
   const stepLb = (n: number) =>
     setLb((s) => (s ? { ...s, i: (s.i + n + s.images.length) % s.images.length } : s));
+  const openLb = (name: string) => (images: string[], i: number) => setLb({ images, i, name });
 
   useEffect(() => {
     const lock = !!lb || indexOpen;
@@ -134,48 +205,40 @@ export default function ProposalView({
     };
   }, [lb, indexOpen]);
 
-  /* ---------- Teclado ---------- */
+  /* ---------- Teclado: setas, espaço, Page Up/Down, Home/End e F ---------- */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement | null;
       if (t && t.closest("input, textarea, select, [contenteditable]")) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (lb) {
         if (e.key === "Escape") closeLb();
         if (e.key === "ArrowRight") stepLb(1);
         if (e.key === "ArrowLeft") stepLb(-1);
         return;
       }
-      if (!chrome) return;
       if (e.key === "Escape") setIndexOpen(false);
-      if (["ArrowDown", "ArrowUp", "PageDown", "PageUp"].includes(e.key)) {
-        const dir = e.key === "ArrowDown" || e.key === "PageDown" ? 1 : -1;
-        const secs = [...(rootRef.current?.querySelectorAll<HTMLElement>(".lbc-snap") ?? [])];
-        const tops = secs.map((s) => s.getBoundingClientRect().top);
-        const target =
-          dir > 0
-            ? secs[tops.findIndex((v) => v > 70)]
-            : secs[[...tops.keys()].filter((i) => tops[i] < -10).pop() ?? 0];
-        if (target) {
-          e.preventDefault();
-          const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-          target.scrollIntoView({ behavior: reduce ? "auto" : "smooth" });
-        }
+      if (indexOpen) return;
+      const next = ["ArrowDown", "ArrowRight", "PageDown", " "].includes(e.key);
+      const prev = ["ArrowUp", "ArrowLeft", "PageUp"].includes(e.key);
+      if (next || prev) {
+        e.preventDefault();
+        goTo(current + (next ? 1 : -1));
+      } else if (e.key === "Home") {
+        e.preventDefault();
+        goTo(0);
+      } else if (e.key === "End") {
+        e.preventDefault();
+        goTo(Number.MAX_SAFE_INTEGER);
+      } else if (e.key === "f" || e.key === "F") {
+        toggleFullscreen();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [lb, chrome]);
+  }, [lb, indexOpen, current, goTo]);
 
-  const chapterNumber = Math.max(1, chapters.findIndex((c) => c.id === active) + 1);
-  const chapterLabel = chapters.find((c) => c.id === active)?.label ?? "";
-
-  /* ---------- WhatsApp ---------- */
-  const waMsg = valid.expired
-    ? `Olá! Vi a proposta da Legacy BrandCo. para ${client} e gostaria de receber os valores atualizados.`
-    : `Olá! Vi a proposta da Legacy BrandCo. para ${client} e quero começar o projeto.`;
-  const ctaHref = p.whatsapp
-    ? `https://wa.me/${p.whatsapp}?text=${encodeURIComponent(waMsg)}`
-    : `${BRAND.site}/#contato`;
+  const chapterLabel = chapters.find((c) => c.id === chapterId)?.label ?? "";
 
   const coverDate = (p.updated_at ? new Date(p.updated_at) : new Date())
     .toLocaleDateString("pt-BR", { month: "long", year: "numeric" })
@@ -193,47 +256,389 @@ export default function ProposalView({
             : ""
         }, sujeita a alteração de valor após essa data.`;
 
+  const rootStyle = {
+    "--s": fit.s,
+    "--fh": `${fit.h}px`,
+  } as React.CSSProperties;
+
   return (
-    <div className={`lbc${onEdit ? " lbc-editing" : ""}`} ref={rootRef}>
-      {chrome && (
-        <header className={`lbc-top${showBar ? " show" : ""}`}>
-          <div className="lbc-wrap lbc-top-in">
-            <a href="#inicio" aria-label="Voltar ao início">
-              <img
-                className="lbc-seal"
-                src={BRAND.sealDark}
-                alt="Legacy BrandCo."
-                width={946}
-                height={372}
-              />
-            </a>
-            <div className="lbc-chap" aria-live="polite">
-              <b>{String(chapterNumber).padStart(2, "0")}</b>
-              {"  "}
-              {chapterLabel}
-            </div>
-            <button
-              className="lbc-pill-btn lbc-hide-s"
-              onClick={() => void print()}
-              disabled={preparing}
-            >
-              <DownloadIcon /> {preparing ? "Preparando..." : "PDF"}
-            </button>
-            <button
-              className="lbc-pill-btn"
-              onClick={() => setIndexOpen(true)}
-              aria-haspopup="dialog"
-            >
-              <MenuIcon /> Índice
-            </button>
-            <div className="lbc-prog" style={{ width: `${progress}%` }} />
+    <div className={`lbc${onEdit ? " lbc-editing" : ""}`} ref={rootRef} style={rootStyle}>
+      {/* CAPA */}
+      <Slide id="inicio" chap="inicio" tone="lime" className="lbc-cover">
+        <div className="lbc-cover-meta">
+          <span>
+            {txt(
+              "cover_label",
+              p.cover_label || "Proposta de Estratégia de Marca",
+              "Proposta de Estratégia de Marca",
+            )}
+          </span>
+          <span>{coverDate}</span>
+        </div>
+        <div className="lbc-mark">
+          <img src={BRAND.logoDark} alt="Legacy BrandCo." width={1716} height={612} />
+        </div>
+        <div className="lbc-for">
+          <small>Proposta preparada para</small>
+          <div className="lbc-client">{txt("client_name", client, "Nome do cliente")}</div>
+        </div>
+      </Slide>
+
+      {/* DIAGNÓSTICO */}
+      {showDiag && (
+        <Slide
+          id="entendemos"
+          chap="entendemos"
+          tone="paper"
+          className={hasDiag ? "" : "lbc-print-hide"}
+        >
+          <p className="lbc-kicker">
+            <b>O seu negócio</b>
+          </p>
+          <h2 className="lbc-d lbc-h1">
+            O que entendemos
+            <br />
+            sobre {client}
+          </h2>
+          <div className="lbc-cols">
+            {(
+              [
+                ["Momento", diag.moment, DIAGNOSIS_PLACEHOLDERS.moment, "diagnosis_moment"],
+                [
+                  "Desafio",
+                  diag.challenge,
+                  DIAGNOSIS_PLACEHOLDERS.challenge,
+                  "diagnosis_challenge",
+                ],
+                ["Objetivo", diag.goal, DIAGNOSIS_PLACEHOLDERS.goal, "diagnosis_goal"],
+              ] as const
+            )
+              .filter(([, v]) => v || showPlaceholders)
+              .map(([label, v, ph, field]) => (
+                <div className={`lbc-col${v ? "" : " lbc-print-hide"}`} key={label}>
+                  <h3>{label}</h3>
+                  <p className={v || onEdit ? "" : "ph"}>{txt(field, v || ph, ph)}</p>
+                </div>
+              ))}
           </div>
-        </header>
+        </Slide>
       )}
 
-      {chrome && indexOpen && (
-        <nav className="lbc-index" role="dialog" aria-modal="true" aria-label="Índice">
-          <div className="lbc-wrap">
+      {/* QUEM SOMOS */}
+      <Slide id="quem-somos" chap="quem-somos" tone="paper" className="lbc-about">
+        <div className="lbc-mosaic" aria-label="Equipe Legacy BrandCo.">
+          {BRAND.team.map((src, i) => (
+            <img key={src} className={`m${i}`} src={src} alt="" loading="lazy" />
+          ))}
+        </div>
+        <div className="lbc-about-txt">
+          <p className="lbc-kicker">
+            <b>Quem somos</b>
+          </p>
+          <h2 className="lbc-d lbc-h2">
+            Somos especialistas em Branding, Estratégia e construção de marcas.
+          </h2>
+          <ul className="lbc-facts">
+            <li>Mais de 8 anos de experiência</li>
+            <li>Clientes atendidos em todo o Brasil</li>
+            <li>Trabalhamos com grandes players do mercado</li>
+          </ul>
+        </div>
+      </Slide>
+
+      {/* O QUE FAZEMOS */}
+      <Slide id="o-que-fazemos" chap="o-que-fazemos" tone="deep">
+        <p className="lbc-kicker">
+          <b>O que fazemos</b>
+        </p>
+        <h2 className="lbc-d lbc-h1">
+          Estratégia de marca
+          <br />e Identidade Visual
+        </h2>
+        <p className="lbc-promise">
+          Nós criamos <strong>estrategicamente o seu posicionamento de marca</strong> no mercado,
+          construímos a sua <strong>base de comunicação</strong> e destacamos o seu{" "}
+          <strong>diferencial de atuação</strong>.
+        </p>
+        <div className="lbc-flow" aria-label="Do posicionamento à identidade visual">
+          <div>
+            <small>Estratégia</small>
+            <b>Posicionamento de marca</b>
+          </div>
+          <div>
+            <small>Estratégia</small>
+            <b>Base de comunicação</b>
+          </div>
+          <div>
+            <small>Estratégia</small>
+            <b>Diferencial de atuação</b>
+          </div>
+          <div>
+            <small>Resultado</small>
+            <b>Identidade visual de alto padrão</b>
+          </div>
+        </div>
+        <p className="lbc-close-line">
+          Traduzimos tudo isso em uma identidade visual de alto padrão, totalmente intencional e
+          alinhada com os seus objetivos.
+        </p>
+      </Slide>
+
+      {/* CASES */}
+      {cases.length > 0 && (
+        <>
+          <Slide id="marcas" chap="marcas" tone="lime" className="lbc-cases-intro">
+            <p className="lbc-kicker">
+              <b>Portfólio</b>
+            </p>
+            <h2 className="lbc-d lbc-h1">
+              Marcas e estratégias
+              <br />
+              que construímos
+            </h2>
+            <nav className="lbc-chips" aria-label="Cases">
+              {cases.map((c) => (
+                <a key={c.slug} href={`#case-${c.slug}`}>
+                  {c.name}
+                </a>
+              ))}
+            </nav>
+          </Slide>
+          {cases.map((c) => (
+            <CaseSlides key={c.slug} c={c} onOpen={openLb(c.name)} />
+          ))}
+        </>
+      )}
+
+      {/* COMO TRABALHAMOS */}
+      <Slide id="como-trabalhamos" chap="como-trabalhamos" tone="paper">
+        <p className="lbc-kicker">
+          <b>Como trabalhamos</b>
+        </p>
+        <h2 className="lbc-d lbc-h1">
+          Da pesquisa
+          <br />à entrega final
+        </h2>
+        <div className="lbc-gantt" role="table" aria-label="Cronograma do projeto">
+          <div role="row" style={{ display: "contents" }}>
+            <div className="wk" style={{ borderLeft: 0 }} />
+            {[1, 2, 3, 4, 5, 6].map((n) => (
+              <div className="wk" key={n} role="columnheader">
+                Semana {n}
+              </div>
+            ))}
+          </div>
+          <GanttRow
+            title="Onboarding e Pesquisa"
+            text="Você responde o Legacy Brand Canvas e fazemos as calls de alinhamento"
+          >
+            <div className="bar" style={{ gridColumn: "1/2" }}>
+              Pesquisa
+            </div>
+          </GanttRow>
+          <GanttRow title="Moodboard" text="A direção visual da sua marca">
+            <div className="bar" style={{ gridColumn: "2/3" }}>
+              Moodboard
+            </div>
+          </GanttRow>
+          <GanttRow
+            title="Criação da identidade visual"
+            text="Testes, validação e apresentação"
+            tall
+          >
+            <div className="bar hot" style={{ gridColumn: "3/6" }}>
+              Criação da identidade visual
+            </div>
+            <div className="subs" style={{ gridColumn: "3/6" }}>
+              <span>Testes</span>
+              <span>Validação</span>
+              <span>Apresentação</span>
+            </div>
+          </GanttRow>
+          <GanttRow title="Entrega final" text="Todos os arquivos organizados no Google Drive">
+            <div className="bar" style={{ gridColumn: "6/7" }}>
+              Entrega
+            </div>
+          </GanttRow>
+        </div>
+        <p className="lbc-note">
+          * O prazo de {p.deadline_days} dias se inicia{" "}
+          <b>após respondido com profundidade a ferramenta Legacy Brand Canvas</b> e após possíveis
+          calls de alinhamento.
+        </p>
+      </Slide>
+
+      {/* ENTREGÁVEIS */}
+      <Slide id="entregaveis" chap="entregaveis" tone="surface">
+        <p className="lbc-kicker">
+          <b>O que você recebe</b>
+        </p>
+        <h2 className="lbc-d lbc-h1">
+          {deliverables.length === 8 ? "Oito entregas que" : `${deliverables.length} entregas que`}
+          <br />
+          formam a sua marca
+        </h2>
+        <ol className="lbc-dl">
+          {deliverables.map((d, i) => (
+            <li key={d.title}>
+              <small>{String(i + 1).padStart(2, "0")}</small>
+              <b>{d.title}</b>
+              <p>{d.text}</p>
+            </li>
+          ))}
+        </ol>
+      </Slide>
+
+      {/* INVESTIMENTO */}
+      <Slide id="investimento" chap="investimento" tone="deep" className="lbc-inv">
+        <div>
+          <p className="lbc-kicker">
+            <b>Investimento</b>
+          </p>
+          <p className="lbc-total">
+            <span>R$</span>
+            {onEdit ? (
+              <EditText
+                value={brlNumber(price.total)}
+                placeholder="0,00"
+                selectAll
+                onCommit={(v) => {
+                  const n = parseBrl(v);
+                  if (Number.isFinite(n) && n >= 0)
+                    onEdit({ price_total: Math.round(n * 100) / 100 });
+                }}
+              />
+            ) : (
+              brlNumber(price.total)
+            )}
+          </p>
+          <div className="lbc-prazo">
+            <div>
+              <small>Prazo estimado</small>
+              <b>
+                {onEdit ? (
+                  <EditText
+                    value={String(p.deadline_days)}
+                    placeholder="40"
+                    selectAll
+                    onCommit={(v) => {
+                      const n = Math.round(Number(v.replace(/\D/g, "")));
+                      if (n >= 1 && n <= 365) onEdit({ deadline_days: n });
+                    }}
+                  />
+                ) : (
+                  p.deadline_days
+                )}{" "}
+                dias
+              </b>
+            </div>
+            <div>
+              <small>Entregas</small>
+              <b>{deliverables.length}</b>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div className={`lbc-opts${price.showInstallments ? "" : " single"}`}>
+            {price.showInstallments && (
+              <div className="lbc-opt">
+                <h3>Em {price.installments} vezes</h3>
+                <div className="v">
+                  <small>{price.installments}x</small>R$ {brlShort(price.installmentValue)}
+                </div>
+                <p>{txt("installments_note", p.installments_note, "Texto das parcelas")}</p>
+              </div>
+            )}
+            <div className={`lbc-opt${price.hasDiscount ? " best" : ""}`}>
+              {price.hasDiscount && <span className="tag">{brlShort(price.pct)}% OFF</span>}
+              <h3>{price.showInstallments ? "À vista" : "Pagamento único"}</h3>
+              <div className="v">
+                <small>R$</small>
+                {brlShort(price.cashValue)}
+              </div>
+              <p>{txt("cash_note", p.cash_note, "Texto do pagamento à vista")}</p>
+            </div>
+          </div>
+          {validText && (
+            <p className={`lbc-valid${valid.expired ? " late" : ""}`}>
+              <i className="dot" />
+              <span>{validText}</span>
+            </p>
+          )}
+        </div>
+      </Slide>
+
+      {/* PRÓXIMOS PASSOS */}
+      <Slide id="proximos-passos" chap="proximos-passos" tone="lime">
+        <p className="lbc-kicker">
+          <b>Próximos passos</b>
+        </p>
+        <h2 className="lbc-d lbc-h1">Como começamos</h2>
+        <ol className="lbc-steps">
+          <li>
+            <small>Passo 1</small>
+            <b>Aceite da proposta</b>
+            <p>Você confirma a forma de pagamento que prefere.</p>
+          </li>
+          <li>
+            <small>Passo 2</small>
+            <b>Legacy Brand Canvas</b>
+            <p>Você responde com profundidade a nossa ferramenta de estratégia.</p>
+          </li>
+          <li>
+            <small>Passo 3</small>
+            <b>Início do projeto</b>
+            <p>
+              Fazemos as calls de alinhamento e o prazo de {p.deadline_days} dias começa a contar.
+            </p>
+          </li>
+        </ol>
+      </Slide>
+
+      {/* ENCERRAMENTO */}
+      <Slide id="fim" chap="proximos-passos" tone="deep" className="lbc-end">
+        <img src={BRAND.logoLight} alt="Legacy BrandCo." width={1716} height={612} loading="lazy" />
+        <div className="row">
+          <span>Legacy BrandCo. Estratégia de Marca</span>
+          <span>{BRAND.siteLabel}</span>
+        </div>
+      </Slide>
+
+      {chrome && (
+        <div className="lbc-ctrl lbc-no-print" role="toolbar" aria-label="Apresentação">
+          <span className="lbc-ctrl-pos">
+            <b>{String(current + 1).padStart(2, "0")}</b> / {String(total).padStart(2, "0")}
+            <span className="lbc-ctrl-chap">{chapterLabel}</span>
+          </span>
+          <button
+            onClick={() => goTo(current - 1)}
+            disabled={current === 0}
+            aria-label="Slide anterior"
+          >
+            <ArrowUp />
+          </button>
+          <button
+            onClick={() => goTo(current + 1)}
+            disabled={current >= total - 1}
+            aria-label="Próximo slide"
+          >
+            <ArrowDown />
+          </button>
+          <button onClick={() => setIndexOpen(true)} aria-haspopup="dialog">
+            <MenuIcon /> Índice
+          </button>
+          <button onClick={() => void print()} disabled={preparing}>
+            <DownloadIcon /> {preparing ? "Preparando..." : "PDF"}
+          </button>
+          <button onClick={toggleFullscreen} aria-label="Tela cheia" title="Tela cheia (F)">
+            <FullscreenIcon />
+          </button>
+        </div>
+      )}
+
+      {indexOpen && (
+        <nav className="lbc-index lbc-no-print" role="dialog" aria-modal="true" aria-label="Índice">
+          <div className="lbc-index-in">
             <header>
               <img
                 src={BRAND.sealLight}
@@ -249,7 +654,7 @@ export default function ProposalView({
                 <li key={c.id}>
                   <a
                     href={`#${c.id}`}
-                    aria-current={c.id === active ? "true" : undefined}
+                    aria-current={c.id === chapterId ? "true" : undefined}
                     onClick={() => setIndexOpen(false)}
                   >
                     {c.label}
@@ -261,409 +666,33 @@ export default function ProposalView({
         </nav>
       )}
 
-      <main>
-        {/* CAPA */}
-        <section className="lbc-cover lbc-snap lbc-page" id="inicio" data-chap="inicio">
-          <div className="lbc-wrap">
-            <div className="lbc-cover-meta">
-              <span>
-                {txt(
-                  "cover_label",
-                  p.cover_label || "Proposta de Estratégia de Marca",
-                  "Proposta de Estratégia de Marca",
-                )}
-              </span>
-              <span>{coverDate}</span>
-            </div>
-            <div className="lbc-mark">
-              <img src={BRAND.logoDark} alt="Legacy BrandCo." width={1716} height={612} />
-            </div>
-            <div className="lbc-for">
-              <div>
-                <small>Proposta preparada para</small>
-                <div className="lbc-client">{txt("client_name", client, "Nome do cliente")}</div>
-              </div>
-              <a className="lbc-go lbc-no-print" href={showDiag ? "#entendemos" : "#quem-somos"}>
-                Role para começar <ArrowDown />
-              </a>
-            </div>
-          </div>
-        </section>
-
-        {/* DIAGNÓSTICO */}
-        {showDiag && (
-          <section
-            className="lbc-sec lbc-diag lbc-snap lbc-page"
-            id="entendemos"
-            data-chap="entendemos"
-          >
-            <div className="lbc-wrap">
-              <p className="lbc-kicker">
-                <b>O seu negócio</b>
-              </p>
-              <h2 className="lbc-d lbc-h1">
-                O que entendemos
-                <br />
-                sobre {client}
-              </h2>
-              <div className="lbc-cols">
-                {(
-                  [
-                    ["Momento", diag.moment, DIAGNOSIS_PLACEHOLDERS.moment, "diagnosis_moment"],
-                    [
-                      "Desafio",
-                      diag.challenge,
-                      DIAGNOSIS_PLACEHOLDERS.challenge,
-                      "diagnosis_challenge",
-                    ],
-                    ["Objetivo", diag.goal, DIAGNOSIS_PLACEHOLDERS.goal, "diagnosis_goal"],
-                  ] as const
-                )
-                  .filter(([, v]) => v || showPlaceholders)
-                  .map(([label, v, ph, field]) => (
-                    <div className="lbc-col" key={label}>
-                      <h3>{label}</h3>
-                      <p className={v || onEdit ? "" : "ph"}>{txt(field, v || ph, ph)}</p>
-                    </div>
-                  ))}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* QUEM SOMOS */}
-        <section
-          className="lbc-sec lbc-about lbc-snap lbc-page"
-          id="quem-somos"
-          data-chap="quem-somos"
-        >
-          <div className="lbc-wrap lbc-grid-2">
-            <div className="lbc-mosaic" aria-label="Equipe Legacy BrandCo.">
-              {BRAND.team.map((src, i) => (
-                <img key={src} className={`m${i}`} src={src} alt="" loading="lazy" />
-              ))}
-            </div>
-            <div>
-              <p className="lbc-kicker">
-                <b>Quem somos</b>
-              </p>
-              <h2 className="lbc-d lbc-h2">
-                Somos especialistas em Branding, Estratégia e construção de marcas.
-              </h2>
-              <ul className="lbc-facts">
-                <li>Mais de 8 anos de experiência</li>
-                <li>Clientes atendidos em todo o Brasil</li>
-                <li>Trabalhamos com grandes players do mercado</li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        {/* O QUE FAZEMOS */}
-        <section
-          className="lbc-sec lbc-deep lbc-snap lbc-page"
-          id="o-que-fazemos"
-          data-chap="o-que-fazemos"
-        >
-          <div className="lbc-wrap">
-            <p className="lbc-kicker">
-              <b>O que fazemos</b>
-            </p>
-            <h2 className="lbc-d lbc-h1">
-              Estratégia de marca
-              <br />e Identidade Visual
-            </h2>
-            <p className="lbc-promise">
-              Nós criamos <strong>estrategicamente o seu posicionamento de marca</strong> no
-              mercado, construímos a sua <strong>base de comunicação</strong> e destacamos o seu{" "}
-              <strong>diferencial de atuação</strong>.
-            </p>
-            <div className="lbc-flow" aria-label="Do posicionamento à identidade visual">
-              <div>
-                <small>Estratégia</small>
-                <b>Posicionamento de marca</b>
-              </div>
-              <div>
-                <small>Estratégia</small>
-                <b>Base de comunicação</b>
-              </div>
-              <div>
-                <small>Estratégia</small>
-                <b>Diferencial de atuação</b>
-              </div>
-              <div>
-                <small>Resultado</small>
-                <b>Identidade visual de alto padrão</b>
-              </div>
-            </div>
-            <p className="lbc-close-line">
-              Traduzimos tudo isso em uma identidade visual de alto padrão, totalmente intencional e
-              alinhada com os seus objetivos.
-            </p>
-          </div>
-        </section>
-
-        {/* CASES */}
-        {cases.length > 0 && (
-          <>
-            <section
-              className="lbc-sec lbc-cases-intro lbc-snap lbc-page"
-              id="marcas"
-              data-chap="marcas"
-            >
-              <div className="lbc-wrap">
-                <p className="lbc-kicker">
-                  <b>Portfólio</b>
-                </p>
-                <h2 className="lbc-d lbc-h1">
-                  Marcas e estratégias
-                  <br />
-                  que construímos
-                </h2>
-                <nav className="lbc-chips lbc-no-print" aria-label="Cases">
-                  {cases.map((c) => (
-                    <a key={c.slug} href={`#case-${c.slug}`}>
-                      {c.name}
-                    </a>
-                  ))}
-                </nav>
-              </div>
-            </section>
-            {cases.map((c) => (
-              <CaseBlock
-                key={c.slug}
-                c={c}
-                onOpen={(images, i) => setLb({ images, i, name: c.name })}
-              />
-            ))}
-          </>
-        )}
-
-        {/* COMO TRABALHAMOS */}
-        <section
-          className="lbc-sec lbc-snap lbc-page"
-          id="como-trabalhamos"
-          data-chap="como-trabalhamos"
-        >
-          <div className="lbc-wrap">
-            <p className="lbc-kicker">
-              <b>Como trabalhamos</b>
-            </p>
-            <h2 className="lbc-d lbc-h1">
-              Da pesquisa
-              <br />à entrega final
-            </h2>
-            <div className="lbc-gantt" role="table" aria-label="Cronograma do projeto">
-              <div role="row" style={{ display: "contents" }}>
-                <div className="wk" style={{ borderLeft: 0 }} />
-                {[1, 2, 3, 4, 5, 6].map((n) => (
-                  <div className="wk" key={n} role="columnheader">
-                    Semana {n}
-                  </div>
-                ))}
-              </div>
-              <GanttRow
-                w="Semana 1"
-                title="Onboarding e Pesquisa"
-                text="Você responde o Legacy Brand Canvas e fazemos as calls de alinhamento"
-              >
-                <div className="bar" style={{ gridColumn: "1/2" }}>
-                  Pesquisa
-                </div>
-              </GanttRow>
-              <GanttRow w="Semana 2" title="Moodboard" text="A direção visual da sua marca">
-                <div className="bar" style={{ gridColumn: "2/3" }}>
-                  Moodboard
-                </div>
-              </GanttRow>
-              <GanttRow
-                w="Semanas 3 a 5"
-                title="Criação da identidade visual"
-                text="Testes, validação e apresentação"
-                tall
-              >
-                <div className="bar hot" style={{ gridColumn: "3/6" }}>
-                  Criação da identidade visual
-                </div>
-                <div className="subs" style={{ gridColumn: "3/6" }}>
-                  <span>Testes</span>
-                  <span>Validação</span>
-                  <span>Apresentação</span>
-                </div>
-              </GanttRow>
-              <GanttRow
-                w="Semana 6"
-                title="Entrega final"
-                text="Todos os arquivos organizados no Google Drive"
-              >
-                <div className="bar" style={{ gridColumn: "6/7" }}>
-                  Entrega
-                </div>
-              </GanttRow>
-            </div>
-            <p className="lbc-note">
-              * O prazo de {p.deadline_days} dias se inicia{" "}
-              <b>após respondido com profundidade a ferramenta Legacy Brand Canvas</b> e após
-              possíveis calls de alinhamento.
-            </p>
-          </div>
-        </section>
-
-        {/* ENTREGÁVEIS */}
-        <Deliverables items={deliverables} />
-
-        {/* INVESTIMENTO */}
-        <section
-          className="lbc-sec lbc-deep lbc-inv lbc-snap lbc-page"
-          id="investimento"
-          data-chap="investimento"
-        >
-          <div className="lbc-wrap lbc-grid-2 inv">
-            <div>
-              <p className="lbc-kicker">
-                <b>Investimento</b>
-              </p>
-              <p className="lbc-total">
-                <span>R$</span>
-                {onEdit ? (
-                  <EditText
-                    value={brlNumber(price.total)}
-                    placeholder="0,00"
-                    selectAll
-                    onCommit={(v) => {
-                      const n = parseBrl(v);
-                      if (Number.isFinite(n) && n >= 0)
-                        onEdit({ price_total: Math.round(n * 100) / 100 });
-                    }}
-                  />
-                ) : (
-                  brlNumber(price.total)
-                )}
-              </p>
-              <div className="lbc-prazo">
-                <div>
-                  <small>Prazo estimado</small>
-                  <b>
-                    {onEdit ? (
-                      <EditText
-                        value={String(p.deadline_days)}
-                        placeholder="40"
-                        selectAll
-                        onCommit={(v) => {
-                          const n = Math.round(Number(v.replace(/\D/g, "")));
-                          if (n >= 1 && n <= 365) onEdit({ deadline_days: n });
-                        }}
-                      />
-                    ) : (
-                      p.deadline_days
-                    )}{" "}
-                    dias
-                  </b>
-                </div>
-                <div>
-                  <small>Entregas</small>
-                  <b>{deliverables.length}</b>
-                </div>
-              </div>
-            </div>
-            <div>
-              <div className={`lbc-opts${price.showInstallments ? "" : " single"}`}>
-                {price.showInstallments && (
-                  <div className="lbc-opt">
-                    <h3>Em {price.installments} vezes</h3>
-                    <div className="v">
-                      <small>{price.installments}x</small>R$ {brlShort(price.installmentValue)}
-                    </div>
-                    <p>{txt("installments_note", p.installments_note, "Texto das parcelas")}</p>
-                  </div>
-                )}
-                <div className={`lbc-opt${price.hasDiscount ? " best" : ""}`}>
-                  {price.hasDiscount && <span className="tag">{brlShort(price.pct)}% OFF</span>}
-                  <h3>{price.showInstallments ? "À vista" : "Pagamento único"}</h3>
-                  <div className="v">
-                    <small>R$</small>
-                    {brlShort(price.cashValue)}
-                  </div>
-                  <p>{txt("cash_note", p.cash_note, "Texto do pagamento à vista")}</p>
-                </div>
-              </div>
-              {validText && (
-                <p className={`lbc-valid${valid.expired ? " late" : ""}`}>
-                  <i className="dot" />
-                  <span>{validText}</span>
-                </p>
-              )}
-            </div>
-          </div>
-        </section>
-
-        {/* PRÓXIMOS PASSOS */}
-        <section
-          className="lbc-sec lbc-next lbc-snap lbc-page"
-          id="proximos-passos"
-          data-chap="proximos-passos"
-        >
-          <div className="lbc-wrap">
-            <p className="lbc-kicker">
-              <b>Próximos passos</b>
-            </p>
-            <h2 className="lbc-d lbc-h1">Como começamos</h2>
-            <ol className="lbc-steps">
-              <li>
-                <small>Passo 1</small>
-                <b>Aceite da proposta</b>
-                <p>Você confirma a forma de pagamento que prefere.</p>
-              </li>
-              <li>
-                <small>Passo 2</small>
-                <b>Legacy Brand Canvas</b>
-                <p>Você responde com profundidade a nossa ferramenta de estratégia.</p>
-              </li>
-              <li>
-                <small>Passo 3</small>
-                <b>Início do projeto</b>
-                <p>
-                  Fazemos as calls de alinhamento e o prazo de {p.deadline_days} dias começa a
-                  contar.
-                </p>
-              </li>
-            </ol>
-            <div className="lbc-cta lbc-no-print">
-              <a className="primary" href={ctaHref} target="_blank" rel="noopener noreferrer">
-                {valid.expired ? "Pedir valores atualizados" : "Quero começar"} <ArrowRight />
-              </a>
-              <button className="ghost" onClick={() => void print()} disabled={preparing}>
-                <DownloadIcon /> {preparing ? "Preparando PDF..." : "Baixar PDF"}
-              </button>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <footer className="lbc-end lbc-page">
-        <div className="lbc-wrap">
-          <img
-            src={BRAND.logoLight}
-            alt="Legacy BrandCo."
-            width={1716}
-            height={612}
-            loading="lazy"
-          />
-          <div className="row">
-            <span>Legacy BrandCo. Estratégia de Marca</span>
-            <a href={BRAND.site} target="_blank" rel="noopener noreferrer">
-              {BRAND.siteLabel}
-            </a>
-          </div>
-        </div>
-      </footer>
-
       {lb && <Lightbox state={lb} onClose={closeLb} onStep={stepLb} />}
     </div>
   );
 }
 
 /* =================== Subcomponentes =================== */
+
+/** Um slide de 1920x1080, centralizado e escalado para caber na tela. */
+function Slide({
+  id,
+  chap,
+  tone,
+  className = "",
+  children,
+}: {
+  id?: string;
+  chap: string;
+  tone: "lime" | "paper" | "surface" | "deep";
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className={`lbc-frame tone-${tone} ${className}`} id={id} data-chap={chap}>
+      <div className="lbc-slide">{children}</div>
+    </section>
+  );
+}
 
 /**
  * Texto que se edita com um clique (modo de edição do CRM).
@@ -741,65 +770,145 @@ function EditText({
 }
 
 function GanttRow({
-  w,
   title,
   text,
   tall,
   children,
 }: {
-  w: string;
   title: string;
   text: string;
   tall?: boolean;
   children: ReactNode;
 }) {
   return (
-    <>
-      <div className="lab" data-w={w} role="rowheader">
+    <div role="row" style={{ display: "contents" }}>
+      <div className="lab" role="rowheader">
         <b>{title}</b>
         <span>{text}</span>
       </div>
-      <div className={`trk${tall ? " tall" : ""}`} role="cell">
-        {children}
-      </div>
-    </>
+      <div className={`trk${tall ? " tall" : ""}`}>{children}</div>
+    </div>
   );
 }
 
-function CaseBlock({ c, onOpen }: { c: CaseStudy; onOpen: (images: string[], i: number) => void }) {
+/** Imagem clicável (abre a galeria) que troca pela cópia local se o link do site falhar. */
+function Shot({
+  src,
+  alt,
+  onOpen,
+  className = "",
+  onError,
+}: {
+  src: string;
+  alt: string;
+  onOpen: () => void;
+  className?: string;
+  onError: () => void;
+}) {
+  return (
+    <button className={`lbc-shot ${className}`} onClick={onOpen} aria-label={alt}>
+      <img src={src} alt={alt} loading="lazy" onError={onError} />
+    </button>
+  );
+}
+
+/**
+ * Cases viram um ou dois slides:
+ * - com Contexto/Desafio/O que foi feito: apresentação + história;
+ * - com frase da marca: frase ao lado das imagens;
+ * - com resumo: resumo ao lado da imagem.
+ */
+function CaseSlides({
+  c,
+  onOpen,
+}: {
+  c: CaseStudy;
+  onOpen: (images: string[], i: number) => void;
+}) {
   const [broken, setBroken] = useState<Set<string>>(new Set());
   const backup = LOCAL_BACKUP_IMAGES[c.slug] ?? [];
   const alive = c.images.filter((s) => !broken.has(s));
   const images = alive.length ? alive : backup;
-  const markBroken = (src: string) => setBroken((b) => new Set(b).add(src));
-  const MAX_THUMBS = 4;
-  const thumbs = images.slice(1, 1 + MAX_THUMBS);
-  const rest = images.length - 1 - thumbs.length;
+  const markBroken = (src: string) => () => setBroken((b) => new Set(b).add(src));
   const hasStory = !!(c.context || c.challenge || c.solution);
 
   if (!images.length) return null;
 
+  const shot = (i: number, className = "") =>
+    images[i] ? (
+      <Shot
+        key={images[i]}
+        src={images[i]}
+        alt={i === 0 ? `Identidade visual ${c.name}` : `Imagem ${i + 1} de ${c.name}`}
+        className={className}
+        onOpen={() => onOpen(images, i)}
+        onError={markBroken(images[i])}
+      />
+    ) : null;
+
+  const head = (
+    <div className="lbc-case-head">
+      <p className="seg">{c.segment}</p>
+      <h3 className="lbc-d name">{c.name}</h3>
+      {c.handle && <span className="handle">{c.handle}</span>}
+    </div>
+  );
+
+  const more =
+    c.siteUrl || images.length > 1 ? (
+      <div className="lbc-case-meta lbc-no-print">
+        <span>{images.length > 1 ? `${images.length} imagens` : ""}</span>
+        {c.siteUrl && (
+          <a href={c.siteUrl} target="_blank" rel="noopener noreferrer">
+            Ver case completo <ArrowRight />
+          </a>
+        )}
+      </div>
+    ) : null;
+
+  // Galeria do lado direito: 1 imagem, 2 empilhadas ou principal + 3 miniaturas.
+  const gallery =
+    images.length === 1 ? (
+      <div className="lbc-case-gal one">{shot(0)}</div>
+    ) : images.length === 2 ? (
+      <div className="lbc-case-gal two">
+        {shot(0)}
+        {shot(1)}
+      </div>
+    ) : (
+      <div className="lbc-case-gal many">
+        {shot(0, "main")}
+        <div className="thumbs">
+          {shot(1)}
+          {shot(2)}
+          {shot(3)}
+        </div>
+      </div>
+    );
+
   return (
-    <section className="lbc-case lbc-snap lbc-page" id={`case-${c.slug}`} data-chap="marcas">
-      <div className="lbc-wrap">
-        <div className="head">
-          <div>
+    <>
+      <Slide id={`case-${c.slug}`} chap="marcas" tone="paper" className="lbc-case">
+        <div className="lbc-case-txt">
+          {head}
+          {c.summary ? (
+            <p className="txt">{c.summary}</p>
+          ) : c.quote ? (
+            <p className="quote">
+              “{c.quote}”<small>Frase da marca</small>
+            </p>
+          ) : null}
+          {!hasStory && more}
+        </div>
+        {gallery}
+      </Slide>
+
+      {hasStory && (
+        <Slide chap="marcas" tone="surface" className="lbc-case-story">
+          <div className="lbc-case-story-head">
             <p className="seg">{c.segment}</p>
             <h3 className="lbc-d name">{c.name}</h3>
-            {c.handle && <span className="handle">{c.handle}</span>}
           </div>
-          <div>
-            {c.summary ? (
-              <p className="txt">{c.summary}</p>
-            ) : c.quote ? (
-              <p className="quote">
-                “{c.quote}”<small>Frase da marca</small>
-              </p>
-            ) : null}
-          </div>
-        </div>
-
-        {hasStory && (
           <div className="story">
             {c.context && (
               <div>
@@ -820,94 +929,18 @@ function CaseBlock({ c, onOpen }: { c: CaseStudy; onOpen: (images: string[], i: 
               </div>
             )}
           </div>
-        )}
-
-        <div className="lbc-gal">
-          <button
-            className="main"
-            onClick={() => onOpen(images, 0)}
-            aria-label={`Ampliar imagem de ${c.name}`}
-          >
-            <img
-              src={images[0]}
-              alt={`Identidade visual ${c.name}`}
-              loading="lazy"
-              onError={() => markBroken(images[0])}
-            />
-          </button>
-          {thumbs.length > 0 && (
-            <div
-              className="row"
-              style={{ gridTemplateColumns: `repeat(${thumbs.length}, minmax(0,1fr))` }}
-            >
-              {thumbs.map((src, k) => (
-                <button
-                  key={src}
-                  onClick={() => onOpen(images, k + 1)}
-                  aria-label={`Ampliar imagem ${k + 2} de ${c.name}`}
-                >
-                  <img src={src} alt="" loading="lazy" onError={() => markBroken(src)} />
-                  {k === thumbs.length - 1 && rest > 0 && <span className="more">+{rest}</span>}
-                </button>
-              ))}
+          {images.length > 4 && (
+            <div className="strip">
+              {shot(4)}
+              {shot(5)}
+              {shot(6)}
+              {shot(7)}
             </div>
           )}
-          <div className="meta lbc-no-print">
-            <span>{images.length > 1 ? `${images.length} imagens` : ""}</span>
-            {c.siteUrl && (
-              <a href={c.siteUrl} target="_blank" rel="noopener noreferrer">
-                Ver case completo <ArrowRight />
-              </a>
-            )}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Deliverables({ items }: { items: { title: string; text: string }[] }) {
-  const [openAll, setOpenAll] = useState<boolean | null>(null);
-  const ref = useRef<HTMLDivElement>(null);
-  const toggleAll = () => {
-    const all = [...(ref.current?.querySelectorAll("details") ?? [])];
-    const next = !all.every((d) => d.open);
-    all.forEach((d) => (d.open = next));
-    setOpenAll(next);
-  };
-  return (
-    <section
-      className="lbc-sec lbc-snap lbc-page lbc-surface"
-      id="entregaveis"
-      data-chap="entregaveis"
-    >
-      <div className="lbc-wrap">
-        <p className="lbc-kicker">
-          <b>O que você recebe</b>
-        </p>
-        <h2 className="lbc-d lbc-h1">
-          {items.length === 8 ? "Oito entregas que" : `${items.length} entregas que`}
-          <br />
-          formam a sua marca
-        </h2>
-        <div className="lbc-dl" ref={ref}>
-          {items.map((d) => (
-            <details key={d.title}>
-              <summary>
-                {d.title}
-                <i aria-hidden="true" />
-              </summary>
-              <p>{d.text}</p>
-            </details>
-          ))}
-        </div>
-        <div className="lbc-dl-actions lbc-no-print">
-          <button className="lbc-link-btn" onClick={toggleAll}>
-            {openAll ? "Fechar todos" : "Abrir todos"}
-          </button>
-        </div>
-      </div>
-    </section>
+          {more}
+        </Slide>
+      )}
+    </>
   );
 }
 
@@ -924,7 +957,7 @@ function Lightbox({
   const multi = state.images.length > 1;
   return (
     <div
-      className="lbc-lb"
+      className="lbc-lb lbc-no-print"
       role="dialog"
       aria-modal="true"
       aria-label={`Imagens de ${state.name}`}
@@ -994,8 +1027,8 @@ const ArrowRight = () => (
 );
 const ArrowDown = () => (
   <svg
-    width="12"
-    height="12"
+    width="14"
+    height="14"
     viewBox="0 0 12 12"
     fill="none"
     stroke="currentColor"
@@ -1003,6 +1036,19 @@ const ArrowDown = () => (
     aria-hidden="true"
   >
     <path d="M6 1v10M1.5 6.5 6 11l4.5-4.5" />
+  </svg>
+);
+const ArrowUp = () => (
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 12 12"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.6"
+    aria-hidden="true"
+  >
+    <path d="M6 11V1M1.5 5.5 6 1l4.5 4.5" />
   </svg>
 );
 const MenuIcon = () => (
@@ -1029,5 +1075,18 @@ const DownloadIcon = () => (
     aria-hidden="true"
   >
     <path d="M7 1v8M3.5 5.5 7 9l3.5-3.5M1.5 12.5h11" />
+  </svg>
+);
+const FullscreenIcon = () => (
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 14 14"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.6"
+    aria-hidden="true"
+  >
+    <path d="M1 5V1h4M9 1h4v4M13 9v4H9M5 13H1V9" />
   </svg>
 );

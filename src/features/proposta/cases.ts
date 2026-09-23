@@ -8,7 +8,6 @@ import { ASSET } from "./defaults";
  * Veja CLAUDE.md, passo 4.
  */
 const SITE = "https://legacybc.com.br";
-const SITE_ASSET = (id: string, file: string) => `${SITE}/__l5e/assets-v1/${id}/${file}`;
 
 export const CASES: CaseStudy[] = [
   {
@@ -18,7 +17,7 @@ export const CASES: CaseStudy[] = [
     summary:
       "A Geriacademy é uma instituição de ensino voltada para a capacitação de médicos e profissionais de saúde no assunto da Geriatria e o cuidado com o Idoso. Lidera um movimento de valorização da saúde do idoso, atraindo profissionais comprometidos em melhorar a qualidade de vida desta população.",
     siteUrl: `${SITE}/cases/geriacademy`,
-    images: [ASSET("cases/geriacademy.webp")],
+    images: [ASSET("cases/geriacademy.jpg")],
   },
   {
     slug: "medcopilot",
@@ -26,7 +25,7 @@ export const CASES: CaseStudy[] = [
     segment: "Tecnologia em saúde",
     summary:
       "Pioneira em tecnologia para uma nova era de cuidados na saúde. Conecta-se com profissionais que valorizam soluções inteligentes e personalizadas. Deseja passar segurança, acelerar inovações, descomplicar o atendimento médico e cultivar colaborações significativas no setor da saúde.",
-    images: [ASSET("cases/medcopilot.webp")],
+    images: [ASSET("cases/medcopilot.jpg")],
   },
   {
     slug: "nutri-yuri-gomes",
@@ -35,7 +34,7 @@ export const CASES: CaseStudy[] = [
     handle: "@nutriyurigomes",
     summary:
       "Nutri Yuri Gomes é uma marca pessoal que atua no mercado de Nutrição. Busca aumentar a autoestima, confiança, bem-estar e saúde de homens e mulheres que estão insatisfeitos e precisam de ajuda. Realiza tudo isso com cuidado personalizado e proximidade com seus pacientes.",
-    images: [ASSET("cases/nutri-yuri-gomes.webp")],
+    images: [ASSET("cases/nutri-yuri-gomes.jpg")],
   },
   {
     slug: "mariana-brumatti",
@@ -44,7 +43,7 @@ export const CASES: CaseStudy[] = [
     handle: "@dramarianabrumatti",
     summary:
       "Mariana Brumatti é uma biomédica esteta de Minas Gerais, uma profissional apaixonada e dedicada. Em sua empresa disponibiliza uma ampla gama de tratamentos de rejuvenescimento e bem-estar, para ajudar cada cliente a sentir-se bem consigo mesmo.",
-    images: [ASSET("cases/mariana-brumatti.webp")],
+    images: [ASSET("cases/mariana-brumatti.jpg")],
   },
   {
     slug: "moewa",
@@ -61,14 +60,14 @@ export const CASES: CaseStudy[] = [
       'A partir de uma tese de comunicação forte, "Quando uma mulher está com autoestima elevada e organização mental, ela resolve qualquer problema", unificamos a entrega técnica em uma jornada completa. Em vez de procedimentos isolados e promessas milagrosas de antes e depois, a MOEWA passou a se posicionar com uma experiência integrada em que estética corporal, nutrição e bem-estar caminham juntos. O resultado não aparece apenas no espelho, mas se sustenta no sono, na energia e no treino.',
     siteUrl: `${SITE}/cases/moewa`,
     images: [
-      SITE_ASSET("e83156e5-125d-43cf-8084-8096fbf58b0d", "moewa-clube-card.png"),
-      SITE_ASSET("2d3b1cc2-76ab-4bee-ad00-b51bc188a211", "moewa-poster-manifesto.png"),
-      SITE_ASSET("1f792934-ba38-4766-9949-ed2b2d267e93", "moewa-uniform.png"),
-      SITE_ASSET("c5666b9a-af37-4dab-9f6b-830a80e82d09", "moewa-wellness-shot.png"),
-      SITE_ASSET("d7b57c27-42ef-4706-8c2c-a50102b0ae9e", "moewa-cartao.jpg"),
-      SITE_ASSET("e2f26b8a-fef0-4ac7-abd4-77cc03ab0b38", "moewa-sacola.jpg"),
-      SITE_ASSET("2673df9b-6104-4639-bd35-10b599dacfef", "moewa-home-spray.jpg"),
-      SITE_ASSET("1f13c282-c6a2-41b9-aeaa-864c03f4ecb9", "moewa-palette.png"),
+      ASSET("cases/moewa/moewa-clube-card.jpg"),
+      ASSET("cases/moewa/moewa-poster-manifesto.jpg"),
+      ASSET("cases/moewa/moewa-uniform.jpg"),
+      ASSET("cases/moewa/moewa-wellness-shot.jpg"),
+      ASSET("cases/moewa/moewa-cartao.jpg"),
+      ASSET("cases/moewa/moewa-sacola.jpg"),
+      ASSET("cases/moewa/moewa-home-spray.jpg"),
+      ASSET("cases/moewa/moewa-palette.jpg"),
     ],
   },
   {
@@ -77,7 +76,7 @@ export const CASES: CaseStudy[] = [
     segment: "Marca pessoal, educação financeira",
     quote: "Quanto você investiria na sua paz?",
     siteUrl: `${SITE}/cases/joana-co`,
-    images: [ASSET("cases/joana-co-1.webp"), ASSET("cases/joana-co-2.webp")],
+    images: [ASSET("cases/joana-co-1.jpg"), ASSET("cases/joana-co-2.jpg")],
   },
   {
     slug: "308-network",
@@ -93,22 +92,22 @@ export const CASES: CaseStudy[] = [
       "Criamos um reposicionamento completo de marca para sustentar a expansão da 308, com narrativa mais estratégica, identidade visual de presença forte e aplicações que reforçam autoridade, clareza e visão de longo prazo em todos os pontos de contato.",
     siteUrl: `${SITE}/cases/308-network`,
     images: [
-      SITE_ASSET("25f6fa8c-7e8a-437d-8eb5-1aabad5ec0e2", "308-network-out-banner.webp"),
-      SITE_ASSET("1c26e373-2ad4-499f-b912-8629fa890648", "308-network-308-foto-correndo.webp"),
-      SITE_ASSET("cf478be6-e711-4b6a-ac28-c8b87cedaf17", "308-network-308-variacoes-logo.webp"),
-      SITE_ASSET("67faf196-eba5-4ec1-95df-be2f9aaf1230", "308-network-banner-metro-moema.webp"),
-      SITE_ASSET("6fc56679-4ba3-4434-8914-7a384129ab12", "308-network-site-tela-pc.webp"),
-      SITE_ASSET("5a6dae66-5287-463c-9120-8a95876819d7", "308-network-bone-e-moletom-juntos.webp"),
-      SITE_ASSET("587d5cbf-55a5-489a-b3ba-b60621cb8ba5", "308-network-cartao-de-visitas.webp"),
-      SITE_ASSET("ee87d032-20f2-48bb-8969-6f96e3a3ad1c", "308-network-iphone-app-patrimonio.webp"),
+      ASSET("cases/308-network/308-network-out-banner.jpg"),
+      ASSET("cases/308-network/308-network-308-foto-correndo.jpg"),
+      ASSET("cases/308-network/308-network-308-variacoes-logo.jpg"),
+      ASSET("cases/308-network/308-network-banner-metro-moema.jpg"),
+      ASSET("cases/308-network/308-network-site-tela-pc.jpg"),
+      ASSET("cases/308-network/308-network-bone-e-moletom-juntos.jpg"),
+      ASSET("cases/308-network/308-network-cartao-de-visitas.jpg"),
+      ASSET("cases/308-network/308-network-iphone-app-patrimonio.jpg"),
     ],
   },
 ];
 
 /** Imagens locais extraídas da apresentação, caso as do site mudem de endereço. */
 export const LOCAL_BACKUP_IMAGES: Record<string, string[]> = {
-  moewa: [ASSET("cases/moewa-1.webp"), ASSET("cases/moewa-2.webp"), ASSET("cases/moewa-3.webp")],
-  "308-network": [1, 2, 3, 4].map((n) => ASSET(`cases/308-network-${n}.webp`)),
+  moewa: [ASSET("cases/moewa-1.jpg"), ASSET("cases/moewa-2.jpg"), ASSET("cases/moewa-3.jpg")],
+  "308-network": [1, 2, 3, 4].map((n) => ASSET(`cases/308-network-${n}.jpg`)),
 };
 
 export const CASES_BY_SLUG: Record<string, CaseStudy> = Object.fromEntries(

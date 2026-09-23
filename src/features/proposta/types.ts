@@ -20,7 +20,6 @@ export interface Proposal {
   cash_note: string;
   deadline_days: number;
   valid_until: string | null; // AAAA-MM-DD
-  whatsapp: string | null;
   /** Cases e entregas são os padrões do kit; ficam opcionais aqui. */
   case_slugs?: string[] | null;
   deliverables?: Deliverable[] | null;
