@@ -5,6 +5,7 @@ import {
   useMemo,
   useRef,
   useState,
+  Fragment,
   type ReactNode,
 } from "react";
 import "./proposta.css";
@@ -126,11 +127,11 @@ export default function ProposalView({
     };
   }, [topOffset]);
 
-  // Um slide por tela ao rolar.
+  // Ao rolar com o mouse, a página se acomoda no slide mais próximo; os cases rolam livres.
   useEffect(() => {
     const html = document.documentElement;
     const prev = { snap: html.style.scrollSnapType, pad: html.style.scrollPaddingTop };
-    html.style.scrollSnapType = "y mandatory";
+    html.style.scrollSnapType = "y proximity";
     html.style.scrollPaddingTop = `${topOffset}px`;
     return () => {
       html.style.scrollSnapType = prev.snap;
@@ -144,8 +145,12 @@ export default function ProposalView({
   const [chapterId, setChapterId] = useState("inicio");
   const [indexOpen, setIndexOpen] = useState(false);
 
+  // Paradas da navegação: os slides e os cases que estão visíveis na tela.
   const frames = useCallback(
-    () => [...(rootRef.current?.querySelectorAll<HTMLElement>(".lbc-frame") ?? [])],
+    () =>
+      [...(rootRef.current?.querySelectorAll<HTMLElement>(".lbc-stop") ?? [])].filter(
+        (el) => el.getClientRects().length > 0,
+      ),
     [],
   );
 
@@ -153,14 +158,10 @@ export default function ProposalView({
     const onScroll = () => {
       const list = frames();
       setTotal(list.length);
+      // A parada atual é a última cujo topo já passou pelo topo da área visível.
       let best = 0;
-      let bestDist = Infinity;
       list.forEach((f, i) => {
-        const d = Math.abs(f.getBoundingClientRect().top - topOffset);
-        if (d < bestDist) {
-          bestDist = d;
-          best = i;
-        }
+        if (f.getBoundingClientRect().top <= topOffset + 8) best = i;
       });
       setCurrent(best);
       setChapterId(list[best]?.dataset.chap || "inicio");
@@ -174,15 +175,80 @@ export default function ProposalView({
     };
   }, [frames, topOffset, cases.length, showDiag]);
 
+  // Rola a janela até o elemento. Não usa scrollIntoView: o body do site tem
+  // overflow-x: hidden e o navegador tentaria rolar o body, que não rola.
+  const scrollToEl = useCallback(
+    (el: HTMLElement | null) => {
+      if (!el) return;
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      window.scrollTo({
+        top: el.getBoundingClientRect().top + window.scrollY - topOffset,
+        behavior: reduce ? "instant" : "smooth",
+      });
+    },
+    [topOffset],
+  );
+
+  // Destino do último salto: enquanto a rolagem suave acontece, novos toques
+  // continuam a partir dele (sem isso, dois toques rápidos viram um só).
+  const pendingRef = useRef<{ i: number; until: number } | null>(null);
+
+  const currentIndex = useCallback(() => {
+    let best = 0;
+    frames().forEach((f, i) => {
+      if (f.getBoundingClientRect().top <= topOffset + 8) best = i;
+    });
+    return best;
+  }, [frames, topOffset]);
+
   const goTo = useCallback(
     (i: number) => {
       const list = frames();
-      const target = list[Math.max(0, Math.min(list.length - 1, i))];
-      if (!target) return;
-      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      target.scrollIntoView({ behavior: reduce ? "auto" : "smooth" });
+      const idx = Math.max(0, Math.min(list.length - 1, i));
+      pendingRef.current = { i: idx, until: performance.now() + 900 };
+      scrollToEl(list[idx] ?? null);
     },
-    [frames],
+    [frames, scrollToEl],
+  );
+
+  const jumpTo = (id: string) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIndexOpen(false);
+    scrollToEl(document.getElementById(id));
+  };
+
+  // Avança um passo: dentro de um case mais alto que a tela, rola o case;
+  // senão, vai para a próxima parada.
+  const step = useCallback(
+    (dir: 1 | -1) => {
+      const pending = pendingRef.current;
+      if (pending && performance.now() < pending.until) {
+        goTo(pending.i + dir);
+        return;
+      }
+      const idx = currentIndex();
+      const cur = frames()[idx];
+      if (cur) {
+        const r = cur.getBoundingClientRect();
+        const page = (window.innerHeight - topOffset) * 0.85;
+        const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "instant"
+          : "smooth";
+        const below = r.bottom - window.innerHeight;
+        const above = topOffset - r.top;
+        // Só rola por dentro quando sobra um pedaço que vale a pena ver.
+        if (dir > 0 && below > page * 0.2) {
+          window.scrollBy({ top: Math.min(below, page), behavior });
+          return;
+        }
+        if (dir < 0 && above > page * 0.2) {
+          window.scrollBy({ top: -Math.min(above, page), behavior });
+          return;
+        }
+      }
+      goTo(idx + dir);
+    },
+    [frames, currentIndex, topOffset, goTo],
   );
 
   const toggleFullscreen = () => {
@@ -223,7 +289,7 @@ export default function ProposalView({
       const prev = ["ArrowUp", "ArrowLeft", "PageUp"].includes(e.key);
       if (next || prev) {
         e.preventDefault();
-        goTo(current + (next ? 1 : -1));
+        step(next ? 1 : -1);
       } else if (e.key === "Home") {
         e.preventDefault();
         goTo(0);
@@ -236,7 +302,7 @@ export default function ProposalView({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [lb, indexOpen, current, goTo]);
+  }, [lb, indexOpen, step, goTo]);
 
   const chapterLabel = chapters.find((c) => c.id === chapterId)?.label ?? "";
 
@@ -398,14 +464,17 @@ export default function ProposalView({
             </h2>
             <nav className="lbc-chips" aria-label="Cases">
               {cases.map((c) => (
-                <a key={c.slug} href={`#case-${c.slug}`}>
+                <a key={c.slug} href={`#case-${c.slug}`} onClick={jumpTo(`case-${c.slug}`)}>
                   {c.name}
                 </a>
               ))}
             </nav>
           </Slide>
           {cases.map((c) => (
-            <CaseSlides key={c.slug} c={c} onOpen={openLb(c.name)} />
+            <Fragment key={c.slug}>
+              <WebCase c={c} onOpen={openLb(c.name)} />
+              <CaseSlides c={c} onOpen={openLb(c.name)} />
+            </Fragment>
           ))}
         </>
       )}
@@ -610,15 +679,11 @@ export default function ProposalView({
             <b>{String(current + 1).padStart(2, "0")}</b> / {String(total).padStart(2, "0")}
             <span className="lbc-ctrl-chap">{chapterLabel}</span>
           </span>
-          <button
-            onClick={() => goTo(current - 1)}
-            disabled={current === 0}
-            aria-label="Slide anterior"
-          >
+          <button onClick={() => step(-1)} disabled={current === 0} aria-label="Slide anterior">
             <ArrowUp />
           </button>
           <button
-            onClick={() => goTo(current + 1)}
+            onClick={() => step(1)}
             disabled={current >= total - 1}
             aria-label="Próximo slide"
           >
@@ -655,7 +720,7 @@ export default function ProposalView({
                   <a
                     href={`#${c.id}`}
                     aria-current={c.id === chapterId ? "true" : undefined}
-                    onClick={() => setIndexOpen(false)}
+                    onClick={jumpTo(c.id)}
                   >
                     {c.label}
                   </a>
@@ -688,7 +753,7 @@ function Slide({
   children: ReactNode;
 }) {
   return (
-    <section className={`lbc-frame tone-${tone} ${className}`} id={id} data-chap={chap}>
+    <section className={`lbc-frame lbc-stop tone-${tone} ${className}`} id={id} data-chap={chap}>
       <div className="lbc-slide">{children}</div>
     </section>
   );
@@ -818,6 +883,114 @@ function Shot({
  * - com frase da marca: frase ao lado das imagens;
  * - com resumo: resumo ao lado da imagem.
  */
+/**
+ * Case na tela (link e reunião): bloco com rolagem livre, imagem grande,
+ * miniaturas e galeria ampliável. No PDF entram os slides de CaseSlides.
+ */
+function WebCase({ c, onOpen }: { c: CaseStudy; onOpen: (images: string[], i: number) => void }) {
+  const [broken, setBroken] = useState<Set<string>>(new Set());
+  const backup = LOCAL_BACKUP_IMAGES[c.slug] ?? [];
+  const alive = c.images.filter((s) => !broken.has(s));
+  const images = alive.length ? alive : backup;
+  const markBroken = (src: string) => setBroken((b) => new Set(b).add(src));
+  const MAX_THUMBS = 4;
+  const thumbs = images.slice(1, 1 + MAX_THUMBS);
+  const rest = images.length - 1 - thumbs.length;
+  const hasStory = !!(c.context || c.challenge || c.solution);
+
+  if (!images.length) return null;
+
+  return (
+    <section
+      className="lbc-webcase lbc-stop lbc-screen-only"
+      id={`case-${c.slug}`}
+      data-chap="marcas"
+    >
+      <div className="lbc-wrap">
+        <div className="head">
+          <div>
+            <p className="seg">{c.segment}</p>
+            <h3 className="lbc-d name">{c.name}</h3>
+            {c.handle && <span className="handle">{c.handle}</span>}
+          </div>
+          <div>
+            {c.summary ? (
+              <p className="txt">{c.summary}</p>
+            ) : c.quote ? (
+              <p className="quote">
+                “{c.quote}”<small>Frase da marca</small>
+              </p>
+            ) : null}
+          </div>
+        </div>
+
+        {hasStory && (
+          <div className="story">
+            {c.context && (
+              <div>
+                <h4>Contexto</h4>
+                <p>{c.context}</p>
+              </div>
+            )}
+            {c.challenge && (
+              <div>
+                <h4>Desafio</h4>
+                <p>{c.challenge}</p>
+              </div>
+            )}
+            {c.solution && (
+              <div>
+                <h4>O que foi feito</h4>
+                <p>{c.solution}</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="lbc-gal">
+          <button
+            className="main"
+            onClick={() => onOpen(images, 0)}
+            aria-label={`Ampliar imagem de ${c.name}`}
+          >
+            <img
+              src={images[0]}
+              alt={`Identidade visual ${c.name}`}
+              loading="lazy"
+              onError={() => markBroken(images[0])}
+            />
+          </button>
+          {thumbs.length > 0 && (
+            <div
+              className="row"
+              style={{ gridTemplateColumns: `repeat(${thumbs.length}, minmax(0,1fr))` }}
+            >
+              {thumbs.map((src, k) => (
+                <button
+                  key={src}
+                  onClick={() => onOpen(images, k + 1)}
+                  aria-label={`Ampliar imagem ${k + 2} de ${c.name}`}
+                >
+                  <img src={src} alt="" loading="lazy" onError={() => markBroken(src)} />
+                  {k === thumbs.length - 1 && rest > 0 && <span className="more">+{rest}</span>}
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="meta lbc-no-print">
+            <span>{images.length > 1 ? `${images.length} imagens` : ""}</span>
+            {c.siteUrl && (
+              <a href={c.siteUrl} target="_blank" rel="noopener noreferrer">
+                Ver case completo <ArrowRight />
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function CaseSlides({
   c,
   onOpen,
@@ -888,7 +1061,7 @@ function CaseSlides({
 
   return (
     <>
-      <Slide id={`case-${c.slug}`} chap="marcas" tone="paper" className="lbc-case">
+      <Slide chap="marcas" tone="paper" className="lbc-case lbc-print-only">
         <div className="lbc-case-txt">
           {head}
           {c.summary ? (
@@ -904,7 +1077,7 @@ function CaseSlides({
       </Slide>
 
       {hasStory && (
-        <Slide chap="marcas" tone="surface" className="lbc-case-story">
+        <Slide chap="marcas" tone="surface" className="lbc-case-story lbc-print-only">
           <div className="lbc-case-story-head">
             <p className="seg">{c.segment}</p>
             <h3 className="lbc-d name">{c.name}</h3>

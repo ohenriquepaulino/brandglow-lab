@@ -157,6 +157,50 @@
 .lbc-case-story .strip .lbc-shot { border-radius: 18px; }
 .lbc-case-story .lbc-case-meta { margin-top: 24px; flex: none; }
 
+/* ---------- cases na tela (link e reunião): layout original com rolagem livre ---------- */
+.lbc-webcase {
+  --pad: clamp(20px, 5vw, 72px);
+  --max: 1320px;
+  background: var(--paper); color: var(--ink);
+  font-size: 17px; line-height: 1.55;
+  padding: clamp(64px, 8vw, 120px) 0; border-top: 1px solid var(--line);
+  scroll-snap-align: start;
+}
+.lbc-webcase .lbc-wrap { max-width: var(--max); margin: 0 auto; padding: 0 var(--pad); }
+.lbc-webcase .head { display: grid; grid-template-columns: 1fr 1.1fr; gap: clamp(24px, 5vw, 80px); align-items: end; margin-bottom: clamp(28px, 3.5vw, 48px); }
+.lbc-webcase .seg { font-size: 14px; color: var(--muted); margin-bottom: 14px; }
+.lbc-webcase .name { font-size: clamp(44px, 6.4vw, 96px); overflow-wrap: anywhere; }
+.lbc-webcase .txt { font-size: clamp(17px, 1.35vw, 19px); max-width: 56ch; }
+.lbc-webcase .quote { font-size: clamp(22px, 2.2vw, 32px); line-height: 1.25; font-weight: 300; max-width: 26ch; }
+.lbc-webcase .quote small { display: block; font-size: 13px; color: var(--muted); margin-top: 14px; }
+.lbc-webcase .handle { display: inline-block; margin-top: 16px; font-size: 14px; color: var(--muted); }
+.lbc-webcase .story { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(20px, 3vw, 48px); margin-bottom: clamp(28px, 3.5vw, 48px); border-top: 1.5px solid var(--ink); }
+.lbc-webcase .story div { padding-top: 18px; }
+.lbc-webcase .story h4 { font-size: 14px; font-weight: 600; margin-bottom: 10px; }
+.lbc-webcase .story p { font-size: 15px; color: var(--muted); line-height: 1.55; }
+.lbc-gal { display: grid; gap: 10px; }
+.lbc-gal .main { width: 100%; border: 0; padding: 0; background: #e6e6e6; cursor: zoom-in; border-radius: 18px; overflow: hidden; display: block; }
+.lbc-gal .main img { width: 100%; height: auto; transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.1, 1); }
+.lbc-gal .main:hover img { transform: scale(1.015); }
+.lbc-gal .row { display: grid; gap: 10px; }
+.lbc-gal .row button { border: 0; padding: 0; background: #e6e6e6; cursor: zoom-in; border-radius: 12px; overflow: hidden; aspect-ratio: 16/10; position: relative; }
+.lbc-gal .row img { width: 100%; height: 100%; object-fit: cover; }
+.lbc-gal .more { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(17, 17, 17, 0.55); color: #fff; font-family: var(--display); font-size: clamp(22px, 2.4vw, 36px); }
+.lbc-gal .meta { display: flex; justify-content: space-between; gap: 16px; font-size: 13px; color: var(--muted); }
+.lbc-gal .meta a { display: inline-flex; gap: 8px; align-items: center; color: var(--ink); font-weight: 500; font-size: 14px; text-decoration: none; border-bottom: 1.5px solid var(--lime); padding-bottom: 2px; }
+@media (max-width: 900px) {
+  .lbc-webcase .head { grid-template-columns: 1fr; }
+  .lbc-webcase .story { grid-template-columns: 1fr; border-top: 0; gap: 0; }
+  .lbc-webcase .story div { border-top: 1.5px solid var(--ink); padding-bottom: 22px; }
+}
+@media (max-width: 560px) {
+  .lbc-webcase { font-size: 16px; }
+  .lbc-gal .row { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+
+/* Na tela, os cases usam o layout acima; os slides dos cases ficam só no PDF. */
+.lbc-print-only { display: none; }
+
 /* ---------- cronograma ---------- */
 #como-trabalhamos .lbc-h1 { font-size: 96px; }
 .lbc-gantt { margin-top: auto; display: grid; grid-template-columns: 340px repeat(6, 1fr); border-top: 2px solid var(--ink); }
@@ -283,7 +327,8 @@
   html, body { margin: 0 !important; padding: 0 !important; background: #111 !important; overflow: visible !important; }
   html { scroll-snap-type: none !important; }
   .lbc { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: none; }
-  .lbc-no-print, .lbc-print-hide { display: none !important; }
+  .lbc-no-print, .lbc-print-hide, .lbc-screen-only { display: none !important; }
+  .lbc-print-only { display: block; }
   .lbc-frame { width: 1920px; height: 1080px; break-after: page; break-inside: avoid; page-break-after: always; }
   .lbc-frame:last-of-type { break-after: auto; page-break-after: auto; }
   .lbc-slide { left: 0; top: 0; transform: none; }
