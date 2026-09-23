@@ -208,6 +208,68 @@ export type Database = {
         }
         Relationships: []
       }
+      task_lists: {
+        Row: {
+          created_at: string
+          id: string
+          nome: string
+          ordem: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nome: string
+          ordem?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nome?: string
+          ordem?: number
+        }
+        Relationships: []
+      }
+      tasks: {
+        Row: {
+          concluida: boolean
+          created_at: string
+          data_conclusao: string | null
+          descricao: string | null
+          id: string
+          list_id: string
+          ordem: number
+          titulo: string
+        }
+        Insert: {
+          concluida?: boolean
+          created_at?: string
+          data_conclusao?: string | null
+          descricao?: string | null
+          id?: string
+          list_id: string
+          ordem?: number
+          titulo: string
+        }
+        Update: {
+          concluida?: boolean
+          created_at?: string
+          data_conclusao?: string | null
+          descricao?: string | null
+          id?: string
+          list_id?: string
+          ordem?: number
+          titulo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "task_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
