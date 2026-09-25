@@ -264,3 +264,112 @@ export async function processarFila(supabase: SupabaseClient) {
   }
   return { vencidos: vencidos?.length ?? 0, enviados };
 }
+
+// ─── Lead respondeu -> "Conversando" ─────────────────────────────────────────
+
+// Domínio publicado. O webhook aponta sempre para cá, mesmo que o CRM seja
+// aberto pelo preview do Lovable (o mesmo endereço do pg_cron).
+const SITE_URL = "https://legacybc.com.br";
+
+/** Colunas de onde uma resposta do lead move o card. Mais adiante, não mexe. */
+const COLUNAS_ANTES_DE_CONVERSAR = ["novo-lead", "aguardando-resposta", "contato-feito"];
+const COLUNA_CONVERSANDO = "conversando";
+
+/**
+ * Registra na Evolution o webhook de mensagens recebidas, uma vez. Chamada
+ * quando o CRM vê o número conectado; o flag é zerado ao reconectar.
+ */
+export async function garantirWebhook(supabase: SupabaseClient) {
+  const { data: config } = await supabase
+    .from("whatsapp_config")
+    .select("webhook_token, webhook_registrado")
+    .eq("id", 1)
+    .maybeSingle();
+  if (!config?.webhook_token || config.webhook_registrado) return;
+
+  const r = await evo("/webhook/set/{instance}", {
+    method: "POST",
+    body: {
+      webhook: {
+        enabled: true,
+        url: `${SITE_URL}/api/public/whatsapp/webhook?token=${config.webhook_token}`,
+        webhookByEvents: false,
+        webhookBase64: false,
+        events: ["MESSAGES_UPSERT"],
+      },
+    },
+  });
+  if (!r.ok) throw new Error(`Evolution ${r.status} ao registrar webhook`);
+  await supabase.from("whatsapp_config").update({ webhook_registrado: true }).eq("id", 1);
+}
+
+/**
+ * DDD + 8 últimos dígitos: casa "(11) 98888-7777" do formulário com o JID
+ * "551188887777@s.whatsapp.net" (o WhatsApp às vezes omite o 9º dígito).
+ */
+function chaveTelefone(raw: string): string | null {
+  let d = raw.replace(/\D/g, "");
+  if (d.length >= 12 && d.startsWith("55")) d = d.slice(2);
+  if (d.length < 10) return null;
+  return d.slice(0, 2) + d.slice(-8);
+}
+
+/** Número de quem mandou a mensagem, ou null (grupo, status, próprio número). */
+function remetente(msg: EvoJson): string | null {
+  const key = msg?.key ?? {};
+  if (key.fromMe) return null;
+  const jid = String(key.remoteJid ?? "");
+  if (jid.endsWith("@g.us") || jid.endsWith("@broadcast")) return null;
+  // No endereçamento novo (@lid) o número vem em remoteJidAlt / senderPn.
+  const candidatos = [jid, key.remoteJidAlt, key.senderPn].filter(
+    (j): j is string => typeof j === "string" && j.endsWith("@s.whatsapp.net"),
+  );
+  return candidatos[0]?.replace(/@.*$/, "") ?? null;
+}
+
+/**
+ * Webhook MESSAGES_UPSERT: se quem mandou é um lead em Oportunidades /
+ * Aguardando resposta, move o card para Conversando e registra no histórico.
+ * O conteúdo da mensagem não é lido nem guardado — só o número.
+ */
+export async function moverLeadsQueResponderam(supabase: SupabaseClient, payload: EvoJson) {
+  const evento = String(payload?.event ?? "").toLowerCase();
+  if (!evento.includes("messages.upsert") && !evento.includes("messages_upsert")) return 0;
+
+  const mensagens: EvoJson[] = Array.isArray(payload?.data) ? payload.data : [payload?.data];
+  const chaves = new Set(
+    mensagens
+      .map(remetente)
+      .map((n) => (n ? chaveTelefone(n) : null))
+      .filter((c): c is string => !!c),
+  );
+  if (chaves.size === 0) return 0;
+
+  const { data: leads } = await supabase
+    .from("leads")
+    .select("id, whatsapp, coluna")
+    .in("coluna", COLUNAS_ANTES_DE_CONVERSAR);
+
+  let movidos = 0;
+  for (const lead of leads ?? []) {
+    const chave = chaveTelefone(lead.whatsapp ?? "");
+    if (!chave || !chaves.has(chave)) continue;
+
+    const { data: movido } = await supabase
+      .from("leads")
+      .update({ coluna: COLUNA_CONVERSANDO })
+      .eq("id", lead.id)
+      .eq("coluna", lead.coluna) // se alguém moveu no meio tempo, não sobrescreve
+      .select("id")
+      .maybeSingle();
+    if (!movido) continue;
+
+    await supabase.from("historico_movimentacoes").insert({
+      lead_id: lead.id,
+      coluna_origem: lead.coluna,
+      coluna_destino: COLUNA_CONVERSANDO,
+    });
+    movidos++;
+  }
+  return movidos;
+}

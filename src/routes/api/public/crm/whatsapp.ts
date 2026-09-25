@@ -7,6 +7,7 @@ import {
   enviarTexto,
   estadoDaConexao,
   evolutionConfigurada,
+  garantirWebhook,
   grupoDoAviso,
   montarAviso,
   montarMensagem,
@@ -93,13 +94,25 @@ export const Route = createFileRoute("/api/public/crm/whatsapp")({
               return Response.json({ data: { estado: "nao_configurado", numero: null } });
             }
             try {
-              return Response.json({ data: await estadoDaConexao() });
+              const estado = await estadoDaConexao();
+              // Número conectado: garante o webhook de "lead respondeu" (1x só).
+              if (estado.estado === "conectado") {
+                await garantirWebhook(supabase).catch((e) =>
+                  console.error("[whatsapp] registrar webhook", e),
+                );
+              }
+              return Response.json({ data: estado });
             } catch (e) {
               return erro(e);
             }
           }
           case "connect": {
             try {
+              // Reconexão pode recriar a instância: registra o webhook de novo.
+              await supabase
+                .from("whatsapp_config")
+                .update({ webhook_registrado: false })
+                .eq("id", 1);
               return Response.json({ data: await conectar() });
             } catch (e) {
               return erro(e);
