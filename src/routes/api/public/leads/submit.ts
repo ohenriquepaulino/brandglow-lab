@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
-import { enviarBoasVindas } from "@/lib/whatsapp.server";
+import { agendarBoasVindas } from "@/lib/whatsapp.server";
 
 const LeadSchema = z.object({
   nome: z.string().trim().min(2).max(100),
@@ -176,8 +176,8 @@ export const Route = createFileRoute("/api/public/leads/submit")({
         const origin = new URL(request.url).origin;
         // Await the enqueue so the worker doesn't exit before it runs.
         // Enqueue is fast (pgmq insert); actual delivery happens in the cron.
-        // WhatsApp de boas-vindas: mesmo motivo do await acima. Nunca lança.
-        await enviarBoasVindas(supabase, {
+        // WhatsApp de boas-vindas: só agenda (o cron envia após o atraso). Nunca lança.
+        await agendarBoasVindas(supabase, {
           id: inserted?.id ?? null,
           nome: parsed.nome,
           whatsapp: parsed.whatsapp,

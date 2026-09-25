@@ -96,13 +96,10 @@ export function LeadPanel({
             {envios.map((e) => (
               <p
                 key={e.id}
-                className={`mt-1 text-[11px] ${e.status === "enviado" ? "text-green-700" : "text-red-600"}`}
+                className={`mt-1 text-[11px] ${ENVIO_LABEL[e.status].cor}`}
                 title={e.erro ?? undefined}
               >
-                {e.status === "enviado"
-                  ? "✓ Mensagem automática enviada"
-                  : "✕ Mensagem automática falhou"}{" "}
-                · {formatDateTime(e.criado_em)}
+                {ENVIO_LABEL[e.status].texto} · {formatDateTime(e.enviar_em)}
               </p>
             ))}
           </Row>
@@ -189,6 +186,13 @@ export function LeadPanel({
     </div>
   );
 }
+
+const ENVIO_LABEL: Record<WhatsAppEnvio["status"], { texto: string; cor: string }> = {
+  pendente: { texto: "⏱ Mensagem automática agendada", cor: "text-amber-600" },
+  enviando: { texto: "⏱ Mensagem automática enviando", cor: "text-amber-600" },
+  enviado: { texto: "✓ Mensagem automática enviada", cor: "text-green-700" },
+  erro: { texto: "✕ Mensagem automática falhou", cor: "text-red-600" },
+};
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (

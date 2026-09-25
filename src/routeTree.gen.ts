@@ -29,6 +29,7 @@ import { Route as ApiPublicPropostaRouteImport } from './routes/api/public/propo
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
+import { Route as ApiPublicWhatsappProcessRouteImport } from './routes/api/public/whatsapp/process'
 import { Route as ApiPublicLeadsSubmitRouteImport } from './routes/api/public/leads/submit'
 import { Route as ApiPublicCrmWhatsappRouteImport } from './routes/api/public/crm/whatsapp'
 import { Route as ApiPublicCrmTasksRouteImport } from './routes/api/public/crm/tasks'
@@ -138,6 +139,12 @@ const LovableEmailQueueProcessRoute =
     path: '/lovable/email/queue/process',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicWhatsappProcessRoute =
+  ApiPublicWhatsappProcessRouteImport.update({
+    id: '/api/public/whatsapp/process',
+    path: '/api/public/whatsapp/process',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicLeadsSubmitRoute = ApiPublicLeadsSubmitRouteImport.update({
   id: '/api/public/leads/submit',
   path: '/api/public/leads/submit',
@@ -187,6 +194,7 @@ export interface FileRoutesByFullPath {
   '/api/public/crm/tasks': typeof ApiPublicCrmTasksRoute
   '/api/public/crm/whatsapp': typeof ApiPublicCrmWhatsappRoute
   '/api/public/leads/submit': typeof ApiPublicLeadsSubmitRoute
+  '/api/public/whatsapp/process': typeof ApiPublicWhatsappProcessRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
@@ -213,6 +221,7 @@ export interface FileRoutesByTo {
   '/api/public/crm/tasks': typeof ApiPublicCrmTasksRoute
   '/api/public/crm/whatsapp': typeof ApiPublicCrmWhatsappRoute
   '/api/public/leads/submit': typeof ApiPublicLeadsSubmitRoute
+  '/api/public/whatsapp/process': typeof ApiPublicWhatsappProcessRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
@@ -241,6 +250,7 @@ export interface FileRoutesById {
   '/api/public/crm/tasks': typeof ApiPublicCrmTasksRoute
   '/api/public/crm/whatsapp': typeof ApiPublicCrmWhatsappRoute
   '/api/public/leads/submit': typeof ApiPublicLeadsSubmitRoute
+  '/api/public/whatsapp/process': typeof ApiPublicWhatsappProcessRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
@@ -270,6 +280,7 @@ export interface FileRouteTypes {
     | '/api/public/crm/tasks'
     | '/api/public/crm/whatsapp'
     | '/api/public/leads/submit'
+    | '/api/public/whatsapp/process'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
@@ -296,6 +307,7 @@ export interface FileRouteTypes {
     | '/api/public/crm/tasks'
     | '/api/public/crm/whatsapp'
     | '/api/public/leads/submit'
+    | '/api/public/whatsapp/process'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
@@ -323,6 +335,7 @@ export interface FileRouteTypes {
     | '/api/public/crm/tasks'
     | '/api/public/crm/whatsapp'
     | '/api/public/leads/submit'
+    | '/api/public/whatsapp/process'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
@@ -345,6 +358,7 @@ export interface RootRouteChildren {
   ApiPublicCrmTasksRoute: typeof ApiPublicCrmTasksRoute
   ApiPublicCrmWhatsappRoute: typeof ApiPublicCrmWhatsappRoute
   ApiPublicLeadsSubmitRoute: typeof ApiPublicLeadsSubmitRoute
+  ApiPublicWhatsappProcessRoute: typeof ApiPublicWhatsappProcessRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
   LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
@@ -492,6 +506,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/whatsapp/process': {
+      id: '/api/public/whatsapp/process'
+      path: '/api/public/whatsapp/process'
+      fullPath: '/api/public/whatsapp/process'
+      preLoaderRoute: typeof ApiPublicWhatsappProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/leads/submit': {
       id: '/api/public/leads/submit'
       path: '/api/public/leads/submit'
@@ -567,6 +588,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCrmTasksRoute: ApiPublicCrmTasksRoute,
   ApiPublicCrmWhatsappRoute: ApiPublicCrmWhatsappRoute,
   ApiPublicLeadsSubmitRoute: ApiPublicLeadsSubmitRoute,
+  ApiPublicWhatsappProcessRoute: ApiPublicWhatsappProcessRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
   LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,

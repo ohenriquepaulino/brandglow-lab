@@ -127,40 +127,78 @@ export async function enviarTexto(telefone: string, texto: string) {
 }
 
 /**
- * Gatilho do cadastro: se a automação estiver ativa, manda a mensagem e grava
- * o resultado em whatsapp_envios. Nunca lança — o cadastro do lead não pode
- * falhar por causa do WhatsApp.
+ * Gatilho do cadastro: se a automação estiver ativa, agenda a mensagem para
+ * daqui a `atraso_segundos` (whatsapp_envios.status = 'pendente'). Quem envia
+ * é processarFila, chamada pelo pg_cron. Nunca lança — o cadastro do lead não
+ * pode falhar por causa do WhatsApp.
  */
-export async function enviarBoasVindas(
+export async function agendarBoasVindas(
   supabase: SupabaseClient,
   lead: { id: string | null; nome: string; whatsapp: string },
 ) {
   try {
     const { data: config } = await supabase
       .from("whatsapp_config")
-      .select("ativo, mensagem")
+      .select("ativo, mensagem, atraso_segundos")
       .eq("id", 1)
       .maybeSingle();
     if (!config?.ativo || !config.mensagem?.trim()) return;
 
-    const telefone = normalizarTelefone(lead.whatsapp);
-    const mensagem = montarMensagem(config.mensagem, lead.nome);
+    const { error } = await supabase.from("whatsapp_envios").insert({
+      lead_id: lead.id,
+      telefone: normalizarTelefone(lead.whatsapp),
+      mensagem: montarMensagem(config.mensagem, lead.nome),
+      status: "pendente",
+      enviar_em: new Date(Date.now() + (config.atraso_segundos ?? 30) * 1000).toISOString(),
+    });
+    if (error) console.error("[whatsapp] agendar falhou", error.message);
+  } catch (e) {
+    console.error("[whatsapp] boas-vindas error", e);
+  }
+}
+
+/** Envia os pendentes vencidos. Chamada pelo cron a cada ~10s. */
+export async function processarFila(supabase: SupabaseClient) {
+  // Envio que ficou "enviando" por mais de 2 min: a chamada morreu no meio.
+  // Marca como erro em vez de reenviar — melhor não chegar do que chegar duas vezes.
+  await supabase
+    .from("whatsapp_envios")
+    .update({ status: "erro", erro: "Envio interrompido" })
+    .eq("status", "enviando")
+    .lt("enviar_em", new Date(Date.now() - 2 * 60_000).toISOString());
+
+  const { data: vencidos } = await supabase
+    .from("whatsapp_envios")
+    .select("id, telefone, mensagem")
+    .eq("status", "pendente")
+    .lte("enviar_em", new Date().toISOString())
+    .order("enviar_em", { ascending: true })
+    .limit(10);
+
+  let enviados = 0;
+  for (const envio of vencidos ?? []) {
+    // Trava otimista: se duas chamadas do cron se sobrepõem, só uma pega o envio.
+    const { data: travado } = await supabase
+      .from("whatsapp_envios")
+      .update({ status: "enviando" })
+      .eq("id", envio.id)
+      .eq("status", "pendente")
+      .select("id")
+      .maybeSingle();
+    if (!travado) continue;
+
     let erro: string | null = null;
     try {
-      await enviarTexto(telefone, mensagem);
+      await enviarTexto(envio.telefone, envio.mensagem);
+      enviados++;
     } catch (e) {
       erro = e instanceof Error ? e.message : String(e);
       console.error("[whatsapp] envio falhou", erro);
     }
-
-    await supabase.from("whatsapp_envios").insert({
-      lead_id: lead.id,
-      telefone,
-      mensagem,
-      status: erro ? "erro" : "enviado",
-      erro,
-    });
-  } catch (e) {
-    console.error("[whatsapp] boas-vindas error", e);
+    await supabase
+      .from("whatsapp_envios")
+      .update({ status: erro ? "erro" : "enviado", erro })
+      .eq("id", envio.id);
   }
+  return { vencidos: vencidos?.length ?? 0, enviados };
 }

@@ -7,15 +7,16 @@ export type EstadoWhatsApp =
   | "sem_instancia"
   | "nao_configurado";
 
-export type WhatsAppConfig = { ativo: boolean; mensagem: string };
+export type WhatsAppConfig = { ativo: boolean; mensagem: string; atraso_segundos: number };
 
 export type WhatsAppEnvio = {
   id: string;
   lead_id: string | null;
   telefone: string;
-  status: "enviado" | "erro";
+  status: "pendente" | "enviando" | "enviado" | "erro";
   erro: string | null;
   criado_em: string;
+  enviar_em: string;
   leads?: { nome: string } | null;
 };
 

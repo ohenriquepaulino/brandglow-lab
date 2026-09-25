@@ -10,6 +10,7 @@ import {
   apiWhatsAppSendTest,
   apiWhatsAppStatus,
   type EstadoWhatsApp,
+  type WhatsAppConfig,
   type WhatsAppEnvio,
 } from "@/lib/whatsapp-api";
 
@@ -84,7 +85,8 @@ function WhatsAppContent() {
 
   const [ativo, setAtivo] = useState(false);
   const [mensagem, setMensagem] = useState("");
-  const [salvo, setSalvo] = useState<{ ativo: boolean; mensagem: string } | null>(null);
+  const [atraso, setAtraso] = useState(30);
+  const [salvo, setSalvo] = useState<WhatsAppConfig | null>(null);
   const [salvando, setSalvando] = useState(false);
 
   const [telTeste, setTelTeste] = useState("");
@@ -105,6 +107,7 @@ function WhatsAppContent() {
       if (data.config) {
         setAtivo(data.config.ativo);
         setMensagem(data.config.mensagem);
+        setAtraso(data.config.atraso_segundos);
         setSalvo(data.config);
       }
       setEnvios(data.envios);
@@ -167,8 +170,9 @@ function WhatsAppContent() {
   async function handleSalvar() {
     setSalvando(true);
     try {
-      await apiWhatsAppSaveConfig({ ativo, mensagem });
-      setSalvo({ ativo, mensagem });
+      const config = { ativo, mensagem, atraso_segundos: atraso };
+      await apiWhatsAppSaveConfig(config);
+      setSalvo(config);
     } catch (err) {
       alert(err instanceof Error ? err.message : String(err));
     }
@@ -186,7 +190,11 @@ function WhatsAppContent() {
   }
 
   const info = estado ? ESTADO_LABEL[estado] : null;
-  const alterado = !salvo || salvo.ativo !== ativo || salvo.mensagem !== mensagem;
+  const alterado =
+    !salvo ||
+    salvo.ativo !== ativo ||
+    salvo.mensagem !== mensagem ||
+    salvo.atraso_segundos !== atraso;
 
   return (
     <>
@@ -261,8 +269,8 @@ function WhatsAppContent() {
           </label>
         </div>
         <p className="mt-2 text-xs text-neutral-500">
-          Enviada assim que o lead se cadastra no site. Use <code>{"{primeiro-nome}"}</code> ou{" "}
-          <code>{"{nome}"}</code>.
+          Enviada alguns segundos depois que o lead se cadastra no site. Use{" "}
+          <code>{"{primeiro-nome}"}</code> ou <code>{"{nome}"}</code>.
         </p>
         <textarea
           value={mensagem}
@@ -272,7 +280,22 @@ function WhatsAppContent() {
           className="mt-3 w-full rounded-md border bg-white p-3 text-sm outline-none focus:border-neutral-900"
           style={{ borderColor: BORDER }}
         />
-        <div className="mt-3 flex justify-end">
+        <div className="mt-3 flex items-center justify-between gap-3">
+          <label className="flex items-center gap-2 text-xs text-neutral-700">
+            Enviar
+            <input
+              type="number"
+              min={0}
+              max={3600}
+              value={atraso}
+              onChange={(e) =>
+                setAtraso(Math.max(0, Math.min(3600, Math.round(Number(e.target.value) || 0))))
+              }
+              className="w-16 rounded-md border px-2 py-1 text-sm outline-none focus:border-neutral-900"
+              style={{ borderColor: BORDER }}
+            />
+            segundos após o cadastro
+          </label>
           <button
             onClick={handleSalvar}
             disabled={!alterado || salvando || !mensagem.trim()}
@@ -324,7 +347,7 @@ function WhatsAppContent() {
                 <div className="min-w-0">
                   <p className="truncate text-neutral-900">{e.leads?.nome ?? e.telefone}</p>
                   {e.erro && <p className="truncate text-xs text-red-600">{e.erro}</p>}
-                  <p className="text-[11px] text-neutral-500">{formatDateTime(e.criado_em)}</p>
+                  <p className="text-[11px] text-neutral-500">{formatDateTime(e.enviar_em)}</p>
                 </div>
                 <StatusPill status={e.status} />
               </li>
@@ -336,14 +359,21 @@ function WhatsAppContent() {
   );
 }
 
+const STATUS_PILL: Record<WhatsAppEnvio["status"], { label: string; cor: string }> = {
+  pendente: { label: "Agendado", cor: "#CA8A04" },
+  enviando: { label: "Enviando", cor: "#CA8A04" },
+  enviado: { label: "Enviado", cor: "#16A34A" },
+  erro: { label: "Erro", cor: "#DC2626" },
+};
+
 function StatusPill({ status }: { status: WhatsAppEnvio["status"] }) {
-  const ok = status === "enviado";
+  const { label, cor } = STATUS_PILL[status];
   return (
     <span
       className="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold text-white"
-      style={{ background: ok ? "#16A34A" : "#DC2626" }}
+      style={{ background: cor }}
     >
-      {ok ? "Enviado" : "Erro"}
+      {label}
     </span>
   );
 }

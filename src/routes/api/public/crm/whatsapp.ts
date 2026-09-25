@@ -20,6 +20,7 @@ const ActionSchema = z.discriminatedUnion("action", [
     action: z.literal("save_config"),
     ativo: z.boolean(),
     mensagem: z.string().trim().min(1).max(2000),
+    atraso_segundos: z.number().int().min(0).max(3600),
   }),
   z.object({
     action: z.literal("send_test"),
@@ -65,10 +66,14 @@ export const Route = createFileRoute("/api/public/crm/whatsapp")({
         switch (payload.action) {
           case "get": {
             const [{ data: config, error }, { data: envios }] = await Promise.all([
-              supabase.from("whatsapp_config").select("ativo, mensagem").eq("id", 1).maybeSingle(),
+              supabase
+                .from("whatsapp_config")
+                .select("ativo, mensagem, atraso_segundos")
+                .eq("id", 1)
+                .maybeSingle(),
               supabase
                 .from("whatsapp_envios")
-                .select("id, lead_id, telefone, status, erro, criado_em, leads(nome)")
+                .select("id, lead_id, telefone, status, erro, criado_em, enviar_em, leads(nome)")
                 .order("criado_em", { ascending: false })
                 .limit(20),
             ]);
@@ -107,6 +112,7 @@ export const Route = createFileRoute("/api/public/crm/whatsapp")({
               id: 1,
               ativo: payload.ativo,
               mensagem: payload.mensagem,
+              atraso_segundos: payload.atraso_segundos,
               updated_at: new Date().toISOString(),
             });
             if (error) return Response.json({ error: error.message }, { status: 500 });
@@ -126,7 +132,7 @@ export const Route = createFileRoute("/api/public/crm/whatsapp")({
           case "list_envios_lead": {
             const { data, error } = await supabase
               .from("whatsapp_envios")
-              .select("id, lead_id, telefone, status, erro, criado_em")
+              .select("id, lead_id, telefone, status, erro, criado_em, enviar_em")
               .eq("lead_id", payload.lead_id)
               .order("criado_em", { ascending: false });
             if (error) return Response.json({ error: error.message }, { status: 500 });
