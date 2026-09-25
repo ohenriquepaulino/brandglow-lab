@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Check, FileText, StickyNote, Trash2 } from "lucide-react";
-import { formatDateTime } from "@/lib/crm-auth";
+import { Check, FileText, MessageCircle, StickyNote, Trash2 } from "lucide-react";
+import { formatDateTime, whatsappHref } from "@/lib/crm-auth";
 import type { Task } from "@/lib/tasks-api";
+
+// Tarefa automática de lead novo: mesmo laranja da coluna "Oportunidades".
+const DESTAQUE = { borda: "#D75631", fundo: "#FDF1EC" };
 
 function isPending(id: string) {
   return id.startsWith("temp-");
@@ -102,13 +105,20 @@ export function TaskItem({
   }
 
   const temTexto = !!task.descricao?.trim();
+  const destaque = !!task.lead_id && !task.concluida;
+  const whatsappLead = task.leads?.whatsapp;
 
   return (
     <div
       ref={setNodeRef}
-      style={{ ...style, borderColor: "#E0DED9" }}
+      style={{
+        ...style,
+        borderColor: destaque ? DESTAQUE.borda : "#E0DED9",
+        background: destaque ? DESTAQUE.fundo : "#FFFFFF",
+        borderLeftWidth: destaque ? 4 : undefined,
+      }}
       className={
-        "group rounded-lg border bg-white transition-all duration-200 " +
+        "group rounded-lg border transition-all duration-200 " +
         (settling ? "scale-[0.98] opacity-60" : "scale-100 opacity-100")
       }
     >
@@ -147,7 +157,9 @@ export function TaskItem({
               className={
                 (task.concluida
                   ? "truncate text-sm text-neutral-400 line-through"
-                  : "truncate text-sm text-neutral-900") + (pending ? "" : " cursor-text")
+                  : "truncate text-sm text-neutral-900") +
+                (destaque ? " font-semibold" : "") +
+                (pending ? "" : " cursor-text")
               }
             >
               {task.titulo}
@@ -160,6 +172,21 @@ export function TaskItem({
             </p>
           )}
         </div>
+
+        {destaque && whatsappLead && (
+          <a
+            href={whatsappHref(whatsappLead)}
+            target="_blank"
+            rel="noreferrer"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
+            aria-label="Abrir WhatsApp do lead"
+            title="Abrir WhatsApp do lead"
+            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[#25D366] hover:bg-white"
+          >
+            <MessageCircle size={15} />
+          </a>
+        )}
 
         <button
           type="button"

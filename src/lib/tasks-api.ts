@@ -16,6 +16,9 @@ export type Task = {
   data_conclusao: string | null;
   ordem: number;
   created_at: string;
+  /** Preenchido nas tarefas criadas automaticamente para um lead novo. */
+  lead_id?: string | null;
+  leads?: { whatsapp: string } | null;
 };
 
 async function call<T = unknown>(body: Record<string, unknown>): Promise<T> {

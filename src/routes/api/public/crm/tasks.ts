@@ -81,7 +81,7 @@ export const Route = createFileRoute("/api/public/crm/tasks")({
 
             const { data: tasks, error: tasksErr } = await supabase
               .from("tasks")
-              .select("*")
+              .select("*, leads(whatsapp)")
               .order("ordem", { ascending: true });
             if (tasksErr) return Response.json({ error: tasksErr.message }, { status: 500 });
 

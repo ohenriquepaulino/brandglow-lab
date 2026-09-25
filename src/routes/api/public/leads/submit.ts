@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { agendarMensagensDoLead } from "@/lib/whatsapp.server";
+import { criarTaskDoLead } from "@/lib/tasks.server";
 
 const LeadSchema = z.object({
   nome: z.string().trim().min(2).max(100),
@@ -176,6 +177,13 @@ export const Route = createFileRoute("/api/public/leads/submit")({
         const origin = new URL(request.url).origin;
         // Await the enqueue so the worker doesn't exit before it runs.
         // Enqueue is fast (pgmq insert); actual delivery happens in the cron.
+        // Tarefa "Chamar <nome>" no topo da lista. Nunca lança.
+        await criarTaskDoLead(supabase, {
+          id: inserted?.id ?? null,
+          nome: parsed.nome,
+          whatsapp: parsed.whatsapp,
+          faturamento: parsed.faturamento,
+        });
         // WhatsApp (boas-vindas + aviso no grupo): só agenda, o cron envia. Nunca lança.
         await agendarMensagensDoLead(supabase, {
           id: inserted?.id ?? null,
