@@ -9,13 +9,7 @@ export type EstadoWhatsApp =
 
 export type WhatsAppConfig = { ativo: boolean; mensagem: string; atraso_segundos: number };
 
-export type AvisoConfig = {
-  aviso_ativo: boolean;
-  aviso_grupo_id: string | null;
-  aviso_grupo_nome: string | null;
-};
-
-export type Grupo = { id: string; nome: string };
+export type AvisoConfig = { aviso_ativo: boolean; aviso_grupo_nome: string | null };
 
 export type WhatsAppEnvio = {
   id: string;
@@ -85,15 +79,10 @@ export async function apiWhatsAppEnviosDoLead(lead_id: string): Promise<WhatsApp
   return data ?? [];
 }
 
-export async function apiWhatsAppGrupos(): Promise<Grupo[]> {
-  const { data } = await call<{ data: Grupo[] }>({ action: "list_grupos" });
-  return data ?? [];
+export async function apiWhatsAppSaveAviso(aviso_ativo: boolean) {
+  await call({ action: "save_aviso", aviso_ativo });
 }
 
-export async function apiWhatsAppSaveAviso(config: AvisoConfig) {
-  await call({ action: "save_aviso", ...config });
-}
-
-export async function apiWhatsAppTestAviso(aviso_grupo_id: string) {
-  await call({ action: "test_aviso", aviso_grupo_id });
+export async function apiWhatsAppTestAviso() {
+  await call({ action: "test_aviso" });
 }

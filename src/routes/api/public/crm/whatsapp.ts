@@ -7,7 +7,7 @@ import {
   enviarTexto,
   estadoDaConexao,
   evolutionConfigurada,
-  listarGrupos,
+  grupoDoAviso,
   montarAviso,
   montarMensagem,
   normalizarTelefone,
@@ -30,17 +30,8 @@ const ActionSchema = z.discriminatedUnion("action", [
     mensagem: z.string().trim().min(1).max(2000),
   }),
   z.object({ action: z.literal("list_envios_lead"), lead_id: z.string().uuid() }),
-  z.object({ action: z.literal("list_grupos") }),
-  z.object({
-    action: z.literal("save_aviso"),
-    aviso_ativo: z.boolean(),
-    aviso_grupo_id: z
-      .string()
-      .regex(/@g\.us$/)
-      .nullable(),
-    aviso_grupo_nome: z.string().max(200).nullable(),
-  }),
-  z.object({ action: z.literal("test_aviso"), aviso_grupo_id: z.string().regex(/@g\.us$/) }),
+  z.object({ action: z.literal("save_aviso"), aviso_ativo: z.boolean() }),
+  z.object({ action: z.literal("test_aviso") }),
 ]);
 
 function unauthorized() {
@@ -81,9 +72,7 @@ export const Route = createFileRoute("/api/public/crm/whatsapp")({
             const [{ data: config, error }, { data: envios }] = await Promise.all([
               supabase
                 .from("whatsapp_config")
-                .select(
-                  "ativo, mensagem, atraso_segundos, aviso_ativo, aviso_grupo_id, aviso_grupo_nome",
-                )
+                .select("ativo, mensagem, atraso_segundos, aviso_ativo, aviso_grupo_nome")
                 .eq("id", 1)
                 .maybeSingle(),
               supabase
@@ -156,22 +145,10 @@ export const Route = createFileRoute("/api/public/crm/whatsapp")({
             if (error) return Response.json({ error: error.message }, { status: 500 });
             return Response.json({ data: data ?? [] });
           }
-          case "list_grupos": {
-            try {
-              return Response.json({ data: await listarGrupos() });
-            } catch (e) {
-              return erro(e);
-            }
-          }
           case "save_aviso": {
             const { error } = await supabase
               .from("whatsapp_config")
-              .update({
-                aviso_ativo: payload.aviso_ativo && !!payload.aviso_grupo_id,
-                aviso_grupo_id: payload.aviso_grupo_id,
-                aviso_grupo_nome: payload.aviso_grupo_nome,
-                updated_at: new Date().toISOString(),
-              })
+              .update({ aviso_ativo: payload.aviso_ativo, updated_at: new Date().toISOString() })
               .eq("id", 1);
             if (error) return Response.json({ error: error.message }, { status: 500 });
             return Response.json({ success: true });
@@ -179,7 +156,7 @@ export const Route = createFileRoute("/api/public/crm/whatsapp")({
           case "test_aviso": {
             try {
               await enviarTexto(
-                payload.aviso_grupo_id,
+                await grupoDoAviso(supabase),
                 montarAviso("Lead de teste", "5511999999999"),
               );
               return Response.json({ success: true });

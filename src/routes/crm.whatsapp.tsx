@@ -9,11 +9,9 @@ import {
   apiWhatsAppSaveConfig,
   apiWhatsAppSendTest,
   apiWhatsAppStatus,
-  apiWhatsAppGrupos,
   apiWhatsAppSaveAviso,
   apiWhatsAppTestAviso,
   type AvisoConfig,
-  type Grupo,
   type EstadoWhatsApp,
   type WhatsAppConfig,
   type WhatsAppEnvio,
@@ -120,7 +118,6 @@ function WhatsAppContent() {
       if (data.config) {
         setAviso({
           aviso_ativo: data.config.aviso_ativo,
-          aviso_grupo_id: data.config.aviso_grupo_id,
           aviso_grupo_nome: data.config.aviso_grupo_nome,
         });
       }
@@ -381,54 +378,27 @@ function WhatsAppContent() {
 
 function AvisoGrupo({ inicial, conectado }: { inicial: AvisoConfig; conectado: boolean }) {
   const [ativo, setAtivo] = useState(inicial.aviso_ativo);
-  const [grupoId, setGrupoId] = useState(inicial.aviso_grupo_id);
-  const [grupoNome, setGrupoNome] = useState(inicial.aviso_grupo_nome);
-  const [salvo, setSalvo] = useState(inicial);
-  const [grupos, setGrupos] = useState<Grupo[] | null>(null);
-  const [carregando, setCarregando] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
-  async function carregarGrupos() {
-    setCarregando(true);
-    setMsg(null);
+  async function alternar(novo: boolean) {
+    setAtivo(novo);
     try {
-      const lista = await apiWhatsAppGrupos();
-      setGrupos(lista);
-      if (lista.length === 0) setMsg("Esse número não está em nenhum grupo.");
+      await apiWhatsAppSaveAviso(novo);
     } catch (err) {
-      setMsg(err instanceof Error ? err.message : String(err));
-    }
-    setCarregando(false);
-  }
-
-  async function salvar() {
-    const config = {
-      aviso_ativo: ativo && !!grupoId,
-      aviso_grupo_id: grupoId,
-      aviso_grupo_nome: grupoNome,
-    };
-    try {
-      await apiWhatsAppSaveAviso(config);
-      setAtivo(config.aviso_ativo);
-      setSalvo(config);
-      setMsg(null);
-    } catch (err) {
+      setAtivo(!novo);
       alert(err instanceof Error ? err.message : String(err));
     }
   }
 
   async function testar() {
-    if (!grupoId) return;
     setMsg("Enviando teste...");
     try {
-      await apiWhatsAppTestAviso(grupoId);
+      await apiWhatsAppTestAviso();
       setMsg("Teste enviado no grupo.");
     } catch (err) {
       setMsg(`Falhou: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
-
-  const alterado = salvo.aviso_ativo !== ativo || salvo.aviso_grupo_id !== grupoId;
 
   return (
     <section className="rounded-lg border bg-white p-5" style={{ borderColor: BORDER }}>
@@ -440,71 +410,29 @@ function AvisoGrupo({ inicial, conectado }: { inicial: AvisoConfig; conectado: b
           <input
             type="checkbox"
             checked={ativo}
-            onChange={(e) => setAtivo(e.target.checked)}
-            disabled={!grupoId}
+            onChange={(e) => alternar(e.target.checked)}
             className="h-4 w-4 accent-neutral-900"
           />
           Ativo
         </label>
       </div>
       <p className="mt-2 text-xs text-neutral-500">
-        Assim que o lead se cadastra, o número conectado manda no grupo:{" "}
+        Assim que o lead se cadastra, chega no grupo
+        {inicial.aviso_grupo_nome ? <strong> {inicial.aviso_grupo_nome}</strong> : " do time"}:{" "}
         <em>🔔 NOVO LEAD NO CRM · nome · link wa.me</em>. Quem envia não recebe notificação — ela
         chega para os outros membros do grupo.
       </p>
-
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        {grupos ? (
-          <select
-            value={grupoId ?? ""}
-            onChange={(e) => {
-              const g = grupos.find((x) => x.id === e.target.value);
-              setGrupoId(g?.id ?? null);
-              setGrupoNome(g?.nome ?? null);
-            }}
-            className="min-w-0 flex-1 rounded-md border bg-white px-3 py-1.5 text-sm outline-none focus:border-neutral-900"
-            style={{ borderColor: BORDER }}
-          >
-            <option value="">Escolha o grupo...</option>
-            {grupos.map((g) => (
-              <option key={g.id} value={g.id}>
-                {g.nome}
-              </option>
-            ))}
-          </select>
-        ) : (
-          <p className="min-w-0 flex-1 truncate text-sm text-neutral-800">
-            {grupoNome ?? <span className="text-neutral-500">Nenhum grupo escolhido</span>}
-          </p>
-        )}
-        <button
-          onClick={carregarGrupos}
-          disabled={!conectado || carregando}
-          className="rounded-md border px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50 disabled:opacity-40"
-          style={{ borderColor: BORDER }}
-        >
-          {carregando ? "Carregando..." : grupos ? "Recarregar grupos" : "Escolher grupo"}
-        </button>
-      </div>
-
-      <div className="mt-3 flex items-center justify-between gap-3">
+      <div className="mt-3 flex items-center gap-3">
         <button
           onClick={testar}
-          disabled={!conectado || !grupoId}
+          disabled={!conectado}
           className="rounded-md border px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50 disabled:opacity-40"
           style={{ borderColor: BORDER }}
         >
           Enviar teste no grupo
         </button>
-        <button
-          onClick={salvar}
-          disabled={!alterado}
-          className="rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-40"
-        >
-          {alterado ? "Salvar" : "Salvo"}
-        </button>
+        {msg && <p className="text-xs text-neutral-600">{msg}</p>}
       </div>
-      {msg && <p className="mt-2 text-xs text-neutral-600">{msg}</p>}
     </section>
   );
 }

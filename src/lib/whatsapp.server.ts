@@ -126,22 +126,36 @@ export async function enviarTexto(telefone: string, texto: string) {
   }
 }
 
-export type Grupo = { id: string; nome: string };
+/**
+ * Id do grupo de aviso ("...@g.us"). O grupo é definido pelo link de convite
+ * guardado em whatsapp_config.aviso_grupo_convite — só no banco, nunca no
+ * código (o repo é público e o link deixa qualquer um entrar no grupo).
+ * Na primeira vez resolve o id pela Evolution e guarda; depois só lê.
+ */
+export async function grupoDoAviso(supabase: SupabaseClient): Promise<string> {
+  const { data: config } = await supabase
+    .from("whatsapp_config")
+    .select("aviso_grupo_id, aviso_grupo_convite")
+    .eq("id", 1)
+    .maybeSingle();
+  if (config?.aviso_grupo_id) return config.aviso_grupo_id;
 
-/** Grupos em que o número conectado está (para escolher onde avisar). */
-export async function listarGrupos(): Promise<Grupo[]> {
-  const r = await evo("/group/fetchAllGroups/{instance}?getParticipants=false");
-  if (!r.ok) throw new Error(`Evolution ${r.status} ao listar grupos`);
-  const lista: EvoJson[] = Array.isArray(r.data) ? r.data : [];
-  return lista
-    .filter((g) => typeof g?.id === "string" && g.id.endsWith("@g.us"))
-    .map((g) => ({
-      id: g.id as string,
-      // Algumas versões da Evolution devolvem grupo sem subject.
-      nome:
-        (g.subject as string | undefined)?.trim() || `Grupo sem nome (${g.size ?? "?"} membros)`,
-    }))
-    .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+  const codigo = String(config?.aviso_grupo_convite ?? "")
+    .trim()
+    .replace(/^https?:\/\/chat\.whatsapp\.com\//, "")
+    .replace(/[/?#].*$/, "");
+  if (!codigo) throw new Error("Link do grupo de aviso não configurado");
+
+  const r = await evo(`/group/inviteInfo/{instance}?inviteCode=${encodeURIComponent(codigo)}`);
+  const id: unknown = r.data?.id;
+  if (!r.ok || typeof id !== "string" || !id.endsWith("@g.us")) {
+    throw new Error(`Não consegui identificar o grupo pelo link (Evolution ${r.status})`);
+  }
+  await supabase
+    .from("whatsapp_config")
+    .update({ aviso_grupo_id: id, aviso_grupo_nome: r.data?.subject ?? null })
+    .eq("id", 1);
+  return id;
 }
 
 export function montarAviso(nome: string, telefone: string): string {
@@ -162,7 +176,7 @@ export async function agendarMensagensDoLead(
   try {
     const { data: config } = await supabase
       .from("whatsapp_config")
-      .select("ativo, mensagem, atraso_segundos, aviso_ativo, aviso_grupo_id")
+      .select("ativo, mensagem, atraso_segundos, aviso_ativo")
       .eq("id", 1)
       .maybeSingle();
     if (!config) return;
@@ -181,19 +195,24 @@ export async function agendarMensagensDoLead(
         enviar_em: new Date(agora + (config.atraso_segundos ?? 30) * 1000).toISOString(),
       });
     }
-    if (config.aviso_ativo && config.aviso_grupo_id) {
+    if (config.aviso_ativo) {
       envios.push({
         lead_id: lead.id,
         tipo: "aviso",
-        telefone: config.aviso_grupo_id,
+        telefone: await grupoDoAviso(supabase).catch((e) => {
+          console.error("[whatsapp] grupo do aviso", e);
+          return null;
+        }),
         mensagem: montarAviso(lead.nome, telefone),
         status: "pendente",
         enviar_em: new Date(agora).toISOString(),
       });
     }
-    if (envios.length === 0) return;
+    // Sem grupo resolvido o aviso não tem para onde ir: fica de fora.
+    const validos = envios.filter((e) => e.telefone);
+    if (validos.length === 0) return;
 
-    const { error } = await supabase.from("whatsapp_envios").insert(envios);
+    const { error } = await supabase.from("whatsapp_envios").insert(validos);
     if (error) console.error("[whatsapp] agendar falhou", error.message);
   } catch (e) {
     console.error("[whatsapp] agendar error", e);
