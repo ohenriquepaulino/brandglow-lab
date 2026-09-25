@@ -329,7 +329,8 @@ function remetente(msg: EvoJson): string | null {
 
 /**
  * Webhook MESSAGES_UPSERT: se quem mandou é um lead em Oportunidades /
- * Aguardando resposta, move o card para Conversando e registra no histórico.
+ * Aguardando resposta, move o card para Conversando, registra no histórico e
+ * conclui a tarefa "Chamar <nome>".
  * O conteúdo da mensagem não é lido nem guardado — só o número.
  */
 export async function moverLeadsQueResponderam(supabase: SupabaseClient, payload: EvoJson) {
@@ -369,6 +370,12 @@ export async function moverLeadsQueResponderam(supabase: SupabaseClient, payload
       coluna_origem: lead.coluna,
       coluna_destino: COLUNA_CONVERSANDO,
     });
+    // O lead respondeu: a tarefa "Chamar <nome>" deixa de fazer sentido.
+    await supabase
+      .from("tasks")
+      .update({ concluida: true, data_conclusao: new Date().toISOString() })
+      .eq("lead_id", lead.id)
+      .eq("concluida", false);
     movidos++;
   }
   return movidos;
