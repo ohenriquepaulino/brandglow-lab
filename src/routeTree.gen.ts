@@ -18,6 +18,7 @@ import { Route as CrmIndexRouteImport } from './routes/crm.index'
 import { Route as CasesIndexRouteImport } from './routes/cases.index'
 import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
+import { Route as CrmWhatsappRouteImport } from './routes/crm.whatsapp'
 import { Route as CrmTarefasRouteImport } from './routes/crm.tarefas'
 import { Route as CrmKanbanRouteImport } from './routes/crm.kanban'
 import { Route as CasesSlugRouteImport } from './routes/cases.$slug'
@@ -29,6 +30,7 @@ import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lova
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicLeadsSubmitRouteImport } from './routes/api/public/leads/submit'
+import { Route as ApiPublicCrmWhatsappRouteImport } from './routes/api/public/crm/whatsapp'
 import { Route as ApiPublicCrmTasksRouteImport } from './routes/api/public/crm/tasks'
 import { Route as ApiPublicCrmProposalsRouteImport } from './routes/api/public/crm/proposals'
 import { Route as ApiPublicCrmDataRouteImport } from './routes/api/public/crm/data'
@@ -77,6 +79,11 @@ const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   id: '/email/unsubscribe',
   path: '/email/unsubscribe',
   getParentRoute: () => rootRouteImport,
+} as any)
+const CrmWhatsappRoute = CrmWhatsappRouteImport.update({
+  id: '/whatsapp',
+  path: '/whatsapp',
+  getParentRoute: () => CrmRoute,
 } as any)
 const CrmTarefasRoute = CrmTarefasRouteImport.update({
   id: '/tarefas',
@@ -136,6 +143,11 @@ const ApiPublicLeadsSubmitRoute = ApiPublicLeadsSubmitRouteImport.update({
   path: '/api/public/leads/submit',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCrmWhatsappRoute = ApiPublicCrmWhatsappRouteImport.update({
+  id: '/api/public/crm/whatsapp',
+  path: '/api/public/crm/whatsapp',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicCrmTasksRoute = ApiPublicCrmTasksRouteImport.update({
   id: '/api/public/crm/tasks',
   path: '/api/public/crm/tasks',
@@ -161,6 +173,7 @@ export interface FileRoutesByFullPath {
   '/cases/$slug': typeof CasesSlugRoute
   '/crm/kanban': typeof CrmKanbanRoute
   '/crm/tarefas': typeof CrmTarefasRoute
+  '/crm/whatsapp': typeof CrmWhatsappRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/p/$slug': typeof PSlugRoute
   '/cases/': typeof CasesIndexRoute
@@ -172,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/api/public/crm/data': typeof ApiPublicCrmDataRoute
   '/api/public/crm/proposals': typeof ApiPublicCrmProposalsRoute
   '/api/public/crm/tasks': typeof ApiPublicCrmTasksRoute
+  '/api/public/crm/whatsapp': typeof ApiPublicCrmWhatsappRoute
   '/api/public/leads/submit': typeof ApiPublicLeadsSubmitRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -185,6 +199,7 @@ export interface FileRoutesByTo {
   '/cases/$slug': typeof CasesSlugRoute
   '/crm/kanban': typeof CrmKanbanRoute
   '/crm/tarefas': typeof CrmTarefasRoute
+  '/crm/whatsapp': typeof CrmWhatsappRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/p/$slug': typeof PSlugRoute
   '/cases': typeof CasesIndexRoute
@@ -196,6 +211,7 @@ export interface FileRoutesByTo {
   '/api/public/crm/data': typeof ApiPublicCrmDataRoute
   '/api/public/crm/proposals': typeof ApiPublicCrmProposalsRoute
   '/api/public/crm/tasks': typeof ApiPublicCrmTasksRoute
+  '/api/public/crm/whatsapp': typeof ApiPublicCrmWhatsappRoute
   '/api/public/leads/submit': typeof ApiPublicLeadsSubmitRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -211,6 +227,7 @@ export interface FileRoutesById {
   '/cases/$slug': typeof CasesSlugRoute
   '/crm/kanban': typeof CrmKanbanRoute
   '/crm/tarefas': typeof CrmTarefasRoute
+  '/crm/whatsapp': typeof CrmWhatsappRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/p/$slug': typeof PSlugRoute
   '/cases/': typeof CasesIndexRoute
@@ -222,6 +239,7 @@ export interface FileRoutesById {
   '/api/public/crm/data': typeof ApiPublicCrmDataRoute
   '/api/public/crm/proposals': typeof ApiPublicCrmProposalsRoute
   '/api/public/crm/tasks': typeof ApiPublicCrmTasksRoute
+  '/api/public/crm/whatsapp': typeof ApiPublicCrmWhatsappRoute
   '/api/public/leads/submit': typeof ApiPublicLeadsSubmitRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -238,6 +256,7 @@ export interface FileRouteTypes {
     | '/cases/$slug'
     | '/crm/kanban'
     | '/crm/tarefas'
+    | '/crm/whatsapp'
     | '/email/unsubscribe'
     | '/p/$slug'
     | '/cases/'
@@ -249,6 +268,7 @@ export interface FileRouteTypes {
     | '/api/public/crm/data'
     | '/api/public/crm/proposals'
     | '/api/public/crm/tasks'
+    | '/api/public/crm/whatsapp'
     | '/api/public/leads/submit'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
@@ -262,6 +282,7 @@ export interface FileRouteTypes {
     | '/cases/$slug'
     | '/crm/kanban'
     | '/crm/tarefas'
+    | '/crm/whatsapp'
     | '/email/unsubscribe'
     | '/p/$slug'
     | '/cases'
@@ -273,6 +294,7 @@ export interface FileRouteTypes {
     | '/api/public/crm/data'
     | '/api/public/crm/proposals'
     | '/api/public/crm/tasks'
+    | '/api/public/crm/whatsapp'
     | '/api/public/leads/submit'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
@@ -287,6 +309,7 @@ export interface FileRouteTypes {
     | '/cases/$slug'
     | '/crm/kanban'
     | '/crm/tarefas'
+    | '/crm/whatsapp'
     | '/email/unsubscribe'
     | '/p/$slug'
     | '/cases/'
@@ -298,6 +321,7 @@ export interface FileRouteTypes {
     | '/api/public/crm/data'
     | '/api/public/crm/proposals'
     | '/api/public/crm/tasks'
+    | '/api/public/crm/whatsapp'
     | '/api/public/leads/submit'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
@@ -319,6 +343,7 @@ export interface RootRouteChildren {
   ApiPublicCrmDataRoute: typeof ApiPublicCrmDataRoute
   ApiPublicCrmProposalsRoute: typeof ApiPublicCrmProposalsRoute
   ApiPublicCrmTasksRoute: typeof ApiPublicCrmTasksRoute
+  ApiPublicCrmWhatsappRoute: typeof ApiPublicCrmWhatsappRoute
   ApiPublicLeadsSubmitRoute: typeof ApiPublicLeadsSubmitRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
@@ -389,6 +414,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/email/unsubscribe'
       preLoaderRoute: typeof EmailUnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/crm/whatsapp': {
+      id: '/crm/whatsapp'
+      path: '/whatsapp'
+      fullPath: '/crm/whatsapp'
+      preLoaderRoute: typeof CrmWhatsappRouteImport
+      parentRoute: typeof CrmRoute
     }
     '/crm/tarefas': {
       id: '/crm/tarefas'
@@ -467,6 +499,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicLeadsSubmitRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/crm/whatsapp': {
+      id: '/api/public/crm/whatsapp'
+      path: '/api/public/crm/whatsapp'
+      fullPath: '/api/public/crm/whatsapp'
+      preLoaderRoute: typeof ApiPublicCrmWhatsappRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/crm/tasks': {
       id: '/api/public/crm/tasks'
       path: '/api/public/crm/tasks'
@@ -494,6 +533,7 @@ declare module '@tanstack/react-router' {
 interface CrmRouteChildren {
   CrmKanbanRoute: typeof CrmKanbanRoute
   CrmTarefasRoute: typeof CrmTarefasRoute
+  CrmWhatsappRoute: typeof CrmWhatsappRoute
   CrmIndexRoute: typeof CrmIndexRoute
   CrmPropostasIdRoute: typeof CrmPropostasIdRoute
   CrmPropostasIndexRoute: typeof CrmPropostasIndexRoute
@@ -502,6 +542,7 @@ interface CrmRouteChildren {
 const CrmRouteChildren: CrmRouteChildren = {
   CrmKanbanRoute: CrmKanbanRoute,
   CrmTarefasRoute: CrmTarefasRoute,
+  CrmWhatsappRoute: CrmWhatsappRoute,
   CrmIndexRoute: CrmIndexRoute,
   CrmPropostasIdRoute: CrmPropostasIdRoute,
   CrmPropostasIndexRoute: CrmPropostasIndexRoute,
@@ -524,6 +565,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCrmDataRoute: ApiPublicCrmDataRoute,
   ApiPublicCrmProposalsRoute: ApiPublicCrmProposalsRoute,
   ApiPublicCrmTasksRoute: ApiPublicCrmTasksRoute,
+  ApiPublicCrmWhatsappRoute: ApiPublicCrmWhatsappRoute,
   ApiPublicLeadsSubmitRoute: ApiPublicLeadsSubmitRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,

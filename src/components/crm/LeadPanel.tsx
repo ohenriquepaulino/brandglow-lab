@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { apiListHistorico, apiUpdateAnotacoes } from "@/lib/crm-api";
+import { apiWhatsAppEnviosDoLead, type WhatsAppEnvio } from "@/lib/whatsapp-api";
 import {
   TODAS_COLUNAS,
   formatDateTime,
@@ -22,6 +23,7 @@ export function LeadPanel({
 }) {
   const [anotacoes, setAnotacoes] = useState(lead.anotacoes ?? "");
   const [historico, setHistorico] = useState<Movimentacao[]>([]);
+  const [envios, setEnvios] = useState<WhatsAppEnvio[]>([]);
 
   useEffect(() => {
     setAnotacoes(lead.anotacoes ?? "");
@@ -29,6 +31,12 @@ export function LeadPanel({
       .then((data) => setHistorico(data))
       .catch((err) => console.error(err));
   }, [lead.id, lead.anotacoes]);
+
+  useEffect(() => {
+    apiWhatsAppEnviosDoLead(lead.id)
+      .then((data) => setEnvios(data))
+      .catch((err) => console.error(err));
+  }, [lead.id]);
 
   async function saveAnotacoes() {
     if ((lead.anotacoes ?? "") === anotacoes) return;
@@ -40,8 +48,7 @@ export function LeadPanel({
     }
   }
 
-  const colunaLabel = (id: string) =>
-    TODAS_COLUNAS.find((c) => c.id === id)?.label ?? id;
+  const colunaLabel = (id: string) => TODAS_COLUNAS.find((c) => c.id === id)?.label ?? id;
 
   const utms = [
     ["utm_source", lead.utm_source],
@@ -53,21 +60,14 @@ export function LeadPanel({
 
   return (
     <div className="fixed inset-0 z-50 flex" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
-      <button
-        type="button"
-        aria-label="Fechar"
-        onClick={onClose}
-        className="flex-1 bg-black/30"
-      />
+      <button type="button" aria-label="Fechar" onClick={onClose} className="flex-1 bg-black/30" />
       <aside className="flex h-full w-full max-w-md flex-col overflow-y-auto bg-white p-6 shadow-xl">
         <div className="flex items-start justify-between">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-neutral-500">
               Lead
             </p>
-            <h2 className="mt-1 text-xl font-semibold text-neutral-900">
-              {lead.nome}
-            </h2>
+            <h2 className="mt-1 text-xl font-semibold text-neutral-900">{lead.nome}</h2>
           </div>
           <button
             type="button"
@@ -93,6 +93,18 @@ export function LeadPanel({
                 Abrir
               </a>
             </div>
+            {envios.map((e) => (
+              <p
+                key={e.id}
+                className={`mt-1 text-[11px] ${e.status === "enviado" ? "text-green-700" : "text-red-600"}`}
+                title={e.erro ?? undefined}
+              >
+                {e.status === "enviado"
+                  ? "✓ Mensagem automática enviada"
+                  : "✕ Mensagem automática falhou"}{" "}
+                · {formatDateTime(e.criado_em)}
+              </p>
+            ))}
           </Row>
           {lead.instagram?.trim() && (
             <Row label="Instagram">
@@ -115,9 +127,7 @@ export function LeadPanel({
               lead.faturamento
             )}
           </Row>
-          {lead.profissao?.trim() && (
-            <Row label="Área de atuação">{lead.profissao}</Row>
-          )}
+          {lead.profissao?.trim() && <Row label="Área de atuação">{lead.profissao}</Row>}
 
           <Row label="Entrada">{formatDateTime(lead.criado_em)}</Row>
         </dl>
@@ -163,11 +173,7 @@ export function LeadPanel({
           ) : (
             <ul className="mt-2 space-y-2 text-sm">
               {historico.map((h) => (
-                <li
-                  key={h.id}
-                  className="rounded-md border p-3"
-                  style={{ borderColor: "#E0DED9" }}
-                >
+                <li key={h.id} className="rounded-md border p-3" style={{ borderColor: "#E0DED9" }}>
                   <p className="text-neutral-800">
                     {colunaLabel(h.coluna_origem)} → {colunaLabel(h.coluna_destino)}
                   </p>

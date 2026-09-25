@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
+import { enviarBoasVindas } from "@/lib/whatsapp.server";
 
 const LeadSchema = z.object({
   nome: z.string().trim().min(2).max(100),
@@ -141,30 +142,31 @@ export const Route = createFileRoute("/api/public/leads/submit")({
           const body = await request.json();
           parsed = LeadSchema.parse(body);
         } catch (err) {
-          return Response.json(
-            { error: "Invalid payload", details: String(err) },
-            { status: 400 },
-          );
+          return Response.json({ error: "Invalid payload", details: String(err) }, { status: 400 });
         }
 
         const supabase = createClient(supabaseUrl, serviceKey, {
           auth: { persistSession: false, autoRefreshToken: false },
         });
 
-        const { error: insertError } = await supabase.from("leads").insert({
-          nome: parsed.nome,
-          whatsapp: parsed.whatsapp,
-          instagram: parsed.instagram?.trim() ? parsed.instagram : null,
-          faturamento: parsed.faturamento,
-          profissao: parsed.profissao?.trim() ? parsed.profissao.trim() : null,
+        const { data: inserted, error: insertError } = await supabase
+          .from("leads")
+          .insert({
+            nome: parsed.nome,
+            whatsapp: parsed.whatsapp,
+            instagram: parsed.instagram?.trim() ? parsed.instagram : null,
+            faturamento: parsed.faturamento,
+            profissao: parsed.profissao?.trim() ? parsed.profissao.trim() : null,
 
-          utm_source: parsed.utm_source ?? null,
-          utm_medium: parsed.utm_medium ?? null,
-          utm_campaign: parsed.utm_campaign ?? null,
-          utm_content: parsed.utm_content ?? null,
-          utm_term: parsed.utm_term ?? null,
-          coluna: "novo-lead",
-        });
+            utm_source: parsed.utm_source ?? null,
+            utm_medium: parsed.utm_medium ?? null,
+            utm_campaign: parsed.utm_campaign ?? null,
+            utm_content: parsed.utm_content ?? null,
+            utm_term: parsed.utm_term ?? null,
+            coluna: "novo-lead",
+          })
+          .select("id")
+          .single();
 
         if (insertError) {
           console.error("[leads-submit] insert error", insertError);
@@ -174,6 +176,12 @@ export const Route = createFileRoute("/api/public/leads/submit")({
         const origin = new URL(request.url).origin;
         // Await the enqueue so the worker doesn't exit before it runs.
         // Enqueue is fast (pgmq insert); actual delivery happens in the cron.
+        // WhatsApp de boas-vindas: mesmo motivo do await acima. Nunca lança.
+        await enviarBoasVindas(supabase, {
+          id: inserted?.id ?? null,
+          nome: parsed.nome,
+          whatsapp: parsed.whatsapp,
+        });
         await notify(origin, parsed);
         if (!parsed.skip_meta) {
           await sendMetaLead(
