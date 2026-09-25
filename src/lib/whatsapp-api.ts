@@ -9,9 +9,18 @@ export type EstadoWhatsApp =
 
 export type WhatsAppConfig = { ativo: boolean; mensagem: string; atraso_segundos: number };
 
+export type AvisoConfig = {
+  aviso_ativo: boolean;
+  aviso_grupo_id: string | null;
+  aviso_grupo_nome: string | null;
+};
+
+export type Grupo = { id: string; nome: string };
+
 export type WhatsAppEnvio = {
   id: string;
   lead_id: string | null;
+  tipo: "boas_vindas" | "aviso";
   telefone: string;
   status: "pendente" | "enviando" | "enviado" | "erro";
   erro: string | null;
@@ -37,7 +46,7 @@ async function call<T = unknown>(body: Record<string, unknown>): Promise<T> {
 export async function apiWhatsAppGet() {
   const { data } = await call<{
     data: {
-      config: WhatsAppConfig | null;
+      config: (WhatsAppConfig & AvisoConfig) | null;
       envios: WhatsAppEnvio[];
       evolution_configurada: boolean;
     };
@@ -74,4 +83,17 @@ export async function apiWhatsAppSendTest(telefone: string, mensagem: string) {
 export async function apiWhatsAppEnviosDoLead(lead_id: string): Promise<WhatsAppEnvio[]> {
   const { data } = await call<{ data: WhatsAppEnvio[] }>({ action: "list_envios_lead", lead_id });
   return data ?? [];
+}
+
+export async function apiWhatsAppGrupos(): Promise<Grupo[]> {
+  const { data } = await call<{ data: Grupo[] }>({ action: "list_grupos" });
+  return data ?? [];
+}
+
+export async function apiWhatsAppSaveAviso(config: AvisoConfig) {
+  await call({ action: "save_aviso", ...config });
+}
+
+export async function apiWhatsAppTestAviso(aviso_grupo_id: string) {
+  await call({ action: "test_aviso", aviso_grupo_id });
 }

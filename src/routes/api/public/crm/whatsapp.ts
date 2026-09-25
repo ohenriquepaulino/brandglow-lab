@@ -7,6 +7,8 @@ import {
   enviarTexto,
   estadoDaConexao,
   evolutionConfigurada,
+  listarGrupos,
+  montarAviso,
   montarMensagem,
   normalizarTelefone,
 } from "@/lib/whatsapp.server";
@@ -28,6 +30,17 @@ const ActionSchema = z.discriminatedUnion("action", [
     mensagem: z.string().trim().min(1).max(2000),
   }),
   z.object({ action: z.literal("list_envios_lead"), lead_id: z.string().uuid() }),
+  z.object({ action: z.literal("list_grupos") }),
+  z.object({
+    action: z.literal("save_aviso"),
+    aviso_ativo: z.boolean(),
+    aviso_grupo_id: z
+      .string()
+      .regex(/@g\.us$/)
+      .nullable(),
+    aviso_grupo_nome: z.string().max(200).nullable(),
+  }),
+  z.object({ action: z.literal("test_aviso"), aviso_grupo_id: z.string().regex(/@g\.us$/) }),
 ]);
 
 function unauthorized() {
@@ -68,12 +81,16 @@ export const Route = createFileRoute("/api/public/crm/whatsapp")({
             const [{ data: config, error }, { data: envios }] = await Promise.all([
               supabase
                 .from("whatsapp_config")
-                .select("ativo, mensagem, atraso_segundos")
+                .select(
+                  "ativo, mensagem, atraso_segundos, aviso_ativo, aviso_grupo_id, aviso_grupo_nome",
+                )
                 .eq("id", 1)
                 .maybeSingle(),
               supabase
                 .from("whatsapp_envios")
-                .select("id, lead_id, telefone, status, erro, criado_em, enviar_em, leads(nome)")
+                .select(
+                  "id, lead_id, tipo, telefone, status, erro, criado_em, enviar_em, leads(nome)",
+                )
                 .order("criado_em", { ascending: false })
                 .limit(20),
             ]);
@@ -132,11 +149,43 @@ export const Route = createFileRoute("/api/public/crm/whatsapp")({
           case "list_envios_lead": {
             const { data, error } = await supabase
               .from("whatsapp_envios")
-              .select("id, lead_id, telefone, status, erro, criado_em, enviar_em")
+              .select("id, lead_id, tipo, telefone, status, erro, criado_em, enviar_em")
               .eq("lead_id", payload.lead_id)
+              .eq("tipo", "boas_vindas")
               .order("criado_em", { ascending: false });
             if (error) return Response.json({ error: error.message }, { status: 500 });
             return Response.json({ data: data ?? [] });
+          }
+          case "list_grupos": {
+            try {
+              return Response.json({ data: await listarGrupos() });
+            } catch (e) {
+              return erro(e);
+            }
+          }
+          case "save_aviso": {
+            const { error } = await supabase
+              .from("whatsapp_config")
+              .update({
+                aviso_ativo: payload.aviso_ativo && !!payload.aviso_grupo_id,
+                aviso_grupo_id: payload.aviso_grupo_id,
+                aviso_grupo_nome: payload.aviso_grupo_nome,
+                updated_at: new Date().toISOString(),
+              })
+              .eq("id", 1);
+            if (error) return Response.json({ error: error.message }, { status: 500 });
+            return Response.json({ success: true });
+          }
+          case "test_aviso": {
+            try {
+              await enviarTexto(
+                payload.aviso_grupo_id,
+                montarAviso("Lead de teste", "5511999999999"),
+              );
+              return Response.json({ success: true });
+            } catch (e) {
+              return erro(e);
+            }
           }
         }
       },

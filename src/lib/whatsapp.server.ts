@@ -126,34 +126,77 @@ export async function enviarTexto(telefone: string, texto: string) {
   }
 }
 
+export type Grupo = { id: string; nome: string };
+
+/** Grupos em que o número conectado está (para escolher onde avisar). */
+export async function listarGrupos(): Promise<Grupo[]> {
+  const r = await evo("/group/fetchAllGroups/{instance}?getParticipants=false");
+  if (!r.ok) throw new Error(`Evolution ${r.status} ao listar grupos`);
+  const lista: EvoJson[] = Array.isArray(r.data) ? r.data : [];
+  return lista
+    .filter((g) => typeof g?.id === "string" && g.id.endsWith("@g.us"))
+    .map((g) => ({
+      id: g.id as string,
+      // Algumas versões da Evolution devolvem grupo sem subject.
+      nome:
+        (g.subject as string | undefined)?.trim() || `Grupo sem nome (${g.size ?? "?"} membros)`,
+    }))
+    .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+}
+
+export function montarAviso(nome: string, telefone: string): string {
+  return `🔔 *NOVO LEAD NO CRM*\n${nome.trim()}\nhttps://wa.me/${telefone}`;
+}
+
 /**
- * Gatilho do cadastro: se a automação estiver ativa, agenda a mensagem para
- * daqui a `atraso_segundos` (whatsapp_envios.status = 'pendente'). Quem envia
- * é processarFila, chamada pelo pg_cron. Nunca lança — o cadastro do lead não
- * pode falhar por causa do WhatsApp.
+ * Gatilho do cadastro. Agenda até duas mensagens em whatsapp_envios
+ * (status 'pendente'), que processarFila envia pelo pg_cron:
+ *   - boas-vindas para o lead, daqui a `atraso_segundos`;
+ *   - aviso "NOVO LEAD NO CRM" no grupo escolhido, na hora.
+ * Nunca lança — o cadastro do lead não pode falhar por causa do WhatsApp.
  */
-export async function agendarBoasVindas(
+export async function agendarMensagensDoLead(
   supabase: SupabaseClient,
   lead: { id: string | null; nome: string; whatsapp: string },
 ) {
   try {
     const { data: config } = await supabase
       .from("whatsapp_config")
-      .select("ativo, mensagem, atraso_segundos")
+      .select("ativo, mensagem, atraso_segundos, aviso_ativo, aviso_grupo_id")
       .eq("id", 1)
       .maybeSingle();
-    if (!config?.ativo || !config.mensagem?.trim()) return;
+    if (!config) return;
 
-    const { error } = await supabase.from("whatsapp_envios").insert({
-      lead_id: lead.id,
-      telefone: normalizarTelefone(lead.whatsapp),
-      mensagem: montarMensagem(config.mensagem, lead.nome),
-      status: "pendente",
-      enviar_em: new Date(Date.now() + (config.atraso_segundos ?? 30) * 1000).toISOString(),
-    });
+    const telefone = normalizarTelefone(lead.whatsapp);
+    const agora = Date.now();
+    const envios = [];
+
+    if (config.ativo && config.mensagem?.trim()) {
+      envios.push({
+        lead_id: lead.id,
+        tipo: "boas_vindas",
+        telefone,
+        mensagem: montarMensagem(config.mensagem, lead.nome),
+        status: "pendente",
+        enviar_em: new Date(agora + (config.atraso_segundos ?? 30) * 1000).toISOString(),
+      });
+    }
+    if (config.aviso_ativo && config.aviso_grupo_id) {
+      envios.push({
+        lead_id: lead.id,
+        tipo: "aviso",
+        telefone: config.aviso_grupo_id,
+        mensagem: montarAviso(lead.nome, telefone),
+        status: "pendente",
+        enviar_em: new Date(agora).toISOString(),
+      });
+    }
+    if (envios.length === 0) return;
+
+    const { error } = await supabase.from("whatsapp_envios").insert(envios);
     if (error) console.error("[whatsapp] agendar falhou", error.message);
   } catch (e) {
-    console.error("[whatsapp] boas-vindas error", e);
+    console.error("[whatsapp] agendar error", e);
   }
 }
 
