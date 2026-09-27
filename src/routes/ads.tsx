@@ -293,6 +293,9 @@ function AdsPage() {
           scroll-behavior: smooth;
         }
         .ads-page strong { font-weight: 600; color: inherit; }
+        /* Selo do Lovable (injetado na publicação) só some aqui: este <style>
+           existe apenas enquanto o /ads está na tela. */
+        #lovable-badge { display: none !important; }
         .ads-container {
           max-width: 1200px;
           margin-inline: auto;
