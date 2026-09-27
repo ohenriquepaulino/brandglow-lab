@@ -158,6 +158,27 @@ export async function grupoDoAviso(supabase: SupabaseClient): Promise<string> {
   return id;
 }
 
+// Janela de silêncio das boas-vindas: das 22h às 6h (Brasília) não manda nada
+// para o lead; o que cairia nesse intervalo sai às 6h. Só vale para o lead —
+// o aviso no grupo sai na hora.
+const SILENCIO_INICIO = 22;
+const SILENCIO_FIM = 6;
+// Brasília é UTC-3 o ano todo (sem horário de verão desde 2019).
+const BRASILIA_OFFSET_MS = -3 * 60 * 60_000;
+
+/** Se `quando` cai entre 22h e 6h de Brasília, empurra para as 6h seguintes. */
+export function foraDoSilencio(quando: Date): Date {
+  const local = new Date(quando.getTime() + BRASILIA_OFFSET_MS);
+  const hora = local.getUTCHours();
+  if (hora >= SILENCIO_FIM && hora < SILENCIO_INICIO) return quando;
+
+  const seisHoras = new Date(local);
+  seisHoras.setUTCHours(SILENCIO_FIM, 0, 0, 0);
+  // Depois das 22h, as 6h são do dia seguinte; de madrugada, do mesmo dia.
+  if (hora >= SILENCIO_INICIO) seisHoras.setUTCDate(seisHoras.getUTCDate() + 1);
+  return new Date(seisHoras.getTime() - BRASILIA_OFFSET_MS);
+}
+
 export function montarAviso(lead: {
   nome: string;
   telefone: string;
@@ -175,7 +196,7 @@ export function montarAviso(lead: {
 /**
  * Gatilho do cadastro. Agenda até duas mensagens em whatsapp_envios
  * (status 'pendente'), que processarFila envia pelo pg_cron:
- *   - boas-vindas para o lead, daqui a `atraso_segundos`;
+ *   - boas-vindas para o lead, daqui a `atraso_segundos` (entre 22h e 6h, às 6h);
  *   - aviso "NOVO LEAD NO CRM" no grupo escolhido, na hora.
  * Nunca lança — o cadastro do lead não pode falhar por causa do WhatsApp.
  */
@@ -208,7 +229,9 @@ export async function agendarMensagensDoLead(
         telefone,
         mensagem: montarMensagem(config.mensagem, lead.nome),
         status: "pendente",
-        enviar_em: new Date(agora + (config.atraso_segundos ?? 30) * 1000).toISOString(),
+        enviar_em: foraDoSilencio(
+          new Date(agora + (config.atraso_segundos ?? 30) * 1000),
+        ).toISOString(),
       });
     }
     if (config.aviso_ativo) {

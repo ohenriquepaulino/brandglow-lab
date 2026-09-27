@@ -304,7 +304,7 @@ function WhatsAppContent() {
               className="w-16 rounded-md border px-2 py-1 text-sm outline-none focus:border-neutral-900"
               style={{ borderColor: BORDER }}
             />
-            segundos após o cadastro
+            segundos após o cadastro · entre 22h e 6h, sai às 6h
           </label>
           <button
             onClick={handleSalvar}
