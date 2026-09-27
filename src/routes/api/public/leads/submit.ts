@@ -189,6 +189,8 @@ export const Route = createFileRoute("/api/public/leads/submit")({
           id: inserted?.id ?? null,
           nome: parsed.nome,
           whatsapp: parsed.whatsapp,
+          faturamento: parsed.faturamento,
+          profissao: parsed.profissao,
         });
         await notify(origin, parsed);
         if (!parsed.skip_meta) {

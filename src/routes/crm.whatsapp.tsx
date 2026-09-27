@@ -419,8 +419,8 @@ function AvisoGrupo({ inicial, conectado }: { inicial: AvisoConfig; conectado: b
       <p className="mt-2 text-xs text-neutral-500">
         Assim que o lead se cadastra, chega no grupo
         {inicial.aviso_grupo_nome ? <strong> {inicial.aviso_grupo_nome}</strong> : " do time"}:{" "}
-        <em>🔔 NOVO LEAD NO CRM · nome · link wa.me</em>. Quem envia não recebe notificação — ela
-        chega para os outros membros do grupo.
+        <em>🔔 NOVO LEAD NO CRM · nome · segmento · faturamento · link wa.me</em>. Quem envia não
+        recebe notificação — ela chega para os outros membros do grupo.
       </p>
       <div className="mt-3 flex items-center gap-3">
         <button

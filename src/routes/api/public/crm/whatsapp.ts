@@ -170,7 +170,12 @@ export const Route = createFileRoute("/api/public/crm/whatsapp")({
             try {
               await enviarTexto(
                 await grupoDoAviso(supabase),
-                montarAviso("Lead de teste", "5511999999999"),
+                montarAviso({
+                  nome: "Lead de teste",
+                  telefone: "5511999999999",
+                  faturamento: "De R$ 10.000 a R$ 20.000",
+                  segmento: "Odontologia",
+                }),
               );
               return Response.json({ success: true });
             } catch (e) {

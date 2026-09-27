@@ -158,8 +158,18 @@ export async function grupoDoAviso(supabase: SupabaseClient): Promise<string> {
   return id;
 }
 
-export function montarAviso(nome: string, telefone: string): string {
-  return `🔔 *NOVO LEAD NO CRM*\n${nome.trim()}\nhttps://wa.me/${telefone}`;
+export function montarAviso(lead: {
+  nome: string;
+  telefone: string;
+  faturamento?: string | null;
+  segmento?: string | null;
+}): string {
+  const linhas = [`🔔 *NOVO LEAD NO CRM*`, lead.nome.trim()];
+  // Nem todo formulário pergunta o segmento (showProfession): sem ele, a linha fica de fora.
+  if (lead.segmento?.trim()) linhas.push(`Segmento: ${lead.segmento.trim()}`);
+  if (lead.faturamento?.trim()) linhas.push(`Faturamento: ${lead.faturamento.trim()}`);
+  linhas.push(`https://wa.me/${lead.telefone}`);
+  return linhas.join("\n");
 }
 
 /**
@@ -171,7 +181,13 @@ export function montarAviso(nome: string, telefone: string): string {
  */
 export async function agendarMensagensDoLead(
   supabase: SupabaseClient,
-  lead: { id: string | null; nome: string; whatsapp: string },
+  lead: {
+    id: string | null;
+    nome: string;
+    whatsapp: string;
+    faturamento?: string | null;
+    profissao?: string | null;
+  },
 ) {
   try {
     const { data: config } = await supabase
@@ -203,7 +219,12 @@ export async function agendarMensagensDoLead(
           console.error("[whatsapp] grupo do aviso", e);
           return null;
         }),
-        mensagem: montarAviso(lead.nome, telefone),
+        mensagem: montarAviso({
+          nome: lead.nome,
+          telefone,
+          faturamento: lead.faturamento,
+          segmento: lead.profissao,
+        }),
         status: "pendente",
         enviar_em: new Date(agora).toISOString(),
       });
