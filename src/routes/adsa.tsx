@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { ContactSection } from "@/components/site/ContactSection";
 import { PrivacyButton } from "@/components/site/PrivacyDialog";
 import { useAbVisit } from "@/lib/ab";
+import { useStickyCta } from "@/lib/useStickyCta";
 import logo from "@/assets/logo-legacy-v2.png.asset.json";
 import img308OutBanner from "@/assets/308-network/308-network-out-banner.webp.asset.json";
 import imgMoewaPosterManifesto from "@/assets/ads/moewa-poster-manifesto.webp.asset.json";
@@ -55,10 +56,20 @@ const depoimentos = [
 ];
 
 const heroSlides = [
-  { src: img308OutBanner.url, alt: "" },
-  { src: imgMoewaPosterManifesto.url, alt: "" },
-  { src: imgGeri.url, alt: "" },
-  { src: imgJoanaBillboardQuote.url, alt: "" },
+  { src: img308OutBanner.url, nome: "308NETWORK", seg: "Decisões patrimoniais" },
+  { src: imgMoewaPosterManifesto.url, nome: "MOEWA", seg: "Estética e longevidade" },
+  { src: imgGeri.url, nome: "Geriacademy", seg: "Educação médica" },
+  { src: imgJoanaBillboardQuote.url, nome: "Joana co*", seg: "Educação financeira" },
+];
+
+const PASSOS = [
+  { n: "01", t: "Você preenche", d: "Leva menos de um minuto." },
+  { n: "02", t: "Analisamos seu perfil", d: "Chegamos na conversa sabendo do seu negócio." },
+  {
+    n: "03",
+    t: "Diagnóstico de 25 min",
+    d: "Por vídeo. Mostramos onde sua marca perde valor e o que resolver primeiro, contratando ou não.",
+  },
 ];
 
 function AdsSlider() {
@@ -73,7 +84,7 @@ function AdsSlider() {
         setLoaded((l) => Math.max(l, next + 1));
         return next;
       });
-    }, 5000);
+    }, 4000);
     return () => window.clearInterval(id);
   }, []);
 
@@ -94,6 +105,15 @@ function AdsSlider() {
             style={{ opacity: i === index ? 1 : 0 }}
           />
         ))}
+        <div className="ads-slider-cap">
+          <span className="ads-slider-seg">{heroSlides[index]!.seg}</span>
+          <span className="ads-slider-nome">{heroSlides[index]!.nome}</span>
+          <span className="ads-slider-dots" aria-hidden="true">
+            {heroSlides.map((s, i) => (
+              <i key={s.src} className={i === index ? "on" : ""} />
+            ))}
+          </span>
+        </div>
       </div>
     </a>
   );
@@ -107,25 +127,28 @@ function Label({ children }: { children: React.ReactNode }) {
   );
 }
 
+// Mesmo formulário e mesma oferta do /adsb: o teste compara a página, não a oferta.
 function FormSlot() {
   return (
     <div className="ads-card ads-form-slot">
+      <p className="ads-form-title">Diagnóstico gratuito</p>
+      <p className="ads-form-sub">Preencha e agendamos 25 minutos por vídeo com você.</p>
       <ContactSection
         redirectTo="/obrigado"
         redirectToNoRevenue="/tks"
         hideInstagram
         showProfession
         revenueLabel="Faturamento mensal da empresa"
-        formHint="Preencha com suas informações para entender como funciona"
-        ctaLabel="Quero saber mais"
+        ctaLabel="Quero meu diagnóstico"
+        ctaNote="Gratuito · 25 min por vídeo · resposta em até 1 dia útil"
       />
-
     </div>
   );
 }
 
 function AdsPage() {
   useAbVisit("a");
+  const sticky = useStickyCta(".ads-first, .ads-last, .ads-footer");
   return (
     <div className="ads-page">
       <header className="ads-topbar">
@@ -156,6 +179,17 @@ function AdsPage() {
                 visual renovada e com a <strong>comunicação clara</strong> para
                 poder atender melhor seus clientes e <strong>vender mais</strong>
               </p>
+              <ul className="ads-facts">
+                <li>
+                  <b>+8</b> anos de operação
+                </li>
+                <li>
+                  <b>BR</b> clientes em todo o Brasil
+                </li>
+                <li>
+                  <b>80%</b> estratégia
+                </li>
+              </ul>
             </div>
             <FormSlot />
           </div>
@@ -164,6 +198,25 @@ function AdsPage() {
         {/* Slider full-bleed com imagens dos cases */}
         <section className="ads-fullbleed">
           <AdsSlider />
+        </section>
+
+        {/* Como funciona */}
+        <section className="ads-section">
+          <div className="ads-container">
+            <Label>COMO FUNCIONA</Label>
+            <h2 className="ads-h2">
+              Três passos até o seu <strong>diagnóstico</strong>
+            </h2>
+            <ol className="ads-steps">
+              {PASSOS.map((p) => (
+                <li key={p.n}>
+                  <span className="ads-step-num">{p.n}</span>
+                  <p className="ads-h3">{p.t}</p>
+                  <p className="ads-body ads-secondary">{p.d}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
         </section>
 
         {/* Sobre */}
@@ -210,7 +263,7 @@ function AdsPage() {
             </div>
             <div className="ads-cta-row">
               <a href="#formulario" className="ads-cta">
-                Quero saber mais
+                Quero meu diagnóstico
               </a>
             </div>
           </div>
@@ -237,40 +290,6 @@ function AdsPage() {
           </div>
         </section>
 
-        {/* Como funciona a conversa (oculta, pode ser reativada) */}
-        {false && (
-          <section className="ads-section">
-            <div className="ads-container">
-              <Label>O DIAGNÓSTICO</Label>
-              <div className="ads-diag">
-                <div>
-                  <span className="ads-diag-num">01</span>
-                  <p className="ads-body">
-                    Você preenche o formulário. Leva{" "}
-                    <strong>menos de um minuto</strong>.
-                  </p>
-                </div>
-                <div>
-                  <span className="ads-diag-num">02</span>
-                  <p className="ads-body">
-                    <strong>Analisamos seu perfil</strong> antes da conversa.
-                    Chegamos sabendo do que se trata.
-                  </p>
-                </div>
-                <div>
-                  <span className="ads-diag-num">03</span>
-                  <p className="ads-body">
-                    Sessão de <strong>25 minutos por vídeo</strong>. Mostramos{" "}
-                    <strong>onde sua marca está perdendo valor</strong> e o que
-                    precisa ser resolvido primeiro. Você sai com essa leitura,
-                    contratando ou não.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
-
         {/* Formulário final */}
         <section id="formulario" className="ads-section ads-last">
           <div className="ads-container ads-hero-grid">
@@ -290,10 +309,22 @@ function AdsPage() {
       </main>
 
       <footer className="ads-footer">
-        <div className="ads-container">
-          © 2026 Legacy BrandCo. · <PrivacyButton />
+        <div className="ads-container ads-footer-row">
+          <img src={logo.url} alt="Legacy BrandCo." width={120} height={24} loading="lazy" />
+          <div>
+            © 2026 Legacy BrandCo. · <PrivacyButton />
+          </div>
         </div>
       </footer>
+
+      <a
+        href="#formulario"
+        className={`ads-sticky${sticky ? " on" : ""}`}
+        aria-hidden={!sticky}
+        tabIndex={sticky ? 0 : -1}
+      >
+        Quero meu diagnóstico gratuito
+      </a>
 
       <style>{`
         .ads-page {
@@ -336,8 +367,58 @@ function AdsPage() {
         .ads-dim { color: rgba(18,17,16,0.4); }
         .ads-hero-grid { display: grid; gap: 40px; }
         .ads-card {
-          background: #FFFFFF; padding: 24px; border: 1px solid rgba(18,17,16,0.08);
-          border-radius: 8px;
+          background: #FFFFFF; padding: 24px 20px; border: 1px solid rgba(18,17,16,0.08);
+          border-radius: 12px; box-shadow: 0 12px 36px rgba(18,17,16,0.06);
+          scroll-margin-top: 16px;
+        }
+        .ads-form-title { font-size: 22px; font-weight: 600; letter-spacing: -0.03em; margin: 0; }
+        .ads-form-sub { font-size: 14px; color: rgba(18,17,16,0.6); margin: 4px 0 20px; }
+        .ads-form-slot form { gap: 18px !important; }
+        .ads-form-slot form > div { gap: 18px !important; grid-template-columns: 1fr !important; }
+        .ads-form-slot button[type="submit"] {
+          width: 100% !important; background: #CFFF87 !important; color: #121110 !important;
+          border-radius: 8px !important; font-size: 15px !important; padding: 16px 24px !important;
+        }
+
+        .ads-facts {
+          list-style: none; padding: 0; margin: 28px 0 0; display: flex; flex-wrap: wrap;
+          gap: 10px 24px; font-size: 14px; color: rgba(18,17,16,0.6);
+        }
+        .ads-facts b { color: #D75631; font-weight: 600; font-size: 18px; margin-right: 4px; }
+
+        .ads-steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+        .ads-steps li {
+          background: #FFFFFF; border: 1px solid rgba(18,17,16,0.08); border-radius: 12px;
+          padding: 20px;
+        }
+        .ads-step-num { display: block; color: #D75631; font-size: 28px; font-weight: 600; letter-spacing: -0.03em; margin-bottom: 8px; }
+        .ads-steps .ads-h3 { font-weight: 600; margin-bottom: 4px; }
+
+        .ads-slider-cap {
+          position: absolute; left: 0; right: 0; bottom: 0; padding: 48px 24px 18px;
+          background: linear-gradient(to top, rgba(18,17,16,0.75), rgba(18,17,16,0));
+          color: #F4F2EF; display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+          text-align: left;
+        }
+        .ads-slider-seg { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.75; }
+        .ads-slider-nome { font-size: 22px; font-weight: 600; letter-spacing: -0.03em; }
+        .ads-slider-dots { display: flex; gap: 5px; margin-top: 8px; }
+        .ads-slider-dots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(244,242,239,0.45); transition: width .2s, background .2s; }
+        .ads-slider-dots i.on { width: 16px; border-radius: 3px; background: #CFFF87; }
+
+        .ads-about-cols { display: grid; gap: 20px; }
+        .ads-method { display: grid; gap: 24px; }
+
+        .ads-sticky {
+          position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 50;
+          display: flex; justify-content: center; padding: 16px; border-radius: 10px;
+          background: #CFFF87; color: #121110; font-weight: 600; font-size: 15px;
+          text-decoration: none; box-shadow: 0 10px 30px rgba(18,17,16,0.25);
+          transform: translateY(140%); transition: transform .25s ease;
+        }
+        .ads-sticky.on { transform: none; }
+        @media (prefers-reduced-motion: reduce) {
+          .ads-sticky, .ads-slider img, .ads-slider-dots i { transition: none; }
         }
         .ads-fullbleed { width: 100%; }
         .ads-slider { position: relative; width: 100%; height: 320px; background: #121110; overflow: hidden; }
@@ -370,11 +451,11 @@ function AdsPage() {
           outline: 2px solid #121110; outline-offset: 2px;
         }
         .ads-footer {
-          padding-block: 24px; border-top: 1px solid rgba(18,17,16,0.08);
+          padding-block: 24px 96px; border-top: 1px solid rgba(18,17,16,0.08);
           font-size: 12px; color: rgba(18,17,16,0.5);
         }
-        .ads-diag { display: grid; gap: 32px; }
-        .ads-diag-num { display: block; color: #D75631; font-size: 32px; font-weight: 600; margin-bottom: 12px; }
+        .ads-footer-row { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+        .ads-footer-row img { height: 20px; width: auto; max-width: 120px; object-fit: contain; opacity: 0.8; }
 
         /* Depoimentos em dark mode */
         .ads-section-dark {
@@ -400,24 +481,32 @@ function AdsPage() {
         .ads-form-slot > section > div > div > *:first-child { display: none !important; }
         .ads-form-slot > section > div > div > * + * { border: 0 !important; padding: 0 !important; }
 
-        /* Mobile: sem logo no topo, textos centralizados */
+        /* Mobile: logo pequeno no topo, textos centralizados */
         @media (max-width: 767px) {
-          .ads-topbar { display: none; }
+          .ads-topbar { height: 56px; }
+          .ads-logo { height: 22px; }
           .ads-page { text-align: center; }
           .ads-measure, .ads-about-text { margin-inline: auto; }
+          .ads-facts { justify-content: center; }
           .ads-cta-row { justify-content: center; }
           .ads-form-slot { text-align: left; }
+          .ads-first { padding-top: 8px; }
         }
 
         @media (min-width: 768px) {
           .ads-slider { height: 520px; }
+          .ads-slider-cap { padding: 64px 40px 28px; }
+          .ads-slider-nome { font-size: 28px; }
           .ads-testimonials {
             display: block; columns: 2; column-gap: 24px;
           }
           .ads-shot { margin-bottom: 0; }
           .ads-shot-link { margin-bottom: 24px; display: inline-block; width: 100%; }
-          .ads-diag { grid-template-columns: repeat(3, 1fr); gap: 48px; }
+          .ads-steps { grid-template-columns: repeat(3, 1fr); gap: 20px; }
           .ads-cta { width: auto; }
+          .ads-footer { padding-bottom: 24px; }
+          .ads-footer-row { flex-direction: row; justify-content: space-between; }
+          .ads-sticky { display: none; }
         }
 
         @media (min-width: 1024px) {
@@ -445,7 +534,8 @@ function AdsPage() {
             border-top: 0; padding-top: 0; border-left: 1px solid rgba(18,17,16,0.1);
             padding-left: 64px;
           }
-          .ads-diag-num { font-size: 32px; }
+          .ads-slider-cap { padding-inline: 80px; }
+          .ads-steps li { padding: 28px; }
         }
       `}</style>
     </div>

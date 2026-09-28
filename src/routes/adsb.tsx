@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { ContactSection } from "@/components/site/ContactSection";
 import { PrivacyButton } from "@/components/site/PrivacyDialog";
 import { useAbVisit } from "@/lib/ab";
+import { useStickyCta } from "@/lib/useStickyCta";
 import n308Banner from "@/assets/308-network/308-network-out-banner.webp.asset.json";
 import n308Correndo from "@/assets/308-network/308-network-308-foto-correndo.webp.asset.json";
 import n308Metro from "@/assets/308-network/308-network-banner-metro-moema.webp.asset.json";
@@ -270,25 +271,9 @@ function CaseCarousel({ imgs, nome, eager }: { imgs: string[]; nome: string; eag
   );
 }
 
-/** Botão fixo no celular: some na primeira dobra, no formulário final e no rodapé. */
-function useStickyCta() {
-  const [show, setShow] = useState(false);
-  useEffect(() => {
-    const alvos = document.querySelectorAll(".b-hero, .b-last, .b-footer");
-    const visiveis = new Set<Element>();
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((e) => (e.isIntersecting ? visiveis.add(e.target) : visiveis.delete(e.target)));
-      setShow(visiveis.size === 0);
-    });
-    alvos.forEach((a) => io.observe(a));
-    return () => io.disconnect();
-  }, []);
-  return show;
-}
-
 function AdsBPage() {
   useAbVisit("b");
-  const sticky = useStickyCta();
+  const sticky = useStickyCta(".b-hero, .b-last, .b-footer");
 
   return (
     <div className="adsb">
