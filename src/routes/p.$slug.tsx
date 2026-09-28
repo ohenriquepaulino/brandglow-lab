@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import PublicProposalPage from "@/features/proposta/pages/PublicProposalPage";
+import { HideLovableBadge } from "@/components/HideLovableBadge";
 
 // Pública: fora do CRM e sem login. Só leitura, pelo slug.
 export const Route = createFileRoute("/p/$slug")({
@@ -15,5 +16,10 @@ export const Route = createFileRoute("/p/$slug")({
 
 function PublicProposalRoute() {
   const { slug } = Route.useParams();
-  return <PublicProposalPage slug={slug} />;
+  return (
+    <>
+      <HideLovableBadge />
+      <PublicProposalPage slug={slug} />
+    </>
+  );
 }

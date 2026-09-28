@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { crmLogout, isCrmAuthed } from "@/lib/crm-auth";
 import { CrmSidebar } from "@/components/crm/Sidebar";
 import ProposalsListPage from "@/features/proposta/admin/ProposalsListPage";
+import { HideLovableBadge } from "@/components/HideLovableBadge";
 
 export const Route = createFileRoute("/crm/propostas/")({
   ssr: false,
@@ -32,6 +33,7 @@ function PropostasPage() {
       className="flex min-h-screen"
       style={{ background: "#F4F2EF", fontFamily: "Inter, system-ui, sans-serif" }}
     >
+      <HideLovableBadge />
       <CrmSidebar />
 
       <div className="min-w-0 flex-1">
