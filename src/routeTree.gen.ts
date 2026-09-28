@@ -15,6 +15,10 @@ import { Route as ObrigadoRouteImport } from './routes/obrigado'
 import { Route as CrmRouteImport } from './routes/crm'
 import { Route as AdsRouteImport } from './routes/ads'
 import { Route as AdsbRouteImport } from './routes/adsb'
+import { Route as AdsaRouteImport } from './routes/adsa'
+import { Route as CrmAbRouteImport } from './routes/crm.ab'
+import { Route as ApiPublicAbVisitRouteImport } from './routes/api/public/ab/visit'
+import { Route as ApiPublicCrmAbRouteImport } from './routes/api/public/crm/ab'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CrmIndexRouteImport } from './routes/crm.index'
 import { Route as CasesIndexRouteImport } from './routes/cases.index'
@@ -67,6 +71,26 @@ const AdsRoute = AdsRouteImport.update({
 const AdsbRoute = AdsbRouteImport.update({
   id: '/adsb',
   path: '/adsb',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdsaRoute = AdsaRouteImport.update({
+  id: '/adsa',
+  path: '/adsa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CrmAbRoute = CrmAbRouteImport.update({
+  id: '/ab',
+  path: '/ab',
+  getParentRoute: () => CrmRoute,
+} as any)
+const ApiPublicAbVisitRoute = ApiPublicAbVisitRouteImport.update({
+  id: '/api/public/ab/visit',
+  path: '/api/public/ab/visit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicCrmAbRoute = ApiPublicCrmAbRouteImport.update({
+  id: '/api/public/crm/ab',
+  path: '/api/public/crm/ab',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -194,6 +218,9 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ads': typeof AdsRoute
   '/adsb': typeof AdsbRoute
+  '/adsa': typeof AdsaRoute
+  '/api/public/ab/visit': typeof ApiPublicAbVisitRoute
+  '/api/public/crm/ab': typeof ApiPublicCrmAbRoute
   '/crm': typeof CrmRouteWithChildren
   '/obrigado': typeof ObrigadoRoute
   '/privacidade': typeof PrivacidadeRoute
@@ -202,6 +229,7 @@ export interface FileRoutesByFullPath {
   '/crm/kanban': typeof CrmKanbanRoute
   '/crm/tarefas': typeof CrmTarefasRoute
   '/crm/whatsapp': typeof CrmWhatsappRoute
+  '/crm/ab': typeof CrmAbRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/p/$slug': typeof PSlugRoute
   '/cases/': typeof CasesIndexRoute
@@ -225,6 +253,9 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ads': typeof AdsRoute
   '/adsb': typeof AdsbRoute
+  '/adsa': typeof AdsaRoute
+  '/api/public/ab/visit': typeof ApiPublicAbVisitRoute
+  '/api/public/crm/ab': typeof ApiPublicCrmAbRoute
   '/obrigado': typeof ObrigadoRoute
   '/privacidade': typeof PrivacidadeRoute
   '/tks': typeof TksRoute
@@ -232,6 +263,7 @@ export interface FileRoutesByTo {
   '/crm/kanban': typeof CrmKanbanRoute
   '/crm/tarefas': typeof CrmTarefasRoute
   '/crm/whatsapp': typeof CrmWhatsappRoute
+  '/crm/ab': typeof CrmAbRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/p/$slug': typeof PSlugRoute
   '/cases': typeof CasesIndexRoute
@@ -256,6 +288,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/ads': typeof AdsRoute
   '/adsb': typeof AdsbRoute
+  '/adsa': typeof AdsaRoute
+  '/api/public/ab/visit': typeof ApiPublicAbVisitRoute
+  '/api/public/crm/ab': typeof ApiPublicCrmAbRoute
   '/crm': typeof CrmRouteWithChildren
   '/obrigado': typeof ObrigadoRoute
   '/privacidade': typeof PrivacidadeRoute
@@ -264,6 +299,7 @@ export interface FileRoutesById {
   '/crm/kanban': typeof CrmKanbanRoute
   '/crm/tarefas': typeof CrmTarefasRoute
   '/crm/whatsapp': typeof CrmWhatsappRoute
+  '/crm/ab': typeof CrmAbRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/p/$slug': typeof PSlugRoute
   '/cases/': typeof CasesIndexRoute
@@ -289,6 +325,10 @@ export interface FileRouteTypes {
     | '/'
     | '/ads'
     | '/adsb'
+    | '/adsa'
+    | '/crm/ab'
+    | '/api/public/ab/visit'
+    | '/api/public/crm/ab'
     | '/crm'
     | '/obrigado'
     | '/privacidade'
@@ -320,6 +360,10 @@ export interface FileRouteTypes {
     | '/'
     | '/ads'
     | '/adsb'
+    | '/adsa'
+    | '/crm/ab'
+    | '/api/public/ab/visit'
+    | '/api/public/crm/ab'
     | '/obrigado'
     | '/privacidade'
     | '/tks'
@@ -350,6 +394,10 @@ export interface FileRouteTypes {
     | '/'
     | '/ads'
     | '/adsb'
+    | '/adsa'
+    | '/crm/ab'
+    | '/api/public/ab/visit'
+    | '/api/public/crm/ab'
     | '/crm'
     | '/obrigado'
     | '/privacidade'
@@ -382,6 +430,9 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdsRoute: typeof AdsRoute
   AdsbRoute: typeof AdsbRoute
+  AdsaRoute: typeof AdsaRoute
+  ApiPublicAbVisitRoute: typeof ApiPublicAbVisitRoute
+  ApiPublicCrmAbRoute: typeof ApiPublicCrmAbRoute
   CrmRoute: typeof CrmRouteWithChildren
   ObrigadoRoute: typeof ObrigadoRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
@@ -439,6 +490,34 @@ declare module '@tanstack/react-router' {
       path: '/ads'
       fullPath: '/ads'
       preLoaderRoute: typeof AdsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/adsa': {
+      id: '/adsa'
+      path: '/adsa'
+      fullPath: '/adsa'
+      preLoaderRoute: typeof AdsaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/crm/ab': {
+      id: '/crm/ab'
+      path: '/ab'
+      fullPath: '/crm/ab'
+      preLoaderRoute: typeof CrmAbRouteImport
+      parentRoute: typeof CrmRoute
+    }
+    '/api/public/ab/visit': {
+      id: '/api/public/ab/visit'
+      path: '/api/public/ab/visit'
+      fullPath: '/api/public/ab/visit'
+      preLoaderRoute: typeof ApiPublicAbVisitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/crm/ab': {
+      id: '/api/public/crm/ab'
+      path: '/api/public/crm/ab'
+      fullPath: '/api/public/crm/ab'
+      preLoaderRoute: typeof ApiPublicCrmAbRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/adsb': {
@@ -616,6 +695,7 @@ interface CrmRouteChildren {
   CrmKanbanRoute: typeof CrmKanbanRoute
   CrmTarefasRoute: typeof CrmTarefasRoute
   CrmWhatsappRoute: typeof CrmWhatsappRoute
+  CrmAbRoute: typeof CrmAbRoute
   CrmIndexRoute: typeof CrmIndexRoute
   CrmPropostasIdRoute: typeof CrmPropostasIdRoute
   CrmPropostasIndexRoute: typeof CrmPropostasIndexRoute
@@ -625,6 +705,7 @@ const CrmRouteChildren: CrmRouteChildren = {
   CrmKanbanRoute: CrmKanbanRoute,
   CrmTarefasRoute: CrmTarefasRoute,
   CrmWhatsappRoute: CrmWhatsappRoute,
+  CrmAbRoute: CrmAbRoute,
   CrmIndexRoute: CrmIndexRoute,
   CrmPropostasIdRoute: CrmPropostasIdRoute,
   CrmPropostasIndexRoute: CrmPropostasIndexRoute,
@@ -636,6 +717,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdsRoute: AdsRoute,
   AdsbRoute: AdsbRoute,
+  AdsaRoute: AdsaRoute,
+  ApiPublicAbVisitRoute: ApiPublicAbVisitRoute,
+  ApiPublicCrmAbRoute: ApiPublicCrmAbRoute,
   CrmRoute: CrmRouteWithChildren,
   ObrigadoRoute: ObrigadoRoute,
   PrivacidadeRoute: PrivacidadeRoute,

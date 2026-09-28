@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { UTM_KEYS, captureUtmsFromUrl, type UtmData } from "@/lib/utm";
+import { PrivacyButton } from "@/components/site/PrivacyDialog";
 
 const PROFISSOES = [
   "Advocacia",
@@ -409,12 +410,10 @@ export function ContactSection({
                 {submitting ? "Enviando..." : ctaLabel}
               </button>
               {ctaNote && <p className="-mt-3 text-xs text-ink/60">{ctaNote}</p>}
-              <p className="text-[11px] leading-snug text-ink/50">
-                Seus dados são usados só para entrarmos em contato.{" "}
-                <a href="/privacidade" target="_blank" rel="noopener" className="underline">
-                  Política de privacidade
-                </a>
-              </p>
+              {/* div, não p: o <dialog> da política não pode ficar dentro de <p>. */}
+              <div className="text-[11px] leading-snug text-ink/50">
+                Seus dados são usados só para entrarmos em contato. <PrivacyButton />
+              </div>
             </form>
           )}
         </div>
