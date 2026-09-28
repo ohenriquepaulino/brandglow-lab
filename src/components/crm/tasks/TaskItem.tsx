@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Check, FileText, MessageCircle, StickyNote, Trash2 } from "lucide-react";
 import { formatDateTime, whatsappHref } from "@/lib/crm-auth";
 import type { Task } from "@/lib/tasks-api";
+import { TaskDialog } from "./TaskDialog";
 
 // Tarefa automática de lead novo: mesmo laranja da coluna "Oportunidades".
 const DESTAQUE = { borda: "#D75631", fundo: "#FDF1EC" };
@@ -58,12 +59,8 @@ export function TaskItem({
   onUpdateTitulo: (task: Task, titulo: string) => void;
   onUpdateDescricao: (task: Task, descricao: string) => void;
 }) {
-  const [editingTitulo, setEditingTitulo] = useState(false);
-  const [tituloDraft, setTituloDraft] = useState(task.titulo);
-  const [expanded, setExpanded] = useState(false);
-  const [descDraft, setDescDraft] = useState(task.descricao ?? "");
+  const [aberta, setAberta] = useState(false);
   const [settling, setSettling] = useState(false);
-  const tituloRef = useRef<HTMLInputElement | null>(null);
 
   const pending = isPending(task.id);
 
@@ -78,24 +75,6 @@ export function TaskItem({
     opacity: isDragging ? 0.5 : pending ? 0.6 : 1,
   };
 
-  useEffect(() => {
-    if (editingTitulo) tituloRef.current?.focus();
-  }, [editingTitulo]);
-
-  function saveTitulo() {
-    const trimmed = tituloDraft.trim();
-    setEditingTitulo(false);
-    if (!trimmed) {
-      setTituloDraft(task.titulo);
-      return;
-    }
-    if (trimmed !== task.titulo) onUpdateTitulo(task, trimmed);
-  }
-
-  function saveDescricao() {
-    if (descDraft !== (task.descricao ?? "")) onUpdateDescricao(task, descDraft);
-  }
-
   function handleToggle() {
     if (pending) return;
     // pequena animação de saída antes da tarefa trocar de seção
@@ -104,7 +83,11 @@ export function TaskItem({
     onToggle(task);
   }
 
-  const temTexto = !!task.descricao?.trim();
+  function abrir() {
+    if (!pending) setAberta(true);
+  }
+
+  const nota = task.descricao?.trim() ?? "";
   const destaque = !!task.lead_id && !task.concluida;
   const whatsappLead = task.leads?.whatsapp;
 
@@ -122,47 +105,41 @@ export function TaskItem({
         (settling ? "scale-[0.98] opacity-60" : "scale-100 opacity-100")
       }
     >
+      {/* Clique abre a janela da tarefa; arrastar (6px+) continua reordenando. */}
       <div
-        className="flex items-start gap-2 px-2.5 py-2"
+        role="button"
+        tabIndex={pending ? -1 : 0}
+        aria-label={`Abrir tarefa ${task.titulo}`}
+        onClick={abrir}
+        onKeyDown={(e) => {
+          if (e.target !== e.currentTarget) return;
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            abrir();
+          }
+        }}
+        className={
+          "flex items-start gap-2 rounded-lg px-2.5 py-2 outline-none focus-visible:ring-2 focus-visible:ring-neutral-900" +
+          (pending ? "" : " cursor-pointer hover:bg-black/[0.02]")
+        }
         {...(sortable && !pending ? { ...attributes, ...listeners } : {})}
       >
         <RoundCheckbox checked={task.concluida} disabled={pending} onToggle={handleToggle} />
 
         <div className="min-w-0 flex-1">
-          {editingTitulo ? (
-            <input
-              ref={tituloRef}
-              value={tituloDraft}
-              onChange={(e) => setTituloDraft(e.target.value)}
-              onClick={(e) => e.stopPropagation()}
-              onPointerDown={(e) => e.stopPropagation()}
-              onBlur={saveTitulo}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") saveTitulo();
-                if (e.key === "Escape") {
-                  setTituloDraft(task.titulo);
-                  setEditingTitulo(false);
-                }
-              }}
-              className="w-full rounded border px-1.5 py-0.5 text-sm outline-none"
-              style={{ borderColor: "#E0DED9" }}
-            />
-          ) : (
-            <p
-              onClick={(e) => {
-                e.stopPropagation();
-                if (!pending) setEditingTitulo(true);
-              }}
-              onPointerDown={(e) => e.stopPropagation()}
-              className={
-                (task.concluida
-                  ? "truncate text-sm text-neutral-400 line-through"
-                  : "truncate text-sm text-neutral-900") +
-                (destaque ? " font-semibold" : "") +
-                (pending ? "" : " cursor-text")
-              }
-            >
-              {task.titulo}
+          <p
+            className={
+              (task.concluida
+                ? "truncate text-sm text-neutral-400 line-through"
+                : "truncate text-sm text-neutral-900") + (destaque ? " font-semibold" : "")
+            }
+          >
+            {task.titulo}
+          </p>
+
+          {nota && (
+            <p className="mt-0.5 line-clamp-2 whitespace-pre-line text-xs leading-snug text-neutral-500">
+              {nota}
             </p>
           )}
 
@@ -188,23 +165,15 @@ export function TaskItem({
           </a>
         )}
 
-        <button
-          type="button"
-          disabled={pending}
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={(e) => {
-            e.stopPropagation();
-            setExpanded((v) => !v);
-          }}
-          aria-label={temTexto ? "Ver nota" : "Adicionar nota"}
-          aria-pressed={expanded}
+        <span
+          aria-hidden="true"
           className={
-            "flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 disabled:pointer-events-none " +
-            (temTexto || expanded ? "flex" : "hidden group-hover:flex")
+            "h-6 w-6 shrink-0 items-center justify-center rounded-md text-neutral-400 " +
+            (nota ? "flex" : "hidden group-hover:flex")
           }
         >
-          {temTexto ? <FileText size={14} /> : <StickyNote size={14} />}
-        </button>
+          {nota ? <FileText size={14} /> : <StickyNote size={14} />}
+        </span>
 
         <button
           type="button"
@@ -221,23 +190,14 @@ export function TaskItem({
         </button>
       </div>
 
-      {expanded && (
-        <div
-          className="border-t px-2.5 py-2"
-          style={{ borderColor: "#E0DED9" }}
-          onPointerDown={(e) => e.stopPropagation()}
-        >
-          <textarea
-            value={descDraft}
-            onChange={(e) => setDescDraft(e.target.value)}
-            onBlur={saveDescricao}
-            placeholder="Adicionar nota..."
-            rows={2}
-            autoFocus
-            className="w-full resize-none rounded border px-2 py-1.5 text-xs text-neutral-700 outline-none"
-            style={{ borderColor: "#E0DED9" }}
-          />
-        </div>
+      {aberta && (
+        <TaskDialog
+          task={task}
+          onClose={() => setAberta(false)}
+          onUpdateTitulo={onUpdateTitulo}
+          onUpdateDescricao={onUpdateDescricao}
+          onDelete={onDelete}
+        />
       )}
     </div>
   );
