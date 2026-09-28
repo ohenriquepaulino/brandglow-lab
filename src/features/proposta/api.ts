@@ -1,4 +1,4 @@
-import type { Proposal } from "./types";
+import type { Proposal, ProposalProduct } from "./types";
 import { CRM_PASS } from "@/lib/crm-auth";
 
 /** Campos que o CRM pode alterar numa proposta. */
@@ -21,9 +21,14 @@ export type ProposalPatch = Partial<
   >
 >;
 
+/** Nulo, ausente ou desconhecido vira "estrategia" (o modelo original). */
+export const productOf = (p: Pick<Proposal, "product">): ProposalProduct =>
+  p.product === "direcao" ? "direcao" : "estrategia";
+
 function normalize(row: Record<string, unknown>): Proposal {
   return {
     ...(row as unknown as Proposal),
+    product: productOf(row as Pick<Proposal, "product">),
     price_total: Number(row.price_total ?? 0),
     cash_discount_pct: Number(row.cash_discount_pct ?? 0),
     installments: Number(row.installments ?? 1),
@@ -69,8 +74,15 @@ export async function getProposal(id: string): Promise<Proposal | null> {
   return data ? normalize(data) : null;
 }
 
-export async function createProposal(client_name: string): Promise<Proposal> {
-  const { data } = await call<{ data: Record<string, unknown> }>({ action: "create", client_name });
+export async function createProposal(
+  client_name: string,
+  product: ProposalProduct = "estrategia",
+): Promise<Proposal> {
+  const { data } = await call<{ data: Record<string, unknown> }>({
+    action: "create",
+    client_name,
+    product,
+  });
   return normalize(data);
 }
 

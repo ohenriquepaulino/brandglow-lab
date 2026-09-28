@@ -1,3 +1,6 @@
+/** Produto da proposta. Nulo, ausente ou desconhecido = "estrategia". */
+export type ProposalProduct = "estrategia" | "direcao";
+
 export interface Deliverable {
   title: string;
   text: string;
@@ -7,6 +10,7 @@ export interface Deliverable {
 export interface Proposal {
   id?: string;
   slug: string;
+  product?: ProposalProduct | null;
   client_name: string;
   cover_label: string;
   show_diagnosis: boolean;

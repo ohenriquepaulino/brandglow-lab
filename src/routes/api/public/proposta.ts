@@ -6,6 +6,7 @@ import { z } from "zod";
 // os campos que o cliente vê, nunca a lista de propostas.
 const PUBLIC_COLUMNS = [
   "slug",
+  "product",
   "client_name",
   "cover_label",
   "show_diagnosis",

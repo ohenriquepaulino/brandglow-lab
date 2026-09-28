@@ -1,4 +1,4 @@
-import type { Deliverable } from "./types";
+import type { Deliverable, Proposal, ProposalProduct } from "./types";
 
 /** Caminho base dos arquivos em /public/proposta */
 export const ASSET = (p: string) => `/proposta/${p}`;
@@ -70,4 +70,58 @@ export const DEFAULT_CASE_ORDER = [
   "moewa",
   "joana-co",
   "308-network",
+];
+
+/* ---------- Direção de Marca Legacy ---------- */
+
+export const PRODUCT_LABELS: Record<ProposalProduct, string> = {
+  estrategia: "Estratégia de Marca e Identidade Visual",
+  direcao: "Direção de Marca Legacy",
+};
+
+/** Valores aplicados ao criar uma proposta de Direção de Marca Legacy. */
+export const DIRECAO_DEFAULTS = {
+  cover_label: "Proposta de Direção de Marca",
+  show_diagnosis: false,
+  price_total: 2000,
+  installments: 2,
+  installments_note: "50% na contratação e 50% antes do Encontro 2",
+  cash_discount_pct: 10,
+  cash_note: "Pagamento único na contratação",
+  deadline_days: 30,
+} satisfies Partial<Proposal>;
+
+export const DIRECAO_DELIVERABLES: Deliverable[] = [
+  {
+    title: "Diagnóstico da marca",
+    text: "Uma leitura clara de como a sua marca está hoje: o que já funciona e o que ajustar primeiro pra vender mais.",
+  },
+  {
+    title: "Mapa do cliente ideal",
+    text: "Quem é o seu cliente, o que ele deseja, o que faz ele comprar e quem a sua marca deve deixar de atrair.",
+  },
+  {
+    title: "Posicionamento e diferencial",
+    text: "Como a sua marca quer ser lembrada e por que o cliente deve escolher você, com as provas que sustentam isso.",
+  },
+  {
+    title: "Mensagem central",
+    text: "A frase que resume o seu negócio, com versões prontas pra bio do Instagram, apresentação de 30 segundos e primeira mensagem no WhatsApp.",
+  },
+  {
+    title: "Jeito de falar",
+    text: "As palavras que a sua marca usa e evita, com exemplos de antes e depois feitos a partir dos seus próprios textos.",
+  },
+  {
+    title: "Linha editorial",
+    text: "Os temas que a sua marca deve abordar nos conteúdos, com o papel de cada um: atrair, gerar confiança e vender.",
+  },
+  {
+    title: "Pautas e ganchos",
+    text: "30 ideias de conteúdo e 20 frases de abertura prontas, alinhadas ao seu posicionamento.",
+  },
+  {
+    title: "Plano de 90 dias",
+    text: "Ações em três ciclos de 30 dias, com prioridades, responsáveis, calendário do primeiro mês e ajustes do seu perfil.",
+  },
 ];

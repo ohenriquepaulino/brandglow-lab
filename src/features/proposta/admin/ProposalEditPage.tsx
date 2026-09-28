@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import ProposalView from "../ProposalView";
+import ProposalViewDirecao from "../ProposalViewDirecao";
 import {
   deleteProposal,
   duplicateProposal,
   getProposal,
+  productOf,
   updateProposal,
   type ProposalPatch,
 } from "../api";
@@ -41,6 +43,8 @@ export default function ProposalEditPage({
 
   const dirty = Object.keys(patch).length > 0;
   const draft: Proposal | null = proposal ? { ...proposal, ...patch } : null;
+  // Na Direção de Marca Legacy, diagnóstico, cases e entregas são fixos.
+  const isDirecao = !!draft && productOf(draft) === "direcao";
 
   useEffect(() => {
     let alive = true;
@@ -270,14 +274,16 @@ export default function ProposalEditPage({
               style={{ borderColor: BORDER }}
             />
           </label>
-          <label className="flex items-center gap-1.5">
-            <input
-              type="checkbox"
-              checked={draft.show_diagnosis}
-              onChange={(e) => edit({ show_diagnosis: e.target.checked })}
-            />
-            Mostrar diagnóstico
-          </label>
+          {!isDirecao && (
+            <label className="flex items-center gap-1.5">
+              <input
+                type="checkbox"
+                checked={draft.show_diagnosis}
+                onChange={(e) => edit({ show_diagnosis: e.target.checked })}
+              />
+              Mostrar diagnóstico
+            </label>
+          )}
           <span className="hidden text-neutral-400 md:inline">
             Clique nos textos e valores com contorno para editar.
           </span>
@@ -285,7 +291,11 @@ export default function ProposalEditPage({
       </div>
 
       <div className="print:hidden" style={{ height: barHeight }} aria-hidden />
-      <ProposalView proposal={draft} onEdit={edit} topOffset={barHeight} />
+      {isDirecao ? (
+        <ProposalViewDirecao proposal={draft} onEdit={edit} topOffset={barHeight} />
+      ) : (
+        <ProposalView proposal={draft} onEdit={edit} topOffset={barHeight} />
+      )}
     </div>
   );
 }

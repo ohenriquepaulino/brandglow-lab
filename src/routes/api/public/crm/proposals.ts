@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { makeSlug } from "@/features/proposta/format";
+import { DIRECAO_DEFAULTS } from "@/features/proposta/defaults";
 
 const PatchSchema = z
   .object({
@@ -28,7 +29,11 @@ const PatchSchema = z
 const ActionSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("list") }),
   z.object({ action: z.literal("get"), id: z.string().uuid() }),
-  z.object({ action: z.literal("create"), client_name: z.string().max(120) }),
+  z.object({
+    action: z.literal("create"),
+    client_name: z.string().max(120),
+    product: z.enum(["estrategia", "direcao"]).optional(),
+  }),
   z.object({ action: z.literal("update"), id: z.string().uuid(), patch: PatchSchema }),
   z.object({ action: z.literal("duplicate"), id: z.string().uuid() }),
   z.object({ action: z.literal("delete"), id: z.string().uuid() }),
@@ -36,6 +41,7 @@ const ActionSchema = z.discriminatedUnion("action", [
 
 // Colunas copiadas ao duplicar (tudo menos id, slug e datas).
 const COPY_COLUMNS = [
+  "product",
   "client_name",
   "cover_label",
   "show_diagnosis",
@@ -117,7 +123,15 @@ export const Route = createFileRoute("/api/public/crm/proposals")({
           }
 
           case "create":
-            return insertWithSlug({ client_name: payload.client_name.trim() });
+            return insertWithSlug(
+              payload.product === "direcao"
+                ? {
+                    ...DIRECAO_DEFAULTS,
+                    product: "direcao",
+                    client_name: payload.client_name.trim(),
+                  }
+                : { client_name: payload.client_name.trim() },
+            );
 
           case "update": {
             const { data, error } = await supabase

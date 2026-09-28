@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { createProposal, listProposals } from "../api";
-import { publicProposalUrl } from "../defaults";
-import type { Proposal } from "../types";
+import { createProposal, listProposals, productOf } from "../api";
+import { PRODUCT_LABELS, publicProposalUrl } from "../defaults";
+import type { Proposal, ProposalProduct } from "../types";
 
 const BORDER = "#E0DED9";
 
@@ -10,6 +10,7 @@ export default function ProposalsListPage({ onOpen }: { onOpen: (id: string) => 
   const [rows, setRows] = useState<Proposal[]>([]);
   const [loading, setLoading] = useState(true);
   const [nome, setNome] = useState("");
+  const [produto, setProduto] = useState<ProposalProduct>("estrategia");
   const [criando, setCriando] = useState(false);
   const [copiado, setCopiado] = useState<string | null>(null);
 
@@ -33,7 +34,7 @@ export default function ProposalsListPage({ onOpen }: { onOpen: (id: string) => 
     if (criando) return;
     setCriando(true);
     try {
-      const p = await createProposal(nome.trim());
+      const p = await createProposal(nome.trim(), produto);
       if (p.id) onOpen(p.id);
     } catch (err) {
       console.error(err);
@@ -67,6 +68,19 @@ export default function ProposalsListPage({ onOpen }: { onOpen: (id: string) => 
           className="min-w-0 flex-1 rounded-md border bg-white px-3 py-2 text-sm outline-none focus:border-neutral-900"
           style={{ borderColor: BORDER }}
         />
+        <select
+          value={produto}
+          onChange={(e) => setProduto(e.target.value as ProposalProduct)}
+          aria-label="Produto"
+          className="min-w-0 rounded-md border bg-white px-3 py-2 text-sm outline-none focus:border-neutral-900"
+          style={{ borderColor: BORDER }}
+        >
+          {(Object.keys(PRODUCT_LABELS) as ProposalProduct[]).map((k) => (
+            <option key={k} value={k}>
+              {PRODUCT_LABELS[k]}
+            </option>
+          ))}
+        </select>
         <button
           type="submit"
           disabled={criando}
@@ -96,8 +110,17 @@ export default function ProposalsListPage({ onOpen }: { onOpen: (id: string) => 
                 style={i ? { borderTop: `1px solid ${BORDER}` } : undefined}
               >
                 <button onClick={() => p.id && onOpen(p.id)} className="min-w-0 flex-1 text-left">
-                  <p className="truncate text-sm font-medium text-neutral-900">
-                    {p.client_name || "Sem nome"}
+                  <p className="flex min-w-0 items-center gap-2 text-sm font-medium text-neutral-900">
+                    <span className="truncate">{p.client_name || "Sem nome"}</span>
+                    <span
+                      className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                        productOf(p) === "direcao"
+                          ? "bg-[#b8ff80] text-neutral-900"
+                          : "bg-neutral-100 text-neutral-600"
+                      }`}
+                    >
+                      {PRODUCT_LABELS[productOf(p)]}
+                    </span>
                   </p>
                   <p className="truncate text-xs text-neutral-500">
                     /p/{p.slug}
