@@ -233,23 +233,25 @@ export default function ProposalEditPage({
         <div
           className={`${ajustesOpen ? "flex" : "hidden"} mt-2 flex-wrap items-center gap-x-4 gap-y-2 text-xs text-neutral-600 md:flex`}
         >
+          {!isDirecao && (
+            <label className="flex items-center gap-1.5">
+              Parcelas
+              <input
+                type="number"
+                min={1}
+                max={12}
+                value={draft.installments}
+                onChange={(e) => {
+                  const n = Math.round(Number(e.target.value));
+                  if (n >= 1 && n <= 12) edit({ installments: n });
+                }}
+                className={`${field} w-14`}
+                style={{ borderColor: BORDER }}
+              />
+            </label>
+          )}
           <label className="flex items-center gap-1.5">
-            Parcelas
-            <input
-              type="number"
-              min={1}
-              max={12}
-              value={draft.installments}
-              onChange={(e) => {
-                const n = Math.round(Number(e.target.value));
-                if (n >= 1 && n <= 12) edit({ installments: n });
-              }}
-              className={`${field} w-14`}
-              style={{ borderColor: BORDER }}
-            />
-          </label>
-          <label className="flex items-center gap-1.5">
-            Desconto à vista (%)
+            {isDirecao ? "Desconto no Pix (%)" : "Desconto à vista (%)"}
             <input
               type="number"
               min={0}

@@ -2,9 +2,16 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import "./proposta.css";
 import "./proposta-direcao.css";
 import type { Proposal } from "./types";
-import { BRAND, DEFAULT_CASE_ORDER, DIRECAO_DELIVERABLES } from "./defaults";
+import {
+  BRAND,
+  DEFAULT_CASE_ORDER,
+  DIRECAO_CARD_INSTALLMENTS,
+  DIRECAO_CARD_RATE_12X,
+  DIRECAO_DELIVERABLES,
+  DIRECAO_OLD_NOTES,
+} from "./defaults";
 import { resolveCases } from "./cases";
-import { brlNumber, brlShort, fmtDate, parseBrl, pricing, validity } from "./format";
+import { brlNumber, brlShort, fmtDate, parseBrl, pricing, round2, validity } from "./format";
 import { usePrintPdf } from "./usePrintPdf";
 import EditText from "./EditText";
 
@@ -63,13 +70,15 @@ export default function ProposalViewDirecao({
   const client = p.client_name?.trim() || "Sua empresa";
   const cases = useMemo(() => resolveCases(DEFAULT_CASE_ORDER), []);
   const price = pricing(p);
+  const cardInstallment = round2(price.total * DIRECAO_CARD_RATE_12X);
+  const note = (t: string) => DIRECAO_OLD_NOTES[t.trim()] ?? t;
   const valid = validity(p.valid_until);
 
   /** Texto editável no modo de edição; texto puro na leitura. */
   const txt = (field: TextField, shown: string, placeholder: string) =>
     onEdit ? (
       <EditText
-        value={(p[field] as string | null) ?? ""}
+        value={field === "client_name" ? (p.client_name ?? "") : shown}
         placeholder={placeholder}
         onCommit={(v) => onEdit({ [field]: v } as Partial<Proposal>)}
       />
@@ -324,24 +333,22 @@ export default function ProposalViewDirecao({
             </div>
           </div>
           <div>
-            <div className={`lbc-opts lbc-dm-opts${price.showInstallments ? "" : " single"}`}>
-              {price.showInstallments && (
-                <div className="lbc-opt">
-                  <h3>Em {price.installments} vezes</h3>
-                  <div className="v">
-                    <small>{price.installments}x</small>R$ {brlShort(price.installmentValue)}
-                  </div>
-                  <p>{txt("installments_note", p.installments_note, "Texto das parcelas")}</p>
-                </div>
-              )}
+            <div className="lbc-opts lbc-dm-opts">
               <div className={`lbc-opt${price.hasDiscount ? " best" : ""}`}>
                 {price.hasDiscount && <span className="tag">{brlShort(price.pct)}% OFF</span>}
-                <h3>{price.showInstallments ? "À vista" : "Pagamento único"}</h3>
+                <h3>Pix à vista</h3>
                 <div className="v">
                   <small>R$</small>
-                  {brlShort(price.cashValue)}
+                  {brlNumber(price.cashValue)}
                 </div>
-                <p>{txt("cash_note", p.cash_note, "Texto do pagamento à vista")}</p>
+                <p>{txt("cash_note", note(p.cash_note), "Texto do Pix")}</p>
+              </div>
+              <div className="lbc-opt">
+                <h3>Cartão de crédito</h3>
+                <div className="v">
+                  <small>{DIRECAO_CARD_INSTALLMENTS}x</small>R$ {brlNumber(cardInstallment)}
+                </div>
+                <p>{txt("installments_note", note(p.installments_note), "Texto do cartão")}</p>
               </div>
             </div>
             <p className="lbc-dm-credit">

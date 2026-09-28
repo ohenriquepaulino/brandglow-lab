@@ -84,12 +84,23 @@ export const DIRECAO_DEFAULTS = {
   cover_label: "Proposta de Direção de Marca",
   show_diagnosis: false,
   price_total: 2000,
-  installments: 2,
-  installments_note: "50% na contratação e 50% antes do Encontro 2",
+  installments: 12,
+  installments_note: "Parcelado no cartão de crédito",
   cash_discount_pct: 10,
-  cash_note: "Pagamento único na contratação",
+  cash_note: "Pagamento via Pix na contratação",
   deadline_days: 30,
 } satisfies Partial<Proposal>;
+
+/** Cartão na Direção de Marca: sempre em 12x, com as taxas da operadora já incluídas. */
+export const DIRECAO_CARD_INSTALLMENTS = 12;
+/** Valor da parcela em 12x = total × taxa. Com R$ 2.000, dá 12x de R$ 206,85. */
+export const DIRECAO_CARD_RATE_12X = 0.103425;
+
+/** Textos padrão antigos (modelo 50% + 50%), trocados pelos novos na exibição. */
+export const DIRECAO_OLD_NOTES: Record<string, string> = {
+  "50% na contratação e 50% antes do Encontro 2": DIRECAO_DEFAULTS.installments_note,
+  "Pagamento único na contratação": DIRECAO_DEFAULTS.cash_note,
+};
 
 export const DIRECAO_DELIVERABLES: Deliverable[] = [
   {
