@@ -8,7 +8,14 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  */
 export async function criarTaskDoLead(
   supabase: SupabaseClient,
-  lead: { id: string | null; nome: string; whatsapp: string; faturamento: string },
+  lead: {
+    id: string | null;
+    nome: string;
+    whatsapp: string;
+    faturamento: string;
+    momento_negocio?: string | null;
+    verba_marca?: string | null;
+  },
 ) {
   if (!lead.id) return;
   try {
@@ -40,7 +47,14 @@ export async function criarTaskDoLead(
       list_id: lista.id,
       lead_id: lead.id,
       titulo: `Chamar ${lead.nome.trim()}`,
-      descricao: `WhatsApp: ${lead.whatsapp}\nFaturamento: ${lead.faturamento}`,
+      descricao: [
+        `WhatsApp: ${lead.whatsapp}`,
+        `Faturamento: ${lead.faturamento}`,
+        lead.momento_negocio?.trim() && `Momento: ${lead.momento_negocio.trim()}`,
+        lead.verba_marca?.trim() && `Verba para a marca: ${lead.verba_marca.trim()}`,
+      ]
+        .filter(Boolean)
+        .join("\n"),
       ordem: (primeira?.ordem ?? 1) - 1,
     });
     if (error) console.error("[tasks] tarefa do lead falhou", error.message);

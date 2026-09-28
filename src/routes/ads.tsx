@@ -255,7 +255,7 @@ function AdsPage() {
                 <div>
                   <span className="ads-diag-num">03</span>
                   <p className="ads-body">
-                    Sessão de <strong>40 minutos por vídeo</strong>. Mostramos{" "}
+                    Sessão de <strong>25 minutos por vídeo</strong>. Mostramos{" "}
                     <strong>onde sua marca está perdendo valor</strong> e o que
                     precisa ser resolvido primeiro. Você sai com essa leitura,
                     contratando ou não.
@@ -283,6 +283,12 @@ function AdsPage() {
           </div>
         </section>
       </main>
+
+      <footer className="ads-footer">
+        <div className="ads-container">
+          © 2026 Legacy BrandCo. · <a href="/privacidade">Política de privacidade</a>
+        </div>
+      </footer>
 
       <style>{`
         .ads-page {
@@ -358,6 +364,11 @@ function AdsPage() {
         .ads-page input:focus-visible, .ads-page select:focus-visible {
           outline: 2px solid #121110; outline-offset: 2px;
         }
+        .ads-footer {
+          padding-block: 24px; border-top: 1px solid rgba(18,17,16,0.08);
+          font-size: 12px; color: rgba(18,17,16,0.5);
+        }
+        .ads-footer a { color: inherit; }
         .ads-diag { display: grid; gap: 32px; }
         .ads-diag-num { display: block; color: #D75631; font-size: 32px; font-weight: 600; margin-bottom: 12px; }
 

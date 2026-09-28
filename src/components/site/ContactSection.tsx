@@ -57,6 +57,28 @@ function inputClass(valid: boolean) {
 
 export const NO_REVENUE_OPTION = "Ainda não estou faturando";
 
+const REVENUE_OPTIONS = [
+  NO_REVENUE_OPTION,
+  "Até R$ 6.000",
+  "De R$ 6.000 a R$ 10.000",
+  "De R$ 10.000 a R$ 20.000",
+  "Acima de R$ 20.000",
+];
+
+// Só para quem ainda não fatura. Não fatura não quer dizer sem dinheiro: muita
+// gente está lançando ou já tem outro negócio. Isso ajuda a priorizar no CRM.
+const MOMENTO_OPTIONS = [
+  "Ainda estou planejando o negócio",
+  "Estou lançando agora",
+  "Já lancei, mas ainda não vendi",
+  "Já tenho outro negócio que fatura",
+];
+const VERBA_OPTIONS = [
+  "Sim, já tenho verba separada",
+  "Estou me organizando para isso",
+  "Ainda não",
+];
+
 export function ContactSection({
   redirectTo,
   redirectToNoRevenue,
@@ -65,6 +87,7 @@ export function ContactSection({
   formHint,
   ctaLabel = "Quero começar",
   showProfession = false,
+  ctaNote,
 }: {
   redirectTo?: string;
   redirectToNoRevenue?: string;
@@ -73,6 +96,8 @@ export function ContactSection({
   formHint?: string;
   ctaLabel?: string;
   showProfession?: boolean;
+  /** Linha curta logo abaixo do botão (ex.: "Gratuito · 25 min por vídeo"). */
+  ctaNote?: string;
 } = {}) {
   const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false);
@@ -81,6 +106,8 @@ export function ContactSection({
   const [instagram, setInstagram] = useState("@");
   const [revenue, setRevenue] = useState("");
   const [profession, setProfession] = useState("");
+  const [momento, setMomento] = useState("");
+  const [verba, setVerba] = useState("");
   const [utms, setUtms] = useState<UtmData>({});
   const [attempted, setAttempted] = useState(false);
 
@@ -102,10 +129,17 @@ export function ContactSection({
     () => !showProfession || profession.trim().length >= 2,
     [showProfession, profession],
   );
-  const formValid = useMemo(
-    () => nameValid && phoneValid && instagramValid && revenueValid && professionValid,
-    [nameValid, phoneValid, instagramValid, revenueValid, professionValid],
-  );
+  const noRevenue = revenue === NO_REVENUE_OPTION;
+  const momentoValid = !noRevenue || momento.length > 0;
+  const verbaValid = !noRevenue || verba.length > 0;
+  const formValid =
+    nameValid &&
+    phoneValid &&
+    instagramValid &&
+    revenueValid &&
+    professionValid &&
+    momentoValid &&
+    verbaValid;
 
 
   const [submitting, setSubmitting] = useState(false);
@@ -134,8 +168,11 @@ export function ContactSection({
           instagram: hideInstagram ? null : instagram,
           faturamento: revenue,
           profissao: showProfession ? profession.trim() : null,
+          momento_negocio: noRevenue ? momento : null,
+          verba_marca: noRevenue ? verba : null,
+          pagina: window.location.pathname,
 
-          skip_meta: revenue === NO_REVENUE_OPTION,
+          skip_meta: noRevenue,
           utm_source: utms.utm_source ?? null,
           utm_medium: utms.utm_medium ?? null,
           utm_campaign: utms.utm_campaign ?? null,
@@ -147,7 +184,6 @@ export function ContactSection({
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-      const noRevenue = revenue === NO_REVENUE_OPTION;
       const target = noRevenue ? (redirectToNoRevenue ?? redirectTo) : redirectTo;
 
       if (target) {
@@ -284,12 +320,55 @@ export function ContactSection({
                     <option value="" disabled>
                       Selecione uma faixa
                     </option>
-                    <option>{NO_REVENUE_OPTION}</option>
-                    <option>De R$ 6.000 a R$ 10.000</option>
-                    <option>De R$ 10.000 a R$ 20.000</option>
-                    <option>Acima de R$ 20.000</option>
+                    {REVENUE_OPTIONS.map((o) => (
+                      <option key={o}>{o}</option>
+                    ))}
                   </select>
                 </Field>
+                {noRevenue && (
+                  <>
+                    <Field
+                      label="Em que momento está o seu negócio?"
+                      error={attempted && !momentoValid ? "Selecione uma opção" : undefined}
+                    >
+                      <select
+                        required
+                        name="momento_negocio"
+                        value={momento}
+                        onChange={(e) => setMomento(e.target.value)}
+                        className={inputClass(momentoValid || !attempted)}
+                        aria-invalid={attempted && !momentoValid}
+                      >
+                        <option value="" disabled>
+                          Selecione
+                        </option>
+                        {MOMENTO_OPTIONS.map((o) => (
+                          <option key={o}>{o}</option>
+                        ))}
+                      </select>
+                    </Field>
+                    <Field
+                      label="Já tem verba para investir na marca?"
+                      error={attempted && !verbaValid ? "Selecione uma opção" : undefined}
+                    >
+                      <select
+                        required
+                        name="verba_marca"
+                        value={verba}
+                        onChange={(e) => setVerba(e.target.value)}
+                        className={inputClass(verbaValid || !attempted)}
+                        aria-invalid={attempted && !verbaValid}
+                      >
+                        <option value="" disabled>
+                          Selecione
+                        </option>
+                        {VERBA_OPTIONS.map((o) => (
+                          <option key={o}>{o}</option>
+                        ))}
+                      </select>
+                    </Field>
+                  </>
+                )}
                 {showProfession && (
 
                   <ProfessionField
@@ -329,6 +408,13 @@ export function ContactSection({
               >
                 {submitting ? "Enviando..." : ctaLabel}
               </button>
+              {ctaNote && <p className="-mt-3 text-xs text-ink/60">{ctaNote}</p>}
+              <p className="text-[11px] leading-snug text-ink/50">
+                Seus dados são usados só para entrarmos em contato.{" "}
+                <a href="/privacidade" target="_blank" rel="noopener" className="underline">
+                  Política de privacidade
+                </a>
+              </p>
             </form>
           )}
         </div>

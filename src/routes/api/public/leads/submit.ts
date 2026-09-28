@@ -10,6 +10,10 @@ const LeadSchema = z.object({
   instagram: z.string().trim().max(40).nullish(),
   faturamento: z.string().trim().min(1).max(80),
   profissao: z.string().trim().max(80).nullish(),
+  // Só para quem ainda não fatura: ajuda a separar quem está começando de quem tem verba.
+  momento_negocio: z.string().trim().max(80).nullish(),
+  verba_marca: z.string().trim().max(40).nullish(),
+  pagina: z.string().trim().max(120).nullish(),
 
   utm_source: z.string().max(120).nullish(),
   utm_medium: z.string().max(120).nullish(),
@@ -158,6 +162,9 @@ export const Route = createFileRoute("/api/public/leads/submit")({
             instagram: parsed.instagram?.trim() ? parsed.instagram : null,
             faturamento: parsed.faturamento,
             profissao: parsed.profissao?.trim() ? parsed.profissao.trim() : null,
+            momento_negocio: parsed.momento_negocio?.trim() || null,
+            verba_marca: parsed.verba_marca?.trim() || null,
+            pagina: parsed.pagina?.trim() || null,
 
             utm_source: parsed.utm_source ?? null,
             utm_medium: parsed.utm_medium ?? null,
@@ -183,6 +190,8 @@ export const Route = createFileRoute("/api/public/leads/submit")({
           nome: parsed.nome,
           whatsapp: parsed.whatsapp,
           faturamento: parsed.faturamento,
+          momento_negocio: parsed.momento_negocio,
+          verba_marca: parsed.verba_marca,
         });
         // WhatsApp (boas-vindas + aviso no grupo): só agenda, o cron envia. Nunca lança.
         await agendarMensagensDoLead(supabase, {
@@ -191,6 +200,9 @@ export const Route = createFileRoute("/api/public/leads/submit")({
           whatsapp: parsed.whatsapp,
           faturamento: parsed.faturamento,
           profissao: parsed.profissao,
+          momento_negocio: parsed.momento_negocio,
+          verba_marca: parsed.verba_marca,
+          pagina: parsed.pagina,
         });
         await notify(origin, parsed);
         if (!parsed.skip_meta) {

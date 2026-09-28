@@ -64,6 +64,9 @@ export type Lead = {
   instagram: string | null;
   faturamento: string;
   profissao: string | null;
+  pagina: string | null;
+  momento_negocio: string | null;
+  verba_marca: string | null;
 
   utm_source: string | null;
   utm_medium: string | null;

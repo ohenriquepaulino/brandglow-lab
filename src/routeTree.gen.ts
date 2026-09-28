@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TksRouteImport } from './routes/tks'
+import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as ObrigadoRouteImport } from './routes/obrigado'
 import { Route as CrmRouteImport } from './routes/crm'
 import { Route as AdsRouteImport } from './routes/ads'
@@ -40,6 +41,11 @@ import { Route as ApiPublicCrmDataRouteImport } from './routes/api/public/crm/da
 const TksRoute = TksRouteImport.update({
   id: '/tks',
   path: '/tks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacidadeRoute = PrivacidadeRouteImport.update({
+  id: '/privacidade',
+  path: '/privacidade',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ObrigadoRoute = ObrigadoRouteImport.update({
@@ -183,6 +189,7 @@ export interface FileRoutesByFullPath {
   '/ads': typeof AdsRoute
   '/crm': typeof CrmRouteWithChildren
   '/obrigado': typeof ObrigadoRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/tks': typeof TksRoute
   '/cases/$slug': typeof CasesSlugRoute
   '/crm/kanban': typeof CrmKanbanRoute
@@ -211,6 +218,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ads': typeof AdsRoute
   '/obrigado': typeof ObrigadoRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/tks': typeof TksRoute
   '/cases/$slug': typeof CasesSlugRoute
   '/crm/kanban': typeof CrmKanbanRoute
@@ -241,6 +249,7 @@ export interface FileRoutesById {
   '/ads': typeof AdsRoute
   '/crm': typeof CrmRouteWithChildren
   '/obrigado': typeof ObrigadoRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/tks': typeof TksRoute
   '/cases/$slug': typeof CasesSlugRoute
   '/crm/kanban': typeof CrmKanbanRoute
@@ -272,6 +281,7 @@ export interface FileRouteTypes {
     | '/ads'
     | '/crm'
     | '/obrigado'
+    | '/privacidade'
     | '/tks'
     | '/cases/$slug'
     | '/crm/kanban'
@@ -300,6 +310,7 @@ export interface FileRouteTypes {
     | '/'
     | '/ads'
     | '/obrigado'
+    | '/privacidade'
     | '/tks'
     | '/cases/$slug'
     | '/crm/kanban'
@@ -329,6 +340,7 @@ export interface FileRouteTypes {
     | '/ads'
     | '/crm'
     | '/obrigado'
+    | '/privacidade'
     | '/tks'
     | '/cases/$slug'
     | '/crm/kanban'
@@ -359,6 +371,7 @@ export interface RootRouteChildren {
   AdsRoute: typeof AdsRoute
   CrmRoute: typeof CrmRouteWithChildren
   ObrigadoRoute: typeof ObrigadoRoute
+  PrivacidadeRoute: typeof PrivacidadeRoute
   TksRoute: typeof TksRoute
   CasesSlugRoute: typeof CasesSlugRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
@@ -385,6 +398,13 @@ declare module '@tanstack/react-router' {
       path: '/tks'
       fullPath: '/tks'
       preLoaderRoute: typeof TksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacidade': {
+      id: '/privacidade'
+      path: '/privacidade'
+      fullPath: '/privacidade'
+      preLoaderRoute: typeof PrivacidadeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/obrigado': {
@@ -597,6 +617,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdsRoute: AdsRoute,
   CrmRoute: CrmRouteWithChildren,
   ObrigadoRoute: ObrigadoRoute,
+  PrivacidadeRoute: PrivacidadeRoute,
   TksRoute: TksRoute,
   CasesSlugRoute: CasesSlugRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,

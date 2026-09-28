@@ -24,9 +24,13 @@ export const Route = createFileRoute("/tks")({
 });
 
 function TksPage() {
-  // Sem evento Lead do Pixel nesta pagina (leads sem faturamento).
+  // Sem evento Lead do Pixel nesta pagina (leads sem faturamento): o Meta não
+  // otimiza para eles. O evento personalizado serve só para montar públicos
+  // (excluir ou remarketing) e não entra na otimização de Lead.
   useEffect(() => {
     captureUtmsFromUrl();
+    const fbq = (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq;
+    if (typeof fbq === "function") fbq("trackCustom", "LeadSemFaturamento");
   }, []);
 
   return (

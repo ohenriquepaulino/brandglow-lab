@@ -184,11 +184,17 @@ export function montarAviso(lead: {
   telefone: string;
   faturamento?: string | null;
   segmento?: string | null;
+  momento?: string | null;
+  verba?: string | null;
+  pagina?: string | null;
 }): string {
   const linhas = [`🔔 *NOVO LEAD NO CRM*`, lead.nome.trim()];
-  // Nem todo formulário pergunta o segmento (showProfession): sem ele, a linha fica de fora.
+  // Campos que nem todo formulário pergunta: sem eles, a linha fica de fora.
   if (lead.segmento?.trim()) linhas.push(`Segmento: ${lead.segmento.trim()}`);
   if (lead.faturamento?.trim()) linhas.push(`Faturamento: ${lead.faturamento.trim()}`);
+  if (lead.momento?.trim()) linhas.push(`Momento: ${lead.momento.trim()}`);
+  if (lead.verba?.trim()) linhas.push(`Verba para a marca: ${lead.verba.trim()}`);
+  if (lead.pagina?.trim()) linhas.push(`Página: ${lead.pagina.trim()}`);
   linhas.push(`https://wa.me/${lead.telefone}`);
   return linhas.join("\n");
 }
@@ -208,6 +214,9 @@ export async function agendarMensagensDoLead(
     whatsapp: string;
     faturamento?: string | null;
     profissao?: string | null;
+    momento_negocio?: string | null;
+    verba_marca?: string | null;
+    pagina?: string | null;
   },
 ) {
   try {
@@ -247,6 +256,9 @@ export async function agendarMensagensDoLead(
           telefone,
           faturamento: lead.faturamento,
           segmento: lead.profissao,
+          momento: lead.momento_negocio,
+          verba: lead.verba_marca,
+          pagina: lead.pagina,
         }),
         status: "pendente",
         enviar_em: new Date(agora).toISOString(),

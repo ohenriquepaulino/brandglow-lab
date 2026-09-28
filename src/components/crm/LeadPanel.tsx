@@ -124,7 +124,12 @@ export function LeadPanel({
               lead.faturamento
             )}
           </Row>
+          {lead.momento_negocio?.trim() && (
+            <Row label="Momento do negócio">{lead.momento_negocio}</Row>
+          )}
+          {lead.verba_marca?.trim() && <Row label="Verba para a marca">{lead.verba_marca}</Row>}
           {lead.profissao?.trim() && <Row label="Área de atuação">{lead.profissao}</Row>}
+          {lead.pagina?.trim() && <Row label="Página">{lead.pagina}</Row>}
 
           <Row label="Entrada">{formatDateTime(lead.criado_em)}</Row>
         </dl>

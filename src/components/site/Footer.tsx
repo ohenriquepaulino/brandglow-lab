@@ -5,7 +5,12 @@ export function Footer() {
     <footer className="bg-ink text-cream">
       <div className="container-page flex flex-col gap-4 py-10 md:flex-row md:items-center md:justify-between">
         <img src={logoAsset.url} alt="Legacy BrandCo." className="h-6 w-auto opacity-90" />
-        <p className="text-xs text-cream/50">© 2026 Legacy BrandCo. · teste Claude ok</p>
+        <p className="text-xs text-cream/50">
+          © 2026 Legacy BrandCo. ·{" "}
+          <a href="/privacidade" className="underline-offset-4 hover:underline">
+            Política de privacidade
+          </a>
+        </p>
       </div>
     </footer>
   );
