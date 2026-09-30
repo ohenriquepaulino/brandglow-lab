@@ -14,7 +14,8 @@ import { formatTempo, youtubeThumb } from "@/lib/video";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 let apiPromise: Promise<any> | null = null;
-function carregarApi(): Promise<any> {
+/** Começa a baixar a API do YouTube. A página chama antes de saber qual é o vídeo. */
+export function carregarApi(): Promise<any> {
   if (apiPromise) return apiPromise;
   apiPromise = new Promise((resolve) => {
     const w = window as any;
@@ -419,7 +420,11 @@ export function CleanPlayer({
             <img
               src={youtubeThumb(youtubeId, capaQ)}
               onError={() => setCapaQ("hq")}
+              // Sem capa em alta, o YouTube devolve uma imagem cinza de 120px.
+              onLoad={(e) => e.currentTarget.naturalWidth <= 120 && setCapaQ("hq")}
               alt=""
+              fetchPriority="high"
+              decoding="async"
               className="absolute inset-0 h-full w-full object-cover"
               draggable={false}
             />

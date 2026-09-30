@@ -4,7 +4,8 @@ import { z } from "zod";
 import { avisarAbertura } from "@/lib/video.server";
 
 // Página /v/:slug. Pública, sem token:
-//   - abrir: devolve o vídeo do link e abre (ou retoma) a visita;
+//   - dados: o vídeo do link (a página chama junto com "abrir", sem esperar);
+//   - abrir: abre (ou retoma) a visita e avisa a equipe;
 //   - progresso: segundos assistidos + eventos (play, pause, fim, voltou, pulou).
 // Nunca devolve dados de outros links nem das visitas.
 const MAX_SEG = 6 * 60 * 60;
@@ -15,10 +16,14 @@ const Evento = z.object({
   de: z.number().int().min(0).max(MAX_SEG).nullish(),
 });
 
+const Slug = z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/i).max(100);
+
 const ActionSchema = z.discriminatedUnion("action", [
+  /** Só o vídeo do link: uma leitura, para a página aparecer logo. */
+  z.object({ action: z.literal("dados"), slug: Slug }),
   z.object({
     action: z.literal("abrir"),
-    slug: z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/i).max(100),
+    slug: Slug,
     visitante: z.string().trim().min(8).max(64),
     dispositivo: z.enum(["celular", "computador"]),
     /** Navegador da equipe (abriu o CRM): mostra o vídeo sem registrar. */
@@ -64,6 +69,26 @@ export const Route = createFileRoute("/api/public/video/track")({
         const supabase = createClient(supabaseUrl, serviceKey, {
           auth: { persistSession: false, autoRefreshToken: false },
         });
+
+        if (p.action === "dados") {
+          const { data: link, error } = await supabase
+            .from("video_links")
+            .select("destinatario, videos(titulo, youtube_id, duracao_seg)")
+            .eq("slug", p.slug.toLowerCase())
+            .maybeSingle();
+          if (error) return Response.json({ error: error.message }, { status: 500 });
+          const video = (link as unknown as { videos: Record<string, unknown> | null } | null)
+            ?.videos;
+          if (!link || !video) return Response.json({ data: null });
+          return Response.json({
+            data: {
+              titulo: video.titulo,
+              youtube_id: video.youtube_id,
+              duracao_seg: video.duracao_seg,
+              destinatario: link.destinatario,
+            },
+          });
+        }
 
         if (p.action === "abrir") {
           const { data: link, error } = await supabase

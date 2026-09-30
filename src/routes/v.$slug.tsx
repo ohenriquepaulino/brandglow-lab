@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { HideLovableBadge } from "@/components/HideLovableBadge";
-import { CleanPlayer, type PlayerEventos } from "@/components/video/CleanPlayer";
+import { CleanPlayer, carregarApi, type PlayerEventos } from "@/components/video/CleanPlayer";
 import { AB_IGNORAR_KEY, visitanteId } from "@/lib/ab";
 
 // Apresentação em vídeo para um lead. Pública, sem login, um link por pessoa.
@@ -16,9 +16,27 @@ export const Route = createFileRoute("/v/$slug")({
       { name: "googlebot", content: "noindex, nofollow" },
       { name: "theme-color", content: "#0E0D0C" },
     ],
+    // Abre as conexões com o YouTube antes do JavaScript da página chegar.
+    links: [
+      { rel: "preconnect", href: "https://www.youtube.com" },
+      { rel: "preconnect", href: "https://www.youtube-nocookie.com" },
+      { rel: "preconnect", href: "https://i.ytimg.com" },
+      { rel: "preconnect", href: "https://www.google.com" },
+      { rel: "preload", href: "/proposta/brand/legacy-logo-branco.webp", as: "image" },
+    ],
   }),
+  // Enquanto o JavaScript carrega: já no fundo escuro (sem piscar branco).
+  pendingComponent: Esqueleto,
   component: VideoPage,
 });
+
+function Esqueleto() {
+  return (
+    <div className="flex min-h-[100dvh] flex-col items-center justify-center bg-[#0E0D0C] px-4">
+      <div className="aspect-video w-full max-w-[1100px] animate-pulse rounded-xl bg-white/[0.06] md:rounded-2xl" />
+    </div>
+  );
+}
 
 const LOGO = "/proposta/brand/legacy-logo-branco.webp";
 const ENVIO_MS = 10_000;
@@ -58,32 +76,40 @@ function VideoPage() {
 
   useEffect(() => {
     let vivo = true;
+    // Tudo em paralelo: API do YouTube, dados do vídeo e registro da visita.
+    // O vídeo aparece assim que os dados chegam; a visita (que também dispara
+    // o aviso da equipe) não segura a página.
+    void carregarApi();
     const eq = ehEquipe();
     setEquipe(eq);
     const visitante = visitanteId();
-    fetch("/api/public/video/track", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "abrir",
-        slug,
-        visitante,
-        dispositivo: dispositivo(),
-        equipe: eq,
-      }),
-    })
-      .then((r) => r.json())
-      .then((j: { data: Dados | null; sessao_id?: string | null }) => {
+    const post = (body: Record<string, unknown>) =>
+      fetch("/api/public/video/track", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      }).then((r) => r.json());
+
+    post({ action: "dados", slug })
+      .then((j: { data: Dados | null }) => {
         if (!vivo) return;
         if (!j?.data) {
           setEstado("nao_existe");
           return;
         }
         setDados(j.data);
-        rastreio.iniciar(j.sessao_id ?? null, visitante);
         setEstado("ok");
       })
       .catch(() => vivo && setEstado("nao_existe"));
+
+    if (!eq) {
+      post({ action: "abrir", slug, visitante, dispositivo: dispositivo() })
+        .then((j: { sessao_id?: string | null }) => {
+          // O que foi assistido antes da resposta fica guardado e sai no próximo envio.
+          if (vivo && j?.sessao_id) rastreio.iniciar(j.sessao_id, visitante);
+        })
+        .catch(() => {});
+    }
     return () => {
       vivo = false;
     };
@@ -107,7 +133,14 @@ function VideoPage() {
       `}</style>
 
       <header className="lbc-video-extra flex items-center justify-between px-5 pt-5 md:px-10 md:pt-8">
-        <img src={LOGO} alt="Legacy BrandCo." className="h-6 w-auto md:h-7" draggable={false} />
+        <img
+          src={LOGO}
+          alt="Legacy BrandCo."
+          width={112}
+          height={28}
+          className="h-6 w-auto md:h-7"
+          draggable={false}
+        />
         {equipe && estado === "ok" && (
           <span className="rounded-full border border-white/15 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-white/55">
             Modo equipe · não registra
