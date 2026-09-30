@@ -15,7 +15,8 @@ const VISITANTE_KEY = "lbc_vid";
 /** Gravado pelo painel /crm/ab: o navegador da equipe não conta como visitante. */
 export const AB_IGNORAR_KEY = "lbc_ab_ignorar";
 
-function visitanteId(): string {
+/** Id anônimo do navegador (também usado nas visitas dos vídeos, /v/:slug). */
+export function visitanteId(): string {
   try {
     let id = localStorage.getItem(VISITANTE_KEY);
     if (!id) {

@@ -42,6 +42,11 @@ import { Route as ApiPublicCrmWhatsappRouteImport } from './routes/api/public/cr
 import { Route as ApiPublicCrmTasksRouteImport } from './routes/api/public/crm/tasks'
 import { Route as ApiPublicCrmProposalsRouteImport } from './routes/api/public/crm/proposals'
 import { Route as ApiPublicCrmDataRouteImport } from './routes/api/public/crm/data'
+import { Route as VSlugRouteImport } from './routes/v.$slug'
+import { Route as CrmVideosRouteImport } from './routes/crm.videos'
+import { Route as ApiPublicVideoTrackRouteImport } from './routes/api/public/video/track'
+import { Route as ApiPublicVideoProcessRouteImport } from './routes/api/public/video/process'
+import { Route as ApiPublicCrmVideosRouteImport } from './routes/api/public/crm/videos'
 
 const TksRoute = TksRouteImport.update({
   id: '/tks',
@@ -213,6 +218,31 @@ const ApiPublicCrmDataRoute = ApiPublicCrmDataRouteImport.update({
   path: '/api/public/crm/data',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VSlugRoute = VSlugRouteImport.update({
+  id: '/v/$slug',
+  path: '/v/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CrmVideosRoute = CrmVideosRouteImport.update({
+  id: '/videos',
+  path: '/videos',
+  getParentRoute: () => CrmRoute,
+} as any)
+const ApiPublicVideoTrackRoute = ApiPublicVideoTrackRouteImport.update({
+  id: '/api/public/video/track',
+  path: '/api/public/video/track',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicVideoProcessRoute = ApiPublicVideoProcessRouteImport.update({
+  id: '/api/public/video/process',
+  path: '/api/public/video/process',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicCrmVideosRoute = ApiPublicCrmVideosRouteImport.update({
+  id: '/api/public/crm/videos',
+  path: '/api/public/crm/videos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -248,6 +278,11 @@ export interface FileRoutesByFullPath {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/v/$slug': typeof VSlugRoute
+  '/crm/videos': typeof CrmVideosRoute
+  '/api/public/video/track': typeof ApiPublicVideoTrackRoute
+  '/api/public/video/process': typeof ApiPublicVideoProcessRoute
+  '/api/public/crm/videos': typeof ApiPublicCrmVideosRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -282,6 +317,11 @@ export interface FileRoutesByTo {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/v/$slug': typeof VSlugRoute
+  '/crm/videos': typeof CrmVideosRoute
+  '/api/public/video/track': typeof ApiPublicVideoTrackRoute
+  '/api/public/video/process': typeof ApiPublicVideoProcessRoute
+  '/api/public/crm/videos': typeof ApiPublicCrmVideosRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -318,6 +358,11 @@ export interface FileRoutesById {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/v/$slug': typeof VSlugRoute
+  '/crm/videos': typeof CrmVideosRoute
+  '/api/public/video/track': typeof ApiPublicVideoTrackRoute
+  '/api/public/video/process': typeof ApiPublicVideoProcessRoute
+  '/api/public/crm/videos': typeof ApiPublicCrmVideosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -355,6 +400,11 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/v/$slug'
+    | '/crm/videos'
+    | '/api/public/video/track'
+    | '/api/public/video/process'
+    | '/api/public/crm/videos'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -389,6 +439,11 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/v/$slug'
+    | '/crm/videos'
+    | '/api/public/video/track'
+    | '/api/public/video/process'
+    | '/api/public/crm/videos'
   id:
     | '__root__'
     | '/'
@@ -424,6 +479,11 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/v/$slug'
+    | '/crm/videos'
+    | '/api/public/video/track'
+    | '/api/public/video/process'
+    | '/api/public/crm/videos'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -453,6 +513,10 @@ export interface RootRouteChildren {
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
   LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
+  VSlugRoute: typeof VSlugRoute
+  ApiPublicVideoTrackRoute: typeof ApiPublicVideoTrackRoute
+  ApiPublicVideoProcessRoute: typeof ApiPublicVideoProcessRoute
+  ApiPublicCrmVideosRoute: typeof ApiPublicCrmVideosRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -688,6 +752,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCrmDataRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/v/$slug': {
+      id: '/v/$slug'
+      path: '/v/$slug'
+      fullPath: '/v/$slug'
+      preLoaderRoute: typeof VSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/crm/videos': {
+      id: '/crm/videos'
+      path: '/videos'
+      fullPath: '/crm/videos'
+      preLoaderRoute: typeof CrmVideosRouteImport
+      parentRoute: typeof CrmRoute
+    }
+    '/api/public/video/track': {
+      id: '/api/public/video/track'
+      path: '/api/public/video/track'
+      fullPath: '/api/public/video/track'
+      preLoaderRoute: typeof ApiPublicVideoTrackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/video/process': {
+      id: '/api/public/video/process'
+      path: '/api/public/video/process'
+      fullPath: '/api/public/video/process'
+      preLoaderRoute: typeof ApiPublicVideoProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/crm/videos': {
+      id: '/api/public/crm/videos'
+      path: '/api/public/crm/videos'
+      fullPath: '/api/public/crm/videos'
+      preLoaderRoute: typeof ApiPublicCrmVideosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -699,6 +798,7 @@ interface CrmRouteChildren {
   CrmIndexRoute: typeof CrmIndexRoute
   CrmPropostasIdRoute: typeof CrmPropostasIdRoute
   CrmPropostasIndexRoute: typeof CrmPropostasIndexRoute
+  CrmVideosRoute: typeof CrmVideosRoute
 }
 
 const CrmRouteChildren: CrmRouteChildren = {
@@ -709,6 +809,7 @@ const CrmRouteChildren: CrmRouteChildren = {
   CrmIndexRoute: CrmIndexRoute,
   CrmPropostasIdRoute: CrmPropostasIdRoute,
   CrmPropostasIndexRoute: CrmPropostasIndexRoute,
+  CrmVideosRoute: CrmVideosRoute,
 }
 
 const CrmRouteWithChildren = CrmRoute._addFileChildren(CrmRouteChildren)
@@ -740,6 +841,10 @@ const rootRouteChildren: RootRouteChildren = {
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
   LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
+  VSlugRoute: VSlugRoute,
+  ApiPublicVideoTrackRoute: ApiPublicVideoTrackRoute,
+  ApiPublicVideoProcessRoute: ApiPublicVideoProcessRoute,
+  ApiPublicCrmVideosRoute: ApiPublicCrmVideosRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,5 +1,6 @@
 import type { ComponentType } from "react";
 import { template as newLeadTemplate } from "./new-lead";
+import { template as videoAvisoTemplate } from "./video-aviso";
 
 export interface TemplateEntry {
   component: ComponentType<any>;
@@ -12,4 +13,5 @@ export interface TemplateEntry {
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   "new-lead": newLeadTemplate,
+  "video-aviso": videoAvisoTemplate,
 };

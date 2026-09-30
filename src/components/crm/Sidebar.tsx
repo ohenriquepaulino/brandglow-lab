@@ -1,10 +1,18 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { FileText, FlaskConical, KanbanSquare, ListChecks, MessageCircle } from "lucide-react";
+import {
+  Clapperboard,
+  FileText,
+  FlaskConical,
+  KanbanSquare,
+  ListChecks,
+  MessageCircle,
+} from "lucide-react";
 
 const NAV_ITEMS = [
   { to: "/crm/kanban", label: "Leads", icon: KanbanSquare },
   { to: "/crm/tarefas", label: "Tarefas", icon: ListChecks },
   { to: "/crm/propostas", label: "Propostas", icon: FileText },
+  { to: "/crm/videos", label: "Vídeos", icon: Clapperboard },
   { to: "/crm/whatsapp", label: "WhatsApp", icon: MessageCircle },
   { to: "/crm/ab", label: "Teste A/B", icon: FlaskConical },
 ] as const;
