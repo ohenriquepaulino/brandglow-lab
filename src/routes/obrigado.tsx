@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { captureUtmsFromUrl } from "@/lib/utm";
+import { leadSignal, readLeadFaturamento } from "@/lib/lead-signal";
 
 
 export const Route = createFileRoute("/obrigado")({
@@ -33,7 +34,7 @@ function ObrigadoPage() {
       fbq(
         "track",
         "Lead",
-        {},
+        leadSignal(readLeadFaturamento()) ?? {},
         eventId ? { eventID: eventId } : undefined,
       );
     }

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { UTM_KEYS, captureUtmsFromUrl, type UtmData } from "@/lib/utm";
 import { PrivacyButton } from "@/components/site/PrivacyDialog";
+import { leadSignal, saveLeadFaturamento } from "@/lib/lead-signal";
 
 const PROFISSOES = [
   "Advocacia",
@@ -190,6 +191,7 @@ export function ContactSection({
       if (target) {
         // O evento Lead do navegador dispara na pagina de obrigado,
         // com o mesmo event_id enviado a Conversions API (deduplicacao).
+        if (!noRevenue) saveLeadFaturamento(revenue);
         const search: Record<string, string> = { ev: eventId };
         UTM_KEYS.forEach((k) => {
           const v = utms[k];
@@ -201,7 +203,7 @@ export function ContactSection({
 
       const fbq = (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq;
       if (!noRevenue && typeof fbq === "function") {
-        fbq("track", "Lead", {}, { eventID: eventId });
+        fbq("track", "Lead", leadSignal(revenue) ?? {}, { eventID: eventId });
       }
       setSubmitted(true);
     } catch (err) {

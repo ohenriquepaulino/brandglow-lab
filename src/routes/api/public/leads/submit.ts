@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { agendarMensagensDoLead } from "@/lib/whatsapp.server";
 import { criarTaskDoLead } from "@/lib/tasks.server";
+import { leadSignal } from "@/lib/lead-signal";
 
 const LeadSchema = z.object({
   nome: z.string().trim().min(2).max(100),
@@ -105,6 +106,8 @@ async function sendMetaLead(
       fn: [await sha256Hex(lead.nome.trim().toLowerCase().split(" ")[0] ?? "")],
       country: [await sha256Hex("br")],
     };
+    // Faixa de faturamento e peso (value) no mesmo Lead; faixa desconhecida vai sem.
+    const customData = leadSignal(lead.faturamento);
     const res = await fetch(
       `https://graph.facebook.com/v21.0/${pixelId}/events?access_token=${encodeURIComponent(token)}`,
       {
@@ -119,6 +122,7 @@ async function sendMetaLead(
               event_source_url: eventSourceUrl,
               action_source: "website",
               user_data: userData,
+              ...(customData ? { custom_data: customData } : {}),
             },
           ],
         }),
