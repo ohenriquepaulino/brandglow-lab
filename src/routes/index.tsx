@@ -1,21 +1,26 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Navbar } from "@/components/site/Navbar";
-import { Footer } from "@/components/site/Footer";
-import { ContactSection } from "@/components/site/ContactSection";
-import { HeroSlider } from "@/components/site/HeroSlider";
-import { cases } from "@/lib/cases";
-import img308OutBanner from "@/assets/308-network/308-network-out-banner.webp.asset.json";
-import imgMoewaPosterManifesto from "@/assets/moewa/moewa-poster-manifesto.png.asset.json";
-import imgGeri from "@/assets/geriacademy/geriacademy-page-0060.webp.asset.json";
-import imgJoanaBillboardQuote from "@/assets/joana-ulmer/joana-ulmer-billboard-quote.webp.asset.json";
+import { useStickyCta } from "@/lib/useStickyCta";
+import { EstiloSite, FONTE_PRELOAD } from "@/components/novo/Estilo";
+import {
+  CaseCarousel,
+  Contato,
+  Cta,
+  Footer,
+  Form,
+  Header,
+  Kicker,
+  VITRINE,
+} from "@/components/novo/Site";
+import print1 from "@/assets/ads/IMG_1693.webp.asset.json";
+import print2 from "@/assets/ads/IMG_1694.webp.asset.json";
+import print3 from "@/assets/ads/IMG_1695.webp.asset.json";
+import print4 from "@/assets/ads/IMG_1696.webp.asset.json";
+import print5 from "@/assets/ads/IMG_1697.webp.asset.json";
 
-const heroSlides = [
-  { src: img308OutBanner.url, alt: "308NETWORK — campanha out of home" },
-  { src: imgMoewaPosterManifesto.url, alt: "MOEWA — manifesto da marca" },
-  { src: imgGeri.url, alt: "Geriacademy — identidade de marca" },
-  { src: imgJoanaBillboardQuote.url, alt: "Joana Ulmer Co — campanha de marca" },
-];
-
+// Home no visual da página B do teste A/B (/adsb), com a estrutura de site:
+// menu, quem somos, cases com página própria, metodologia e contato.
+// Não registra visita no teste A/B: os leads daqui entram com pagina "/",
+// que o painel /crm/ab não conta.
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -28,211 +33,303 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "Legacy BrandCo." },
       {
         property: "og:description",
-        content: "Criamos a estratégia e a identidade visual da sua marca.",
+        content: "Sua empresa é boa. Sua marca precisa mostrar isso.",
       },
     ],
-    links: [
-      { rel: "preload", as: "image", href: heroSlides[0].src, fetchpriority: "high" },
-    ],
+    links: [FONTE_PRELOAD],
   }),
   component: Home,
 });
 
+const DEPOIMENTOS = [
+  { src: print1.url, w: 900, h: 1314, alt: "Mensagem de cliente elogiando o projeto" },
+  { src: print4.url, w: 900, h: 495, alt: "Mensagem de cliente sobre identidade visual" },
+  { src: print2.url, w: 900, h: 1035, alt: "Mensagem de cliente sobre o resultado" },
+  { src: print5.url, w: 900, h: 722, alt: "Mensagem de cliente elogiando o trabalho" },
+  { src: print3.url, w: 900, h: 329, alt: "Mensagem de cliente sobre expectativas superadas" },
+];
+
+const PILARES = [
+  {
+    n: "01",
+    t: "Diagnóstico e posicionamento",
+    d: "Mapeamos o negócio, o mercado e o consumidor. Definimos como a marca deve se comportar, qual é o seu diferencial e o que ela vai comunicar.",
+  },
+  {
+    n: "02",
+    t: "Estratégia de marca",
+    d: "Posicionamento, mensagem central, personalidade e tom de voz. A marca ganha clareza sobre o que falar, para quem e como.",
+  },
+  {
+    n: "03",
+    t: "Identidade visual",
+    d: "Com a estratégia definida, criamos o sistema visual completo: logotipo, cores, tipografia, elementos de apoio e guia de marca.",
+  },
+];
+
+const ETAPAS = [
+  {
+    sem: "Semana 1",
+    t: "Pesquisa",
+    d: "Você responde o Legacy Brand Canvas e fazemos as calls de alinhamento.",
+  },
+  { sem: "Semana 2", t: "Moodboard", d: "A direção visual da sua marca." },
+  { sem: "Semanas 3 a 5", t: "Criação", d: "Testes, validação e apresentação da identidade." },
+  { sem: "Semana 6", t: "Entrega", d: "Todos os arquivos organizados no Google Drive." },
+];
+
+const ENTREGAS = [
+  "Narrativa da marca",
+  "Logotipo e suas versões",
+  "Elementos visuais",
+  "Paleta de cores",
+  "Tipografia da marca",
+  "Aplicações no dia a dia",
+  "Identidade do Instagram",
+  "Todos os arquivos",
+];
+
+const FAQ = [
+  {
+    q: "O diagnóstico é pago?",
+    a: "Não. São 25 minutos por vídeo em que mostramos onde a sua marca está perdendo valor e o que resolver primeiro. Você sai com essa leitura, contratando ou não.",
+  },
+  {
+    q: "Quanto custa um projeto?",
+    a: "Cada projeto é dimensionado para o momento do negócio. Apresentamos o investimento na reunião, junto com o que faz sentido para você.",
+  },
+  {
+    q: "Quanto tempo leva?",
+    a: "Cerca de 6 semanas, contadas a partir do momento em que você responde o Legacy Brand Canvas, a nossa ferramenta de estratégia.",
+  },
+  {
+    q: "Vocês atendem a minha área?",
+    a: "Atendemos profissionais liberais e empresas em todo o Brasil: saúde, estética, educação, advocacia, imobiliário, tecnologia e muito mais. O método começa pelo seu mercado, não por um modelo pronto.",
+  },
+  {
+    q: "Já tenho logo. Ainda faz sentido?",
+    a: "Faz. Muitos clientes chegam com uma logo e saem com uma marca: posicionamento, mensagem e um sistema visual que funciona em todos os pontos de contato.",
+  },
+  {
+    q: "Meu negócio ainda não fatura. Posso preencher?",
+    a: "Pode. Olhamos o momento do seu negócio e dizemos com sinceridade o que faz sentido agora.",
+  },
+];
 
 function Home() {
+  const sticky = useStickyCta(".b-hero, .b-last, .b-footer");
+
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <Navbar />
-      <Hero />
-      <About />
-      <Cases />
-      <Process />
-      <ContactSection />
-      <Footer />
-    </div>
-  );
-}
-
-function Hero() {
-  return (
-    <section className="relative w-full overflow-hidden bg-ink text-cream">
-      <div className="absolute inset-0">
-        <HeroSlider slides={heroSlides} />
-      </div>
-
-      <div className="container-page relative z-10 flex min-h-[82vh] flex-col justify-center py-24 md:py-32">
-        <div className="fade-up max-w-3xl text-center md:text-left">
-          <h1 className="text-[32px] font-normal leading-[1.1] tracking-[-0.03em] text-cream sm:text-[52px] md:text-[64px] md:leading-[1.05]">
-            Criamos a <span className="font-semibold">estratégia</span>
-            <br />
-            e a <span className="font-semibold">identidade visual</span>
-            <br />
-            da sua marca.
-          </h1>
-
-          <p className="mt-6 max-w-xl text-[15px] leading-[1.7] text-cream/80 md:mt-8 md:text-[17px] md:mx-0 mx-auto">
-            Para negócios com um <span className="font-semibold text-cream">bom produto ou serviço</span> que ainda não sabem como comunicar isso com clareza e precisam de uma marca que{" "}
-            <span className="font-semibold text-cream">posicione</span>,{" "}
-            <span className="font-semibold text-cream">atraia</span> e{" "}
-            <span className="font-semibold text-cream">convença</span>.
-          </p>
-
-          <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:gap-5 md:items-start md:justify-start justify-center">
-            <a
-              href="#contato"
-              className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-lime-brand to-[#a8f25a] px-7 py-3.5 text-sm font-semibold text-ink transition-opacity hover:opacity-90"
-            >
-              Quero transformar minha marca
-            </a>
-            <a
-              href="#cases"
-              className="inline-flex items-center text-sm font-medium text-cream/85 underline underline-offset-4 hover:text-cream"
-            >
-              Ver cases →
-            </a>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-
-
-function About() {
-  return (
-    <section className="border-t border-ink/10">
-      <div className="container-page py-32 md:py-40">
-        <div className="grid gap-16 md:grid-cols-[1fr_2fr]">
-          <p className="section-label">02 — Quem somos</p>
-          <div className="grid gap-10 text-[17px] leading-[1.75] text-ink/85 md:grid-cols-2">
-            <p>
-              A Legacy BrandCo. é uma consultoria especializada em{" "}
-              <span className="font-semibold text-ink">estratégia de marca e identidade visual</span>{" "}
-              com mais de 8 anos de experiência. Atendemos negócios em todo o
-              Brasil, de profissionais liberais a empresas em crescimento, e
-              trabalhamos com grandes players do mercado.
+    <div className="lbc">
+      {/* PRIMEIRA DOBRA */}
+      <section className="b-hero b-hero-site tone-lime">
+        <Header tom="tone-lime" />
+        <div className="b-wrap b-hero-grid">
+          <div className="b-hero-copy">
+            <Kicker>Estratégia de marca e identidade visual</Kicker>
+            <h1 className="b-d b-h1">
+              <span>Sua empresa é boa.</span> <span>Sua marca precisa mostrar isso.</span>
+            </h1>
+            <p className="b-lead">
+              Criamos a <strong>estratégia</strong> e a <strong>identidade visual</strong> de
+              negócios que entregam bem, mas ainda não comunicam o próprio valor. O primeiro passo é
+              um diagnóstico de <strong>25 minutos</strong>, sem custo.
             </p>
-            <p>
-              Nosso trabalho começa antes do visual. Entendemos o negócio, o
-              mercado e o consumidor para depois traduzir tudo isso em uma{" "}
-              <span className="font-semibold text-ink">marca coesa, profissional e de alto padrão</span>.
-            </p>
+            <ul className="b-facts">
+              <li>
+                <b>+8 anos</b> construindo marcas
+              </li>
+              <li>
+                <b>Brasil inteiro</b> de clientes
+              </li>
+              <li>
+                <b>80%</b> estratégia
+              </li>
+            </ul>
           </div>
+          <Form id="diagnostico" />
         </div>
-      </div>
-    </section>
-  );
-}
+      </section>
 
-function Cases() {
-  return (
-    <section id="cases" className="border-t border-ink/10">
-      <div className="container-page py-32 md:py-40">
-        <div className="grid gap-12 md:grid-cols-[1fr_2fr]">
-          <p className="section-label">03 — Cases</p>
-          <p className="max-w-xl text-[17px] leading-[1.7] text-muted-foreground">
-            Cada projeto começa com diagnóstico e termina com uma marca pronta
-            para liderar.
+      {/* O QUE FAZEMOS */}
+      <section className="b-sec tone-deep">
+        <div className="b-wrap">
+          <Kicker>O que fazemos</Kicker>
+          <h2 className="b-d b-h2">Estratégia de marca e identidade visual</h2>
+          <p className="b-promise">
+            Primeiro definimos <strong>como sua marca se posiciona</strong>, o que ela fala e o que
+            a diferencia. Só depois isso vira logo, cor e tipografia.
           </p>
-        </div>
-
-        <div className="mt-20 grid gap-x-8 gap-y-16 md:grid-cols-3">
-          {cases.filter((c) => c.slug !== "joana-co").slice(0, 3).map((c) => (
-            <Link
-              key={c.slug}
-              to="/cases/$slug"
-              params={{ slug: c.slug }}
-              className="group flex flex-col"
-            >
-              <div className="flex aspect-[4/5] items-center justify-center overflow-hidden rounded-2xl bg-[#ECE9E4] transition-opacity group-hover:opacity-90">
-                {c.heroImage ? (
-                  <img src={c.heroImage} alt={c.name} loading="lazy" className="h-full w-full object-cover" />
-                ) : (
-                  <span className="text-3xl font-semibold tracking-tight text-ink/40">
-                    {c.name}
-                  </span>
-                )}
+          <div className="b-flow">
+            {[
+              ["Estratégia", "Posicionamento"],
+              ["Estratégia", "Base de comunicação"],
+              ["Estratégia", "Diferencial"],
+              ["Resultado", "Identidade de alto padrão"],
+            ].map(([k, v]) => (
+              <div key={v}>
+                <small>{k}</small>
+                <b>{v}</b>
               </div>
-              <p className="mt-6 text-lg font-semibold text-ink">{c.name}</p>
-              <p className="mt-1 text-sm text-muted-foreground">{c.segment}</p>
-              <span className="mt-4 text-xs font-normal uppercase tracking-[0.18em] text-ink/70 group-hover:text-orange-brand">
-                Ver case →
-              </span>
-            </Link>
-          ))}
+            ))}
+          </div>
         </div>
+      </section>
 
-        <div className="mt-16">
-          <Link
-            to="/cases"
-            className="text-sm text-ink underline underline-offset-4 hover:text-orange-brand"
-          >
-            Ver todos os cases →
-          </Link>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Process() {
-  const pillars = [
-    {
-      n: "01",
-      title: "Diagnóstico e Posicionamento",
-      body:
-        "Mapeamos o negócio, o mercado e o consumidor. Definimos como a marca deve se comportar, qual é o seu diferencial e o que ela vai comunicar.",
-    },
-    {
-      n: "02",
-      title: "Estratégia de Marca",
-      body:
-        "Construímos o posicionamento, a mensagem central, a personalidade e o tom de voz. A marca ganha clareza sobre o que falar, para quem falar e como falar.",
-    },
-    {
-      n: "03",
-      title: "Identidade Visual",
-      body:
-        "Com a estratégia definida, criamos o sistema visual completo: logotipo, paleta de cores, tipografia, elementos de apoio e guia de marca para aplicação consistente.",
-    },
-  ];
-
-  return (
-    <section id="processo" className="border-t border-ink/10">
-      <div className="container-page py-32 md:py-40">
-        <div className="grid gap-12 md:grid-cols-[1fr_2fr]">
-          <p className="section-label">04 — Metodologia</p>
-          <div className="grid gap-12 md:grid-cols-2 md:gap-16">
-            <p className="text-[32px] font-bold leading-[1.15] tracking-tight text-ink md:text-[40px]">
-              <span className="text-orange-brand">80%</span> estratégia.{" "}
-              <span className="text-ink/40">20% execução visual.</span>
+      {/* QUEM SOMOS */}
+      <section className="b-sec tone-surface">
+        <div className="b-wrap">
+          <Kicker>Quem somos</Kicker>
+          <h2 className="b-d b-h2">Uma consultoria de marca, não um estúdio de logo</h2>
+          <div className="b-about">
+            <p>
+              A Legacy BrandCo. é especializada em{" "}
+              <strong>estratégia de marca e identidade visual</strong>, com mais de 8 anos de
+              experiência. Atendemos negócios em todo o Brasil, de profissionais liberais a empresas
+              em crescimento, e trabalhamos com grandes players do mercado.
             </p>
-            <p className="text-[16px] leading-[1.75] text-muted-foreground">
-              Antes de criar qualquer logotipo, cor ou tipografia, entendemos
-              profundamente o seu negócio, o mercado em que você atua e o
-              consumidor que você quer atrair.{" "}
-              <span className="font-semibold text-ink">A identidade visual é a consequência de tudo isso</span>,
-              não o ponto de partida.
+            <p>
+              Nosso trabalho começa antes do visual. Entendemos o negócio, o mercado e o consumidor
+              para depois traduzir tudo isso em uma{" "}
+              <strong>marca coesa, profissional e de alto padrão</strong>.
             </p>
           </div>
         </div>
+      </section>
 
-        <div className="mt-24 border-t border-ink/10">
-          {pillars.map((p) => (
-            <div
-              key={p.n}
-              className="grid gap-6 border-b border-ink/10 py-10 md:grid-cols-[80px_1fr_2fr] md:gap-12 md:py-12"
-            >
-              <p className="text-sm text-muted-foreground">{p.n}</p>
-              <h3 className="text-lg font-semibold text-ink">{p.title}</h3>
-              <p className="text-[16px] leading-[1.75] text-muted-foreground">
-                {p.body}
-              </p>
-            </div>
-          ))}
+      {/* CASES */}
+      <section className="b-sec tone-paper" id="cases">
+        <div className="b-wrap">
+          <Kicker>Cases</Kicker>
+          <h2 className="b-d b-h2">Marcas que construímos</h2>
+          <div className="b-cases">
+            {VITRINE.map((c, i) => (
+              <Link key={c.slug} to="/cases/$slug" params={{ slug: c.slug }} className="b-case">
+                <CaseCarousel imgs={c.imgs} nome={c.nome} eager={i === 0} />
+                <div className="b-case-txt">
+                  <p className="b-case-seg">{c.seg}</p>
+                  <h3 className="b-d">{c.nome}</h3>
+                  <p className="b-case-antes">Antes: {c.antes}</p>
+                  <p className="b-case-depois">{c.depois}</p>
+                  <span className="b-case-mais">Ver case →</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+          <div className="b-cta-row">
+            <Cta />
+            <Link to="/cases" className="b-link">
+              Ver todos os cases →
+            </Link>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      {/* DEPOIMENTOS */}
+      <section className="b-sec tone-deep">
+        <div className="b-wrap">
+          <Kicker>Depoimentos</Kicker>
+          <h2 className="b-d b-h2">O que dizem os clientes</h2>
+          <div className="b-shots">
+            {DEPOIMENTOS.map((d) => (
+              <figure key={d.src} className="b-shot">
+                <img
+                  src={d.src}
+                  alt={d.alt}
+                  width={d.w}
+                  height={d.h}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* METODOLOGIA */}
+      <section className="b-sec tone-paper" id="processo">
+        <div className="b-wrap">
+          <Kicker>Metodologia</Kicker>
+          <p className="b-big">
+            80% estratégia. <em>20% execução visual.</em>
+          </p>
+          <p className="b-method-txt">
+            Antes de criar qualquer logotipo, cor ou tipografia, entendemos o seu negócio, o mercado
+            em que você atua e o consumidor que você quer atrair.{" "}
+            <strong>A identidade visual é a consequência de tudo isso</strong>, não o ponto de
+            partida.
+          </p>
+          <ol className="b-steps">
+            {PILARES.map((p) => (
+              <li key={p.n}>
+                <small>{p.n}</small>
+                <b>{p.t}</b>
+                <p>{p.d}</p>
+              </li>
+            ))}
+          </ol>
+
+          <p className="b-method-sub">Da pesquisa à entrega final, em cerca de 6 semanas</p>
+          <ol className="b-timeline">
+            {ETAPAS.map((e, i) => (
+              <li key={e.t} className={i === 2 ? "hot" : ""}>
+                <small>{e.sem}</small>
+                <b>{e.t}</b>
+                <p>{e.d}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* ENTREGAS */}
+      <section className="b-sec tone-surface">
+        <div className="b-wrap">
+          <Kicker>O que você recebe</Kicker>
+          <h2 className="b-d b-h2">Oito entregas que formam a sua marca</h2>
+          <ol className="b-dl">
+            {ENTREGAS.map((t, i) => (
+              <li key={t}>
+                <small>{String(i + 1).padStart(2, "0")}</small>
+                <b>{t}</b>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="b-sec tone-paper">
+        <div className="b-wrap b-faq-wrap">
+          <div>
+            <Kicker>Perguntas frequentes</Kicker>
+            <h2 className="b-d b-h2">Antes de você preencher</h2>
+          </div>
+          <div className="b-faq">
+            {FAQ.map((f) => (
+              <details key={f.q}>
+                <summary>{f.q}</summary>
+                <p>{f.a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <Contato />
+      <Footer />
+
+      <a
+        href="#contato"
+        className={`b-sticky${sticky ? " on" : ""}`}
+        aria-hidden={!sticky}
+        tabIndex={sticky ? 0 : -1}
+      >
+        Quero meu diagnóstico gratuito
+      </a>
+
+      <EstiloSite />
+    </div>
   );
 }

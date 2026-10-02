@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Navbar } from "@/components/site/Navbar";
-import { Footer } from "@/components/site/Footer";
-import { ContactSection } from "@/components/site/ContactSection";
+import { EstiloSite, FONTE_PRELOAD } from "@/components/novo/Estilo";
+import { CaseCarousel, Contato, Footer, Header, Kicker, VITRINE } from "@/components/novo/Site";
 import { cases } from "@/lib/cases";
 
 export const Route = createFileRoute("/cases/")({
@@ -19,55 +18,52 @@ export const Route = createFileRoute("/cases/")({
         content: "Conheça os projetos de marca da Legacy BrandCo.",
       },
     ],
+    links: [FONTE_PRELOAD],
   }),
   component: CasesIndex,
 });
 
 function CasesIndex() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <Navbar />
-      <section className="container-page py-32 md:py-40">
-        <p className="section-label">Cases</p>
-        <h1 className="mt-8 max-w-3xl text-[34px] font-bold leading-[1.15] tracking-tight text-ink md:text-[56px] md:leading-[1.08]">
-          Marcas que construímos.
-        </h1>
-        <p className="mt-8 max-w-xl text-[17px] leading-[1.7] text-muted-foreground">
-          Cada projeto começa com diagnóstico e termina com uma marca pronta
-          para liderar.
-        </p>
+    <div className="lbc">
+      <Header />
+      <section className="b-sec tone-paper">
+        <div className="b-wrap">
+          <Kicker>Cases</Kicker>
+          <h1 className="b-d b-case-h1">Marcas que construímos</h1>
+          <p className="b-lead">
+            Cada projeto começa com diagnóstico e termina com uma marca pronta para liderar.
+          </p>
 
-        <div className="mt-24 grid gap-x-8 gap-y-16 md:grid-cols-2">
-          {cases.map((c) => (
-            <Link
-              key={c.slug}
-              to="/cases/$slug"
-              params={{ slug: c.slug }}
-              className="group flex flex-col"
-            >
-              <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-[8px] bg-[#ECE9E4] transition-opacity group-hover:opacity-90">
-                {c.heroImage ? (
-                  <img src={c.heroImage} alt={c.name} loading="lazy" className="h-full w-full object-cover" />
-                ) : (
-                  <span className="text-4xl font-semibold tracking-tight text-ink/40">
-                    {c.name}
-                  </span>
-                )}
-              </div>
-              <p className="mt-6 text-xl font-semibold text-ink">{c.name}</p>
-              <p className="mt-1 text-sm text-muted-foreground">{c.segment}</p>
-              <p className="mt-3 max-w-md text-[15px] leading-[1.7] text-ink/75">
-                {c.short}
-              </p>
-              <span className="mt-4 text-xs font-normal uppercase tracking-[0.18em] text-ink/70 group-hover:text-orange-brand">
-                Ver case →
-              </span>
-            </Link>
-          ))}
+          <div className="b-cases" style={{ marginTop: 48 }}>
+            {cases.map((c, i) => {
+              const vitrine = VITRINE.find((v) => v.slug === c.slug);
+              return (
+                <Link key={c.slug} to="/cases/$slug" params={{ slug: c.slug }} className="b-case">
+                  {vitrine ? (
+                    <CaseCarousel imgs={vitrine.imgs} nome={c.name} eager={i === 0} />
+                  ) : (
+                    <div className="b-static">
+                      {c.heroImage && <img src={c.heroImage} alt={c.name} loading="lazy" />}
+                    </div>
+                  )}
+                  <div className="b-case-txt">
+                    <p className="b-case-seg">{c.segment}</p>
+                    <h2 className="b-d" style={{ fontSize: 30, margin: "6px 0 12px" }}>
+                      {c.name}
+                    </h2>
+                    <p className="b-case-depois">{c.short}</p>
+                    <span className="b-case-mais">Ver case →</span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
         </div>
       </section>
-      <ContactSection />
+      <Contato titulo="Quer uma marca assim?" />
       <Footer />
+      <EstiloSite />
     </div>
   );
 }

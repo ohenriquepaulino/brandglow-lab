@@ -1,7 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { Navbar } from "@/components/site/Navbar";
-import { Footer } from "@/components/site/Footer";
-import { ContactSection } from "@/components/site/ContactSection";
+import { EstiloSite, FONTE_PRELOAD } from "@/components/novo/Estilo";
+import { Contato, Footer, Header, Kicker } from "@/components/novo/Site";
 import { cases, getCase } from "@/lib/cases";
 
 export const Route = createFileRoute("/cases/$slug")({
@@ -22,20 +21,21 @@ export const Route = createFileRoute("/cases/$slug")({
           { property: "og:description", content: loaderData.caseStudy.short },
         ]
       : [],
+    links: [FONTE_PRELOAD],
   }),
   notFoundComponent: () => (
-    <div className="min-h-screen bg-background text-foreground">
-      <Navbar />
-      <div className="container-page py-32 text-center">
-        <h1 className="text-3xl font-bold text-ink">Case não encontrado</h1>
-        <Link
-          to="/cases"
-          className="mt-6 inline-block text-sm text-ink underline underline-offset-4 hover:text-orange-brand"
-        >
-          Voltar para cases
-        </Link>
-      </div>
+    <div className="lbc">
+      <Header />
+      <section className="b-sec tone-paper">
+        <div className="b-wrap">
+          <h1 className="b-d b-h2">Case não encontrado</h1>
+          <Link to="/cases" className="b-link">
+            Voltar para os cases
+          </Link>
+        </div>
+      </section>
       <Footer />
+      <EstiloSite />
     </div>
   ),
   component: CasePage,
@@ -43,149 +43,89 @@ export const Route = createFileRoute("/cases/$slug")({
 
 function CasePage() {
   const { caseStudy: c } = Route.useLoaderData();
-  const others = cases.filter((x) => x.slug !== c.slug);
+  const outros = cases.filter((x) => x.slug !== c.slug);
+  const galeria = (c.gallery ?? []).filter((src) => src !== c.heroImage);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <Navbar />
+    <div className="lbc">
+      <Header />
 
-      {/* Header */}
-      <section className="container-page py-24 md:py-32">
-        <Link
-          to="/cases"
-          className="text-xs font-normal uppercase tracking-[0.18em] text-muted-foreground hover:text-ink"
-        >
-          ← Todos os cases
-        </Link>
-        <p className="mt-12 section-label">{c.segment}</p>
-        <h1 className="mt-6 max-w-4xl text-[40px] font-bold leading-[1.05] tracking-tight text-ink md:text-[56px]">
-          {c.name}
-        </h1>
-        <p className="mt-8 max-w-2xl text-[18px] leading-[1.7] text-muted-foreground">
-          {c.short}
-        </p>
-      </section>
-
-      {/* Hero visual */}
-      <section className="container-page">
-        <div className="flex aspect-[16/9] items-center justify-center overflow-hidden rounded-[8px] bg-[#ECE9E4]">
-          {c.heroImage ? (
-            <img src={c.heroImage} alt={c.name} loading="eager" className="h-full w-full object-cover" />
-          ) : (
-            <span className="text-6xl font-semibold tracking-tight text-ink/40">
-              {c.name}
-            </span>
+      <section className="b-sec tone-paper" style={{ paddingTop: 40 }}>
+        <div className="b-wrap">
+          <Link to="/cases" className="b-back">
+            ← Todos os cases
+          </Link>
+          <Kicker>{c.segment}</Kicker>
+          <h1 className="b-d b-case-h1">{c.name}</h1>
+          <p className="b-lead">{c.short}</p>
+          {c.heroImage && (
+            <div className="b-case-cover">
+              <img src={c.heroImage} alt={c.name} loading="eager" />
+            </div>
           )}
         </div>
       </section>
 
-      {/* Content blocks */}
-      <section className="container-page grid gap-16 py-32 md:grid-cols-[1fr_2fr] md:py-40">
-        <Block label="Contexto" body={c.context} />
-        <Block label="Desafio" body={c.challenge} />
-        <Block label="O que foi feito" body={c.delivery} />
-      </section>
-
-      {/* Gallery */}
-      <section className="border-t border-ink/10">
-        <div className="container-page py-32 md:py-40">
-          <div className="grid gap-12 md:grid-cols-[1fr_2fr]">
-            <p className="section-label">Resultado</p>
-            <h2 className="text-[28px] font-bold leading-tight tracking-tight text-ink md:text-[36px]">
-              Aplicações da marca.
-            </h2>
-          </div>
-
-          <div className="mx-auto mt-16 flex max-w-4xl flex-col gap-8 md:gap-12">
-            {(c.gallery && c.gallery.length > 0
-              ? c.gallery
-              : ([null, null, null, null] as (string | null)[])
-            ).map((src: string | null, i: number) => (
-              <div
-                key={i}
-                className="overflow-hidden rounded-[8px] bg-[#ECE9E4]"
-              >
-                {src ? (
-                  <img
-                    src={src}
-                    alt={`${c.name} — aplicação ${i + 1}`}
-                    loading="lazy"
-                    className="block h-auto w-full"
-                  />
-                ) : (
-                  <div className="aspect-[16/9]" />
-                )}
-              </div>
-            ))}
-          </div>
+      <section className="b-sec tone-surface">
+        <div className="b-wrap b-blocks">
+          <Bloco titulo="Contexto" texto={c.context} />
+          <Bloco titulo="Desafio" texto={c.challenge} />
+          <Bloco titulo="O que foi feito" texto={c.delivery} />
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="border-t border-ink/10">
-        <div className="container-page grid gap-10 py-32 md:grid-cols-[1.5fr_1fr] md:items-center md:py-40">
-          <h2 className="text-[32px] font-bold leading-[1.15] tracking-tight text-ink md:text-[44px]">
-            Quero uma marca assim.
-          </h2>
-          <div className="flex flex-col gap-4 md:items-end">
-            <a
-              href="/#contato"
-              className="inline-flex w-fit items-center justify-center rounded-[4px] bg-orange-brand px-7 py-3.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-            >
-              Começar meu projeto
-            </a>
-            <Link
-              to="/cases"
-              className="text-xs font-normal uppercase tracking-[0.18em] text-muted-foreground hover:text-ink"
-            >
-              Ver outros cases →
-            </Link>
+      {galeria.length > 0 && (
+        <section className="b-sec tone-paper">
+          <div className="b-wrap">
+            <Kicker>Resultado</Kicker>
+            <h2 className="b-d b-h2">Aplicações da marca</h2>
+            <div className="b-gallery">
+              {galeria.map((src, i) => (
+                <img
+                  key={src}
+                  src={src}
+                  alt={`${c.name} — aplicação ${i + 1}`}
+                  loading="lazy"
+                  decoding="async"
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      {/* Other cases */}
-      <section className="border-t border-ink/10">
-        <div className="container-page py-24">
-          <p className="section-label">Outros cases</p>
-          <div className="mt-10 grid gap-x-8 gap-y-12 md:grid-cols-2">
-            {others.map((o) => (
-              <Link
-                key={o.slug}
-                to="/cases/$slug"
-                params={{ slug: o.slug }}
-                className="group flex flex-col"
-              >
-                <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-[8px] bg-[#ECE9E4] transition-opacity group-hover:opacity-90">
-                  {o.heroImage ? (
-                    <img src={o.heroImage} alt={o.name} loading="lazy" className="h-full w-full object-cover" />
-                  ) : (
-                    <span className="text-3xl font-semibold tracking-tight text-ink/40">
-                      {o.name}
-                    </span>
-                  )}
+      <section className="b-sec tone-deep">
+        <div className="b-wrap">
+          <Kicker>Outros cases</Kicker>
+          <div className="b-cases">
+            {outros.map((o) => (
+              <Link key={o.slug} to="/cases/$slug" params={{ slug: o.slug }} className="b-case">
+                <div className="b-static">
+                  {o.heroImage && <img src={o.heroImage} alt={o.name} loading="lazy" />}
                 </div>
-                <p className="mt-5 text-lg font-semibold text-ink">{o.name}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{o.segment}</p>
+                <div className="b-case-txt">
+                  <p className="b-case-seg">{o.segment}</p>
+                  <h3 className="b-d">{o.name}</h3>
+                  <span className="b-case-mais">Ver case →</span>
+                </div>
               </Link>
             ))}
           </div>
         </div>
       </section>
 
-      <ContactSection />
+      <Contato titulo="Quero uma marca assim" />
       <Footer />
+      <EstiloSite />
     </div>
   );
 }
 
-function Block({ label, body }: { label: string; body: string }) {
+function Bloco({ titulo, texto }: { titulo: string; texto: string }) {
   return (
-    <>
-      <p className="section-label md:sticky md:top-24 md:self-start">{label}</p>
-      <div className="text-[17px] leading-[1.75] text-ink/85">
-        <p>{body}</p>
-      </div>
-    </>
+    <div className="b-block">
+      <Kicker>{titulo}</Kicker>
+      <p>{texto}</p>
+    </div>
   );
 }
