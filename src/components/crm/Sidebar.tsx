@@ -6,6 +6,7 @@ import {
   KanbanSquare,
   ListChecks,
   MessageCircle,
+  Video,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -13,6 +14,7 @@ const NAV_ITEMS = [
   { to: "/crm/tarefas", label: "Tarefas", icon: ListChecks },
   { to: "/crm/propostas", label: "Propostas", icon: FileText },
   { to: "/crm/videos", label: "Vídeos", icon: Clapperboard },
+  { to: "/crm/gravador", label: "Gravador", icon: Video },
   { to: "/crm/whatsapp", label: "WhatsApp", icon: MessageCircle },
   { to: "/crm/ab", label: "Teste A/B", icon: FlaskConical },
 ] as const;
