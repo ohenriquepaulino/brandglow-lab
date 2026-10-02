@@ -40,9 +40,19 @@ const FORM_PROPS = {
 
 // MOEWA: os assets originais têm 2 MB cada; as versões da proposta são leves.
 const MOEWA = (f: string) => `/proposta/cases/moewa/moewa-${f}.jpg`;
+const MEDCOPILOT = (f: string) => `/proposta/cases/medcopilot/medcopilot-${f}.jpg`;
 
 /** Os cases da home, com o slug da página de cada um (src/lib/cases.ts). */
 export const VITRINE = [
+  {
+    slug: "medcopilot",
+    imgs: ["fachada", "arquitetura", "palco", "campanha", "data", "apa"].map(MEDCOPILOT),
+    nome: "MedCopilot",
+    seg: "Tecnologia para a saúde",
+    antes: "Vários produtos, nenhuma marca que os unisse",
+    depois:
+      "Um hub de soluções: uma marca mãe que transmite confiança e submarcas prontas para cada novo produto.",
+  },
   {
     slug: "308-network",
     imgs: [n308Banner, n308Correndo, n308Metro, n308Bone, n308Cartao, n308Site].map((a) => a.url),

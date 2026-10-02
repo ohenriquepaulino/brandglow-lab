@@ -204,7 +204,12 @@ function Home() {
           <h2 className="b-d b-h2">Marcas que construímos</h2>
           <div className="b-cases">
             {VITRINE.map((c, i) => (
-              <Link key={c.slug} to="/cases/$slug" params={{ slug: c.slug }} className="b-case">
+              <Link
+                key={c.slug}
+                to="/cases/$slug"
+                params={{ slug: c.slug }}
+                className={`b-case${i === 0 ? " b-destaque" : ""}`}
+              >
                 <CaseCarousel imgs={c.imgs} nome={c.nome} eager={i === 0} />
                 <div className="b-case-txt">
                   <p className="b-case-seg">{c.seg}</p>

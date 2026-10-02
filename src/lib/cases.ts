@@ -57,6 +57,9 @@ import imgMoewaLogoTerracotta from "@/assets/moewa/moewa-logo-terracotta.png.ass
 import imgMoewaLogoOffwhite from "@/assets/moewa/moewa-logo-offwhite.png.asset.json";
 import imgMoewaPalette from "@/assets/moewa/moewa-palette.png.asset.json";
 
+// MedCopilot: imagens em public/ (exportadas da apresentação da identidade).
+const MEDCOPILOT = (f: string) => `/proposta/cases/medcopilot/medcopilot-${f}.jpg`;
+
 export type CaseStudy = {
   slug: string;
   name: string;
@@ -72,6 +75,35 @@ export type CaseStudy = {
 };
 
 export const cases: CaseStudy[] = [
+  {
+    slug: "medcopilot",
+    name: "MedCopilot",
+    segment: "Tecnologia para a saúde · Healthtech",
+    short:
+      "Arquitetura e identidade de uma healthtech fundada por médicos: uma marca mãe que transmite confiança e um sistema de submarcas pronto para crescer a cada novo produto.",
+    context:
+      "A MedCopilot nasceu em 2019, criada por médicos e um cientista de dados, com uma missão clara: usar a tecnologia para facilitar o trabalho de quem cuida e melhorar a vida de quem é cuidado. Em pouco tempo, a empresa já atuava em várias frentes ao mesmo tempo (gestão de dados, consultoria financeira, suporte à anestesia e educação médica), falando com médicos, enfermeiros, gestores de clínicas e hospitais e estudantes de medicina.",
+    challenge:
+      "Cada nova solução ganhava vida própria, e o risco era a MedCopilot parecer um amontoado de ferramentas soltas em vez de uma empresa sólida. Em saúde isso custa caro: antes de testar qualquer tecnologia, o profissional precisa confiar em quem está por trás dela. O desafio era construir uma marca que unisse todos os produtos sob a mesma credibilidade, comunicasse inovação sem perder a seriedade e recebesse os próximos lançamentos sem precisar ser refeita.",
+    delivery:
+      "Começamos pela estratégia: definimos o núcleo da marca (inovadora, colaborativa e confiável) e a tese de que a MedCopilot é um hub de soluções tecnológicas, e não um produto. Daí veio uma arquitetura endossada: a marca mãe, em preto e cinza, dá seriedade e assina tudo; cada solução vira uma marca filha com cor própria (Data, Anest, APA e EDU Copilot, entre outras), numa paleta aberta que já reserva espaço para o próximo produto. O símbolo traduz essa lógica: três blocos que sobem como uma escada e se ligam como módulos, com o M de Med, o C de Copilot e um círculo que remete à linguagem das ferramentas de inteligência artificial. Basta trocar a letra e a cor para nascer uma nova submarca, sempre reconhecível como parte da família.",
+    accent: "#121110",
+    accentText: "cream",
+    heroImage: MEDCOPILOT("fachada"),
+    gallery: [
+      MEDCOPILOT("arquitetura"),
+      MEDCOPILOT("marca"),
+      MEDCOPILOT("data-copilot"),
+      MEDCOPILOT("anest-copilot"),
+      MEDCOPILOT("edu-copilot"),
+      MEDCOPILOT("palco"),
+      MEDCOPILOT("campanha"),
+      MEDCOPILOT("site"),
+      MEDCOPILOT("edu"),
+      MEDCOPILOT("data"),
+      MEDCOPILOT("apa"),
+    ],
+  },
   {
     slug: "joana-co",
     name: "Joana Ulmer Co*",

@@ -25,6 +25,7 @@ export const CASES: CaseStudy[] = [
     segment: "Tecnologia em saúde",
     summary:
       "Pioneira em tecnologia para uma nova era de cuidados na saúde. Conecta-se com profissionais que valorizam soluções inteligentes e personalizadas. Deseja passar segurança, acelerar inovações, descomplicar o atendimento médico e cultivar colaborações significativas no setor da saúde.",
+    siteUrl: `${SITE}/cases/medcopilot`,
     images: [ASSET("cases/medcopilot.jpg")],
   },
   {

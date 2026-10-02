@@ -248,6 +248,7 @@ export function EstiloSite() {
         .b-case { color: var(--ink); }
         a.b-case { display: block; text-decoration: none; transition: transform .2s ease, box-shadow .2s ease; }
         a.b-case:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(17,17,17,0.10); }
+        .b-destaque .b-case-seg::before { content: "Novo case · "; color: var(--ink); font-weight: 600; }
         .b-case-mais { display: inline-block; margin-top: 14px; font-size: 14px; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; }
         .b-link { color: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; }
         .b-cta-row { gap: 16px 28px; flex-wrap: wrap; align-items: center; }
@@ -276,6 +277,10 @@ export function EstiloSite() {
           .b-big { font-size: 64px; }
           .b-case-h1 { font-size: 80px; }
           .b-gallery { gap: 24px; }
+          .b-cases > .b-destaque { grid-column: 1 / -1; display: grid; grid-template-columns: 1.7fr 1fr; align-items: center; }
+          .b-destaque .b-carousel, .b-destaque .b-static { aspect-ratio: 16/9; }
+          .b-destaque .b-case-txt { padding: 32px; align-self: center; }
+          .b-destaque h3, .b-destaque h2 { font-size: 44px !important; }
         }
         @media (min-width: 1024px) {
           .b-header { padding-block: 24px; }

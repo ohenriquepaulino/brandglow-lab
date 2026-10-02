@@ -39,7 +39,12 @@ function CasesIndex() {
             {cases.map((c, i) => {
               const vitrine = VITRINE.find((v) => v.slug === c.slug);
               return (
-                <Link key={c.slug} to="/cases/$slug" params={{ slug: c.slug }} className="b-case">
+                <Link
+                  key={c.slug}
+                  to="/cases/$slug"
+                  params={{ slug: c.slug }}
+                  className={`b-case${i === 0 ? " b-destaque" : ""}`}
+                >
                   {vitrine ? (
                     <CaseCarousel imgs={vitrine.imgs} nome={c.name} eager={i === 0} />
                   ) : (
