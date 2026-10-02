@@ -32,7 +32,7 @@ export const COLUNAS = [
   { id: "novo-lead", label: "Oportunidades", accent: "#D75631" },
   { id: "aguardando-resposta", label: "Aguardando resposta", accent: "#121110" },
   { id: "conversando", label: "Conversando", accent: "#121110" },
-  { id: "reuniao-agendada", label: "Reunião agendada", accent: "#121110" },
+  { id: "reuniao-agendada", label: "Reunião agendada/gravada", accent: "#121110" },
   { id: "fechamento", label: "Fechamento", accent: "#121110" },
   { id: "ganho", label: "Ganho", accent: "#CFFF87" },
   { id: "potencial-futuro", label: "Potencial futuro", accent: "#121110" },

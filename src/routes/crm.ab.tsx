@@ -197,7 +197,7 @@ function AbContent() {
           </div>
           <p className="text-xs leading-relaxed text-neutral-500">
             <b>Conversão</b> = leads ÷ visitantes únicos. <b>Qualificados</b> = leads que faturam
-            (os que marcam Lead no Meta). <b>Avançaram</b> = leads hoje em Reunião agendada,
+            (os que marcam Lead no Meta). <b>Avançaram</b> = leads hoje em Reunião agendada/gravada,
             Fechamento ou Ganho. Visitas de quem abriu este painel no mesmo navegador não entram na
             conta.
           </p>

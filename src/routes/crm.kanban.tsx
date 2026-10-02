@@ -304,7 +304,14 @@ function Column({
         style={{ borderTop: `3px solid ${accent}` }}
       >
         <div className="flex items-center justify-between">
-          <p className="text-xs font-semibold uppercase tracking-wide text-neutral-800">{label}</p>
+          {/* Nome longo (ex.: "Reunião agendada/gravada") em letra menor, para caber numa linha. */}
+          <p
+            className={`whitespace-nowrap font-semibold uppercase text-neutral-800 ${
+              label.length > 18 ? "text-[10.5px] tracking-normal" : "text-xs tracking-wide"
+            }`}
+          >
+            {label}
+          </p>
           <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-700">
             {count}
           </span>
