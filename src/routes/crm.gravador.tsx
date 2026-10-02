@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useCallback, useEffect, useRef, useState, type PointerEvent } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Circle,
   Download,
@@ -8,6 +8,7 @@ import {
   Monitor,
   MonitorOff,
   Pause,
+  PictureInPicture2,
   Play,
   RotateCcw,
   Square,
@@ -16,16 +17,13 @@ import {
 } from "lucide-react";
 import { crmLogout, isCrmAuthed } from "@/lib/crm-auth";
 import { CrmSidebar } from "@/components/crm/Sidebar";
+import { Gravador, navegadorSuporta, type Resultado } from "@/lib/gravador";
 import {
-  Gravador,
-  cantoPara,
-  dentroDaBolha,
-  limitarBolha,
-  navegadorSuporta,
-  type Canto,
-  type Resultado,
-  type Tamanho,
-} from "@/lib/gravador";
+  abrirCameraFlutuante,
+  formatarTempo,
+  suportaCameraFlutuante,
+  type CameraFlutuante,
+} from "@/lib/camera-flutuante";
 
 export const Route = createFileRoute("/crm/gravador")({
   ssr: false,
@@ -98,12 +96,16 @@ type Dispositivos = { cameras: MediaDeviceInfo[]; mics: MediaDeviceInfo[] };
 
 function GravadorContent() {
   const gravadorRef = useRef<Gravador | null>(null);
-  const palcoRef = useRef<HTMLDivElement | null>(null);
+  const previewRef = useRef<HTMLVideoElement | null>(null);
   const nivelRef = useRef<HTMLDivElement | null>(null);
-  const arrastandoRef = useRef<{ dx: number; dy: number } | null>(null);
+  const flutuanteRef = useRef<CameraFlutuante | null>(null);
+  const pararRef = useRef<() => void>(() => {});
 
   const [, setVersao] = useState(0);
-  const atualizar = useCallback(() => setVersao((v) => v + 1), []);
+  const atualizar = useCallback(() => {
+    setVersao((v) => v + 1);
+    flutuanteRef.current?.atualizar();
+  }, []);
 
   const [ativado, setAtivado] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
@@ -111,22 +113,20 @@ function GravadorContent() {
   const [camId, setCamId] = useState("");
   const [micId, setMicId] = useState("");
   const [contagem, setContagem] = useState<number | null>(null);
+  const [flutuanteAberta, setFlutuanteAberta] = useState(false);
   const [resultado, setResultado] = useState<(Resultado & { url: string; nome: string }) | null>(
     null,
   );
   const [baixado, setBaixado] = useState(false);
-  const [sobreBolha, setSobreBolha] = useState(false);
 
-  // Cria o motor e encaixa o canvas dele no palco.
   useEffect(() => {
     const g = new Gravador();
     g.onMudanca = atualizar;
+    g.onFonteEncerrada = () => pararRef.current();
     gravadorRef.current = g;
-    g.canvas.className = "block h-auto w-full";
-    palcoRef.current?.prepend(g.canvas);
     atualizar();
     return () => {
-      g.canvas.remove();
+      flutuanteRef.current?.fechar();
       g.destruir();
       gravadorRef.current = null;
     };
@@ -135,11 +135,26 @@ function GravadorContent() {
   const g = gravadorRef.current;
   const estado = g?.estado ?? "parado";
   const emGravacao = estado !== "parado";
+  const camera = g?.camera ?? null;
+  const tela = g?.tela ?? null;
+
+  // Prévia: a tela (ou a câmera, sem tela). Desligada durante a gravação para
+  // não gastar o computador à toa.
+  useEffect(() => {
+    const v = previewRef.current;
+    if (!v) return;
+    v.srcObject = emGravacao ? null : (tela ?? camera);
+  }, [tela, camera, emGravacao]);
+
+  // A janela flutuante acompanha a câmera ligada/desligada/trocada.
+  useEffect(() => {
+    flutuanteRef.current?.trocarCamera(camera);
+  }, [camera]);
 
   // Cronômetro na tela enquanto grava.
   useEffect(() => {
     if (!emGravacao) return;
-    const id = window.setInterval(atualizar, 250);
+    const id = window.setInterval(atualizar, 500);
     return () => window.clearInterval(id);
   }, [emGravacao, atualizar]);
 
@@ -202,6 +217,7 @@ function GravadorContent() {
 
   async function ativar() {
     if (!g) return;
+    g.acordarAudio();
     setErro(null);
     const falhas: string[] = [];
     try {
@@ -231,13 +247,50 @@ function GravadorContent() {
     }
   }
 
+  /** Abre a janela da câmera. Tem que vir direto de um clique. */
+  async function abrirFlutuante() {
+    if (!g?.camera || flutuanteRef.current) return;
+    try {
+      flutuanteRef.current = await abrirCameraFlutuante(
+        g.camera,
+        {
+          estado: () => gravadorRef.current?.estado ?? "parado",
+          duracaoMs: () => gravadorRef.current?.duracaoMs() ?? 0,
+          onPausar: () => gravadorRef.current?.pausar(),
+          onRetomar: () => gravadorRef.current?.retomar(),
+          onParar: () => pararRef.current(),
+        },
+        () => {
+          flutuanteRef.current = null;
+          setFlutuanteAberta(false);
+        },
+      );
+      setFlutuanteAberta(true);
+    } catch (e) {
+      setErro(
+        e instanceof DOMException && e.name === "NotAllowedError"
+          ? "O navegador bloqueou a janela da câmera. Clique em “Abrir câmera flutuante” e grave de novo."
+          : `Não deu para abrir a câmera flutuante: ${mensagemDeErro(e)}`,
+      );
+    }
+  }
+
+  function fecharFlutuante() {
+    flutuanteRef.current?.fechar();
+  }
+
   async function gravar() {
     if (!g) return;
+    g.acordarAudio();
+    // Com tela, a câmera só sai no vídeo se estiver na janela flutuante.
+    if (g.temTela && g.temCamera && !flutuanteRef.current) await abrirFlutuante();
     for (let n = 3; n > 0; n--) {
       setContagem(n);
+      flutuanteRef.current?.contagem(n);
       await new Promise((r) => window.setTimeout(r, 1000));
     }
     setContagem(null);
+    flutuanteRef.current?.contagem(null);
     try {
       g.iniciar();
     } catch (e) {
@@ -246,11 +299,14 @@ function GravadorContent() {
   }
 
   async function parar() {
-    if (!g) return;
-    const r = await g.parar();
+    const atual = gravadorRef.current;
+    if (!atual || atual.estado === "parado") return;
+    const r = await atual.parar();
+    flutuanteRef.current?.fechar();
     setBaixado(false);
     setResultado({ ...r, url: URL.createObjectURL(r.blob), nome: nomeDoArquivo(r.extensao) });
   }
+  pararRef.current = () => void parar();
 
   function descartar() {
     if (resultado && !baixado && !confirm("Descartar este vídeo sem baixar?")) return;
@@ -258,78 +314,25 @@ function GravadorContent() {
     setBaixado(false);
   }
 
-  // --- arrastar o círculo da câmera ---------------------------------------
-
-  function pontoNoQuadro(e: PointerEvent<HTMLDivElement>) {
-    const caixa = e.currentTarget.getBoundingClientRect();
-    return { x: (e.clientX - caixa.left) / caixa.width, y: (e.clientY - caixa.top) / caixa.height };
-  }
-
-  const bolhaVisivel = !!g && g.temTela && g.temCamera && g.cena.mostrarCamera;
-
-  function aoApertar(e: PointerEvent<HTMLDivElement>) {
-    if (!g || !bolhaVisivel) return;
-    const p = pontoNoQuadro(e);
-    if (!dentroDaBolha(p, g.cena)) return;
-    arrastandoRef.current = { dx: g.cena.bolha.x - p.x, dy: g.cena.bolha.y - p.y };
-    e.currentTarget.setPointerCapture(e.pointerId);
-    atualizar();
-  }
-
-  function aoMover(e: PointerEvent<HTMLDivElement>) {
-    if (!g || !bolhaVisivel) return;
-    const p = pontoNoQuadro(e);
-    const arraste = arrastandoRef.current;
-    if (arraste) {
-      g.cena.bolha = limitarBolha({ x: p.x + arraste.dx, y: p.y + arraste.dy }, g.cena.tamanho);
-      return;
-    }
-    const sobre = dentroDaBolha(p, g.cena);
-    if (sobre !== sobreBolha) setSobreBolha(sobre);
-  }
-
-  function aoSoltar(e: PointerEvent<HTMLDivElement>) {
-    if (!arrastandoRef.current) return;
-    arrastandoRef.current = null;
-    e.currentTarget.releasePointerCapture(e.pointerId);
-    atualizar();
-  }
-
-  function mudarTamanho(t: Tamanho) {
-    if (!g) return;
-    g.cena.tamanho = t;
-    g.cena.bolha = limitarBolha(g.cena.bolha, t);
-    atualizar();
-  }
-
-  function irParaCanto(c: Canto) {
-    if (!g) return;
-    g.cena.bolha = cantoPara(c, g.cena.tamanho);
-    atualizar();
-  }
-
-  const podeGravar = !!g && (g.temCamera || g.temTela) && contagem === null;
-  const cursor = arrastandoRef.current
-    ? "grabbing"
-    : bolhaVisivel && sobreBolha
-      ? "grab"
-      : "default";
+  const podeGravar = !!g && (g.temCamera || g.temTela) && contagem === null && !resultado;
+  const temFlutuante = suportaCameraFlutuante();
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
       <div className="space-y-4">
         <div
-          ref={palcoRef}
-          className="relative overflow-hidden rounded-lg border bg-neutral-900 select-none"
-          style={{ borderColor: BORDER, cursor, touchAction: "none" }}
-          onPointerDown={aoApertar}
-          onPointerMove={aoMover}
-          onPointerUp={aoSoltar}
-          onPointerCancel={aoSoltar}
-          onPointerLeave={() => setSobreBolha(false)}
+          className="relative overflow-hidden rounded-lg border bg-neutral-900"
+          style={{ borderColor: BORDER }}
         >
+          <video
+            ref={previewRef}
+            autoPlay
+            muted
+            playsInline
+            className="block aspect-video w-full bg-neutral-900 object-contain"
+          />
           {!ativado && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-neutral-900 p-6 text-center">
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center">
               <p className="max-w-sm text-sm text-neutral-300">
                 O navegador vai pedir permissão para usar a câmera e o microfone. Nada é enviado
                 para fora do seu computador.
@@ -342,29 +345,36 @@ function GravadorContent() {
               </button>
             </div>
           )}
+          {ativado && !emGravacao && !tela && !camera && (
+            <p className="absolute inset-0 flex items-center justify-center text-sm text-neutral-400">
+              Ligue a câmera ou compartilhe a tela
+            </p>
+          )}
+          {emGravacao && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-center text-white">
+              <span className="flex items-center gap-2 text-sm font-medium">
+                <span
+                  className="h-2.5 w-2.5 rounded-full"
+                  style={{ background: estado === "gravando" ? "#EF4444" : "#A8A29E" }}
+                />
+                {estado === "gravando" ? "Gravando" : "Pausado"}
+              </span>
+              <span className="text-4xl font-semibold tabular-nums">
+                {formatarTempo(g?.duracaoMs() ?? 0)}
+              </span>
+              {flutuanteAberta && (
+                <span className="max-w-xs text-xs text-neutral-400">
+                  Pausar e parar também estão na janela da câmera (passe o mouse em cima dela).
+                </span>
+              )}
+            </div>
+          )}
           {contagem !== null && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+            <div className="absolute inset-0 flex items-center justify-center bg-black/60">
               <span className="text-8xl font-semibold text-white">{contagem}</span>
             </div>
           )}
-          {emGravacao && (
-            <div className="pointer-events-none absolute left-3 top-3 flex items-center gap-2 rounded-full bg-black/60 px-3 py-1 text-xs font-medium text-white">
-              <span
-                className="h-2 w-2 rounded-full"
-                style={{ background: estado === "gravando" ? "#EF4444" : "#A8A29E" }}
-              />
-              {estado === "gravando" ? "Gravando" : "Pausado"} ·{" "}
-              {formatarTempo(g?.duracaoMs() ?? 0)}
-            </div>
-          )}
         </div>
-
-        {bolhaVisivel && (
-          <p className="text-xs text-neutral-500">
-            Arraste o círculo da câmera no quadro acima para mudar de lugar, também durante a
-            gravação.
-          </p>
-        )}
 
         {erro && (
           <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
@@ -407,13 +417,43 @@ function GravadorContent() {
             </p>
           </section>
         )}
+
+        {!resultado && (
+          <section
+            className="rounded-lg border bg-white p-5 text-xs leading-relaxed text-neutral-600"
+            style={{ borderColor: BORDER }}
+          >
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-neutral-500">
+              Como gravar
+            </p>
+            <ol className="list-decimal space-y-1 pl-4">
+              <li>Ative câmera e microfone.</li>
+              <li>
+                Clique em <strong>Compartilhar tela</strong> e escolha <strong>Tela inteira</strong>{" "}
+                (o monitor onde vai estar a apresentação).
+              </li>
+              <li>
+                Clique em <strong>Gravar</strong>. A câmera abre numa janelinha por cima de tudo:
+                arraste para onde quiser e puxe a borda para mudar o tamanho, também durante a
+                gravação.
+              </li>
+              <li>
+                Vá para a apresentação. Para pausar ou parar, passe o mouse na janela da câmera.
+              </li>
+            </ol>
+            <p className="mt-2 text-neutral-500">
+              Tudo o que aparecer nesse monitor entra no vídeo, inclusive notificações. No Mac, o
+              som do computador não entra ao gravar a tela inteira; a sua voz entra normalmente.
+            </p>
+          </section>
+        )}
       </div>
 
       <aside className="space-y-4">
         <Painel titulo="Gravação">
           {!emGravacao ? (
             <button
-              disabled={!podeGravar || !!resultado}
+              disabled={!podeGravar}
               onClick={() => void gravar()}
               className="flex w-full items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-40"
               style={{ background: "#DC2626" }}
@@ -452,39 +492,35 @@ function GravadorContent() {
               Baixe ou descarte o vídeo anterior para gravar outro.
             </p>
           )}
-          {!emGravacao && !resultado && (
-            <p className="mt-3 text-xs leading-relaxed text-neutral-500">
-              Compartilhe a aba da apresentação, clique em Gravar e vá para ela. Para mover a câmera
-              ou parar, volte para esta aba.
+          {!emGravacao && !resultado && !g?.temTela && g?.temCamera && (
+            <p className="mt-2 text-xs text-neutral-500">
+              Sem tela compartilhada, grava só a câmera.
             </p>
           )}
         </Painel>
 
         <Painel titulo="Tela">
-          {g?.temTela ? (
+          {tela ? (
             <div className="space-y-2">
               <p className="text-xs text-neutral-600">
-                Compartilhando.{" "}
-                {g.temAudioDaTela
-                  ? "O som da aba está entrando na gravação."
-                  : "Sem som da aba — para gravar o som, compartilhe uma aba e marque “Compartilhar áudio”."}
+                Compartilhando.
+                {g?.temAudioDaTela && " O som da tela também entra na gravação."}
               </p>
-              <div className="flex gap-2">
-                <BotaoSec onClick={() => void compartilhar()}>
-                  <Monitor size={16} /> Trocar
-                </BotaoSec>
-                <BotaoSec onClick={() => g.pararTela()}>
-                  <MonitorOff size={16} /> Parar
-                </BotaoSec>
-              </div>
+              {!emGravacao && (
+                <div className="flex gap-2">
+                  <BotaoSec onClick={() => void compartilhar()}>
+                    <Monitor size={16} /> Trocar
+                  </BotaoSec>
+                  <BotaoSec onClick={() => g?.pararTela()}>
+                    <MonitorOff size={16} /> Parar
+                  </BotaoSec>
+                </div>
+              )}
             </div>
           ) : (
-            <BotaoSec onClick={() => void compartilhar()} disabled={!ativado}>
+            <BotaoSec onClick={() => void compartilhar()} disabled={!ativado || emGravacao}>
               <Monitor size={16} /> Compartilhar tela
             </BotaoSec>
-          )}
-          {!g?.temTela && (
-            <p className="mt-2 text-xs text-neutral-500">Sem tela, a câmera ocupa o quadro todo.</p>
           )}
         </Painel>
 
@@ -510,7 +546,7 @@ function GravadorContent() {
               </select>
               <BotaoIcone
                 ativo={!!g?.temCamera}
-                disabled={!ativado}
+                disabled={!ativado || (emGravacao && !g?.temTela)}
                 titulo={g?.temCamera ? "Desligar câmera" : "Ligar câmera"}
                 onClick={() =>
                   g?.temCamera
@@ -521,51 +557,18 @@ function GravadorContent() {
                 {g?.temCamera ? <Video size={16} /> : <VideoOff size={16} />}
               </BotaoIcone>
             </div>
-
-            <label className="flex items-center gap-2 text-xs text-neutral-700">
-              <input
-                type="checkbox"
-                checked={g?.cena.mostrarCamera ?? true}
-                onChange={(e) => {
-                  if (!g) return;
-                  g.cena.mostrarCamera = e.target.checked;
-                  atualizar();
-                }}
-              />
-              Mostrar câmera no vídeo
-            </label>
-
-            <div>
-              <p className="mb-1.5 text-xs text-neutral-500">Tamanho do círculo</p>
-              <div className="flex gap-1">
-                {(["p", "m", "g"] as const).map((t) => (
-                  <Opcao key={t} ativo={g?.cena.tamanho === t} onClick={() => mudarTamanho(t)}>
-                    {t.toUpperCase()}
-                  </Opcao>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <p className="mb-1.5 text-xs text-neutral-500">Levar para o canto</p>
-              <div className="grid w-24 grid-cols-2 gap-1">
-                {(["sup-esq", "sup-dir", "inf-esq", "inf-dir"] as const).map((c) => (
-                  <button
-                    key={c}
-                    title={NOME_CANTO[c]}
-                    onClick={() => irParaCanto(c)}
-                    className="flex h-8 items-center rounded border bg-white p-1 hover:bg-neutral-50"
-                    style={{
-                      borderColor: BORDER,
-                      justifyContent: c.endsWith("esq") ? "flex-start" : "flex-end",
-                      alignItems: c.startsWith("sup") ? "flex-start" : "flex-end",
-                    }}
-                  >
-                    <span className="h-2.5 w-2.5 rounded-full bg-neutral-700" />
-                  </button>
-                ))}
-              </div>
-            </div>
+            {temFlutuante && (
+              <BotaoSec
+                disabled={!g?.temCamera}
+                onClick={() => (flutuanteAberta ? fecharFlutuante() : void abrirFlutuante())}
+              >
+                <PictureInPicture2 size={16} />
+                {flutuanteAberta ? "Fechar câmera flutuante" : "Abrir câmera flutuante"}
+              </BotaoSec>
+            )}
+            <p className="text-xs text-neutral-500">
+              Abra antes de gravar para posicionar a janela. Ela abre sozinha ao clicar em Gravar.
+            </p>
           </div>
         </Painel>
 
@@ -609,32 +612,10 @@ function GravadorContent() {
             />
           </div>
         </Painel>
-
-        <Painel titulo="Assinatura">
-          <label className="flex items-center gap-2 text-xs text-neutral-700">
-            <input
-              type="checkbox"
-              checked={g?.cena.assinatura ?? true}
-              onChange={(e) => {
-                if (!g) return;
-                g.cena.assinatura = e.target.checked;
-                atualizar();
-              }}
-            />
-            Escrever “Legacy BrandCo.” no canto do vídeo
-          </label>
-        </Painel>
       </aside>
     </div>
   );
 }
-
-const NOME_CANTO: Record<Canto, string> = {
-  "sup-esq": "Canto superior esquerdo",
-  "sup-dir": "Canto superior direito",
-  "inf-esq": "Canto inferior esquerdo",
-  "inf-dir": "Canto inferior direito",
-};
 
 function Painel({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
@@ -660,7 +641,7 @@ function BotaoSec({
     <button
       onClick={onClick}
       disabled={disabled}
-      className="flex flex-1 items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-50 disabled:opacity-40"
+      className="flex w-full flex-1 items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-50 disabled:opacity-40"
       style={{ borderColor: BORDER }}
     >
       {children}
@@ -699,30 +680,6 @@ function BotaoIcone({
   );
 }
 
-function Opcao({
-  children,
-  onClick,
-  ativo,
-}: {
-  children: React.ReactNode;
-  onClick: () => void;
-  ativo: boolean;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className="h-8 w-10 rounded-md border text-xs font-semibold"
-      style={{
-        borderColor: ativo ? "#121110" : BORDER,
-        background: ativo ? "#121110" : "white",
-        color: ativo ? "white" : "#57534E",
-      }}
-    >
-      {children}
-    </button>
-  );
-}
-
 function mensagemDeErro(e: unknown) {
   if (e instanceof DOMException) {
     if (e.name === "NotAllowedError")
@@ -733,14 +690,6 @@ function mensagemDeErro(e: unknown) {
     if (e.name === "OverconstrainedError") return "Esse dispositivo não está mais disponível.";
   }
   return e instanceof Error ? e.message : String(e);
-}
-
-function formatarTempo(ms: number) {
-  const s = Math.floor(ms / 1000);
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  const seg = String(s % 60).padStart(2, "0");
-  return h > 0 ? `${h}:${String(m).padStart(2, "0")}:${seg}` : `${m}:${seg}`;
 }
 
 function formatarTamanho(bytes: number) {
