@@ -1,3 +1,5 @@
+import { telefoneInternacional } from "./telefone";
+
 export const CRM_USER = "legacybrandco";
 export const CRM_PASS = "Henrique05!!.";
 
@@ -97,9 +99,7 @@ export function whatsappDigits(value: string): string {
 }
 
 export function whatsappHref(value: string): string {
-  const digits = whatsappDigits(value);
-  const withCountry = digits.startsWith("55") ? digits : `55${digits}`;
-  return `https://wa.me/${withCountry}`;
+  return `https://wa.me/${telefoneInternacional(value)}`;
 }
 
 export function instagramHandle(value: string): string {

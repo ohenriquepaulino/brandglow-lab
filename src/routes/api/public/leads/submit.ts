@@ -3,11 +3,18 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { agendarMensagensDoLead } from "@/lib/whatsapp.server";
 import { criarTaskDoLead } from "@/lib/tasks.server";
+import { telefoneInternacional, telefoneValido } from "@/lib/telefone";
 import { leadSignal } from "@/lib/lead-signal";
 
 const LeadSchema = z.object({
   nome: z.string().trim().min(2).max(100),
-  whatsapp: z.string().trim().min(10).max(20),
+  // Brasil: "(11) 98888-7777", celular com DDD válido e o 9. Fora: "+351 912345678".
+  whatsapp: z
+    .string()
+    .trim()
+    .min(8)
+    .max(24)
+    .refine(telefoneValido, "WhatsApp inválido"),
   instagram: z.string().trim().max(40).nullish(),
   faturamento: z.string().trim().min(1).max(80),
   profissao: z.string().trim().max(80).nullish(),
@@ -93,8 +100,7 @@ async function sendMetaLead(
       return;
     }
     const cookies = request.headers.get("cookie");
-    const digits = lead.whatsapp.replace(/\D/g, "");
-    const phoneE164 = digits.length >= 10 ? `55${digits}` : digits;
+    const phoneE164 = telefoneInternacional(lead.whatsapp);
     const userData: Record<string, unknown> = {
       client_user_agent: request.headers.get("user-agent") ?? undefined,
       client_ip_address:

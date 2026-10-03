@@ -3,6 +3,17 @@ import { useNavigate } from "@tanstack/react-router";
 import { UTM_KEYS, captureUtmsFromUrl, type UtmData } from "@/lib/utm";
 import { PrivacyButton } from "@/components/site/PrivacyDialog";
 import { leadSignal, saveLeadFaturamento } from "@/lib/lead-signal";
+import {
+  BRASIL,
+  PAISES,
+  erroBR,
+  erroExterior,
+  limparBR,
+  mascaraBR,
+  telefoneLegivel,
+  telefoneParaEnvio,
+  type Pais,
+} from "@/lib/telefone";
 
 const PROFISSOES = [
   "Advocacia",
@@ -38,15 +49,6 @@ function normalize(value: string) {
     .toLowerCase();
 }
 
-
-function maskPhone(value: string) {
-  const digits = value.replace(/\D/g, "").slice(0, 11);
-  if (digits.length <= 2) return digits.length ? `(${digits}` : "";
-  if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
-  if (digits.length <= 10)
-    return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
-  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
-}
 
 function maskInstagram(value: string) {
   const cleaned = value.replace(/[^A-Za-z0-9._]/g, "").slice(0, 30);
@@ -104,7 +106,8 @@ export function ContactSection({
   const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false);
   const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
+  const [pais, setPais] = useState<Pais>(BRASIL);
+  const [phone, setPhone] = useState(""); // só dígitos (sem o código do país)
   const [instagram, setInstagram] = useState("@");
   const [revenue, setRevenue] = useState("");
   const [profession, setProfession] = useState("");
@@ -118,10 +121,8 @@ export function ContactSection({
   }, []);
 
   const nameValid = useMemo(() => name.trim().length >= 2, [name]);
-  const phoneValid = useMemo(
-    () => phone.replace(/\D/g, "").length >= 10,
-    [phone],
-  );
+  const phoneError = pais.iso === "BR" ? erroBR(phone) : erroExterior(phone);
+  const phoneValid = phoneError === null;
   const instagramValid = useMemo(
     () => hideInstagram || instagram.replace(/[^A-Za-z0-9._]/g, "").length >= 2,
     [hideInstagram, instagram],
@@ -166,7 +167,7 @@ export function ContactSection({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           nome: name.trim(),
-          whatsapp: phone,
+          whatsapp: telefoneParaEnvio(pais, phone),
           instagram: hideInstagram ? null : instagram,
           faturamento: revenue,
           profissao: showProfession ? profession.trim() : null,
@@ -266,25 +267,17 @@ export function ContactSection({
                     aria-invalid={attempted && !nameValid}
                   />
                 </Field>
-                <Field
-                  label="WhatsApp"
-                  error={attempted && !phoneValid ? "Informe um WhatsApp válido" : undefined}
-                >
-                  <input
-                    required
-                    type="tel"
-                    name="phone"
-                    inputMode="numeric"
-                    value={phone}
-                    onChange={(e) => setPhone(maskPhone(e.target.value))}
-                    maxLength={16}
-                    pattern="\(\d{2}\) \d{4,5}-\d{4}"
-                    autoComplete="tel-national"
-                    className={inputClass(phoneValid || !attempted)}
-                    placeholder="(00) 00000-0000"
-                    aria-invalid={attempted && !phoneValid}
-                  />
-                </Field>
+                <PhoneField
+                  pais={pais}
+                  digitos={phone}
+                  erro={phoneError}
+                  tentouEnviar={attempted}
+                  onPais={(p) => {
+                    setPais(p);
+                    setPhone("");
+                  }}
+                  onDigitos={setPhone}
+                />
                 {!hideInstagram && (
                   <Field
                     label="@ do Instagram"
@@ -451,6 +444,51 @@ export function ContactSection({
           background-repeat: no-repeat;
           padding-right: 2.5rem;
         }
+        .phone-wrap {
+          display: flex;
+          align-items: stretch;
+          width: 100%;
+          border: 1px solid #d0cec9;
+          border-radius: 10px;
+          transition: border-color .2s;
+          background: transparent;
+        }
+        .phone-wrap:focus-within { border-color: #121110; }
+        .phone-wrap.input-error { border-color: #D75631; background: rgba(215,86,49,0.04); }
+        .phone-pais {
+          position: relative;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 0 10px 0 12px;
+          border-right: 1px solid #d0cec9;
+          font-size: 15px;
+          color: #121110;
+          white-space: nowrap;
+        }
+        .phone-pais select {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          opacity: 0;
+          cursor: pointer;
+          font-size: 16px;
+        }
+        .phone-wrap input {
+          flex: 1;
+          min-width: 0;
+          border: 0;
+          outline: none;
+          background: transparent;
+          color: #121110;
+          padding: 0.85rem 1rem 0.85rem 0.75rem;
+          font: inherit;
+          font-size: 15px;
+        }
+        .phone-wrap input::placeholder { color: #9c9a94; }
+        .phone-ok { font-size: 12px; line-height: 1.3; color: #2f7d32; }
+        .phone-ok b { font-weight: 600; white-space: nowrap; }
+        .phone-dica { font-size: 12px; line-height: 1.3; color: #8a8882; }
         .suggest-wrap { position: relative; }
         .suggest-list {
           position: absolute;
@@ -501,6 +539,97 @@ function Field({
       {children}
       {error && <span className="field-error">{error}</span>}
     </label>
+  );
+}
+
+/**
+ * WhatsApp com o país fixo na frente (Brasil, +55, já escolhido). A pessoa
+ * digita só DDD + número. Se colar/digitar o 55 ou o 0 da operadora, sai
+ * sozinho; número fora do padrão de celular não passa. Quando o número fica
+ * válido, mostra por extenso para a pessoa conferir.
+ */
+function PhoneField({
+  pais,
+  digitos,
+  erro,
+  tentouEnviar,
+  onPais,
+  onDigitos,
+}: {
+  pais: Pais;
+  digitos: string;
+  erro: string | null;
+  tentouEnviar: boolean;
+  onPais: (p: Pais) => void;
+  onDigitos: (d: string) => void;
+}) {
+  const [saiu, setSaiu] = useState(false);
+  const br = pais.iso === "BR";
+  // O "55 no lugar do DDD" aparece na hora; os outros erros, ao sair do campo
+  // ou ao tentar enviar (para não brigar com quem ainda está digitando).
+  const erro55 = !!erro && erro.includes("55 do país");
+  const mostrarErro = !!erro && (tentouEnviar || (saiu && digitos.length > 0) || erro55);
+
+  return (
+    <div className="flex flex-col gap-2">
+      <label
+        htmlFor="lbc-whatsapp"
+        className="text-[11px] font-normal uppercase tracking-[0.18em] text-muted-foreground"
+      >
+        WhatsApp
+      </label>
+      <div className={`phone-wrap ${mostrarErro ? "input-error" : ""}`}>
+        <div className="phone-pais">
+          <span aria-hidden="true">
+            {pais.bandeira} +{pais.ddi}
+          </span>
+          <svg aria-hidden="true" width="10" height="6" viewBox="0 0 10 6">
+            <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" fill="none" />
+          </svg>
+          {/* select nativo por cima: no celular abre a lista do próprio sistema */}
+          <select
+            aria-label="País do WhatsApp"
+            value={pais.iso}
+            onChange={(e) => onPais(PAISES.find((p) => p.iso === e.target.value) ?? BRASIL)}
+          >
+            {PAISES.map((p) => (
+              <option key={p.iso} value={p.iso}>
+                {p.bandeira} {p.nome} (+{p.ddi})
+              </option>
+            ))}
+          </select>
+        </div>
+        <input
+          id="lbc-whatsapp"
+          required
+          type="tel"
+          name="phone"
+          inputMode="tel"
+          value={br ? mascaraBR(digitos) : digitos}
+          onChange={(e) => {
+            setSaiu(false);
+            onDigitos(br ? limparBR(e.target.value) : e.target.value.replace(/\D/g, "").slice(0, 15));
+          }}
+          onBlur={() => setSaiu(true)}
+          maxLength={20}
+          autoComplete={br ? "tel-national" : "tel"}
+          placeholder={br ? "(11) 98888-7777" : "Número com código de área"}
+          aria-invalid={mostrarErro}
+          aria-describedby="lbc-whatsapp-ajuda"
+        />
+      </div>
+      <span id="lbc-whatsapp-ajuda" aria-live="polite">
+        {mostrarErro ? (
+          <span className="field-error">{erro}</span>
+        ) : !erro ? (
+          <span className="phone-ok">
+            ✓ Vamos te chamar no WhatsApp <b>{telefoneLegivel(pais, digitos)}</b>
+          </span>
+        ) : br ? (
+          <span className="phone-dica">Só DDD + número. O +55 já está aí.</span>
+        ) : null}
+      </span>
+    </div>
   );
 }
 

@@ -35,6 +35,7 @@ import {
   type VideoSessao,
 } from "@/lib/videos-api";
 import { formatTempo, percentual, trechos, videoLinkUrl, youtubeId, youtubeThumb } from "@/lib/video";
+import { telefoneInternacional } from "@/lib/telefone";
 
 export const Route = createFileRoute("/crm/videos")({
   ssr: false,
@@ -621,9 +622,8 @@ function NovoLink({
 // ─── Linha do link ───────────────────────────────────────────────────────────
 
 function whatsappDoLead(lead: Lead | null, url: string) {
-  const tel = lead?.whatsapp?.replace(/\D/g, "");
-  if (!lead || !tel) return null;
-  const numero = tel.length <= 11 ? `55${tel}` : tel;
+  if (!lead || !lead.whatsapp?.replace(/\D/g, "")) return null;
+  const numero = telefoneInternacional(lead.whatsapp);
   const primeiro = lead.nome.trim().split(/\s+/)[0];
   return `https://wa.me/${numero}?text=${encodeURIComponent(
     `Oi, ${primeiro}! Gravei um vídeo explicando tudo pra você: ${url}`,

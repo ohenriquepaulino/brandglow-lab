@@ -4,6 +4,7 @@
 // Uma instância só (o número da Legacy). Nome fixo, trocável por
 // EVOLUTION_INSTANCE se um dia precisar.
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { telefoneInternacional } from "@/lib/telefone";
 
 const TIMEOUT_MS = 10_000;
 
@@ -100,10 +101,9 @@ export async function desconectar() {
   await evo("/instance/logout/{instance}", { method: "DELETE" });
 }
 
-/** "(11) 98888-7777" -> "5511988887777". */
+/** "(11) 98888-7777" -> "5511988887777"; "+351 912345678" -> "351912345678". */
 export function normalizarTelefone(raw: string): string {
-  const digits = raw.replace(/\D/g, "");
-  return digits.length <= 11 ? `55${digits}` : digits;
+  return telefoneInternacional(raw);
 }
 
 export function montarMensagem(template: string, nome: string): string {
