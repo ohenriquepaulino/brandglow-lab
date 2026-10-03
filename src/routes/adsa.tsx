@@ -335,8 +335,10 @@ function AdsPage() {
           scroll-behavior: smooth;
         }
         .ads-page strong { font-weight: 600; color: inherit; }
-        /* Selo do Lovable (injetado na publicação) só some aqui: este <style>
-           existe apenas enquanto o /ads está na tela. */
+        /* Selo do Lovable (injetado na publicação) só some aqui: este bloco de
+           estilo existe apenas enquanto o /ads está na tela. Nunca escrever
+           tag HTML dentro deste CSS: o servidor escapa e a página quebra na
+           hidratação (erro React #418), o que jogava a tela para o fim. */
         #lovable-badge { display: none !important; }
         .ads-container {
           max-width: 1200px;
