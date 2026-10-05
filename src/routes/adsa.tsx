@@ -19,13 +19,13 @@ import print5 from "@/assets/ads/IMG_1697.webp.asset.json";
 export const Route = createFileRoute("/adsa")({
   head: () => ({
     meta: [
-      { title: "Diagnóstico de marca | Legacy BrandCo." },
+      { title: "Estratégia e identidade visual | Legacy BrandCo." },
       {
         name: "description",
         content:
-          "Consultoria de estratégia de marca e identidade visual. Preencha o formulário e receba um diagnóstico da sua marca.",
+          "Consultoria de estratégia de marca e identidade visual. Preencha o formulário e marque uma conversa sobre o projeto da sua marca.",
       },
-      { property: "og:title", content: "Diagnóstico de marca | Legacy BrandCo." },
+      { property: "og:title", content: "Estratégia e identidade visual | Legacy BrandCo." },
       {
         property: "og:description",
         content: "Estratégia de marca e identidade visual para negócios que já entregam resultado.",
@@ -69,8 +69,8 @@ const PASSOS = [
   { n: "02", t: "Analisamos seu perfil", d: "Chegamos na conversa sabendo do seu negócio." },
   {
     n: "03",
-    t: "Diagnóstico de 25 min",
-    d: "Por vídeo. Mostramos onde sua marca perde valor e o que resolver primeiro, contratando ou não.",
+    t: "Conversa de 25 min",
+    d: "Por vídeo. Entendemos o momento da sua marca, mostramos como trabalhamos e o investimento do projeto.",
   },
 ];
 
@@ -125,20 +125,22 @@ function Label({ children }: { children: React.ReactNode }) {
   return <p className="ads-label">{children}</p>;
 }
 
-// Mesmo formulário e mesma oferta do /adsb: o teste compara a página, não a oferta.
+// Mesmo formulário do /adsb, mas com outra oferta (desde 2026-10-05): conversa
+// sobre o projeto com o preço de partida à vista, no lugar de "diagnóstico
+// gratuito". O teste A/B passa a medir também se isso qualifica os leads.
 function FormSlot() {
   return (
     <div className="ads-card ads-form-slot">
-      <p className="ads-form-title">Diagnóstico gratuito</p>
-      <p className="ads-form-sub">25 minutos por vídeo, sem custo.</p>
+      <p className="ads-form-title">Converse sobre o seu projeto</p>
+      <p className="ads-form-sub">Projetos a partir de R$ 5 mil · 25 min por vídeo</p>
       <ContactSection
         redirectTo="/obrigado"
         redirectToNoRevenue="/tks"
         hideInstagram
         showProfession
         revenueLabel="Faturamento mensal da empresa"
-        ctaLabel="Quero meu diagnóstico"
-        ctaNote="Gratuito · 25 min por vídeo · resposta em até 1 dia útil"
+        ctaLabel="Quero conversar sobre o projeto"
+        ctaNote="Conversa sem custo · 25 min por vídeo · resposta em até 1 dia útil"
       />
     </div>
   );
@@ -203,7 +205,7 @@ function AdsPage() {
           <div className="ads-container">
             <Label>COMO FUNCIONA</Label>
             <h2 className="ads-h2">
-              Três passos até o seu <strong>diagnóstico</strong>
+              Três passos até a sua <strong>conversa</strong>
             </h2>
             <ol className="ads-steps">
               {PASSOS.map((p) => (
@@ -265,7 +267,7 @@ function AdsPage() {
             </div>
             <div className="ads-cta-row">
               <a href="#formulario" className="ads-cta">
-                Quero meu diagnóstico
+                Quero conversar sobre o projeto
               </a>
             </div>
           </div>
@@ -295,13 +297,14 @@ function AdsPage() {
         <section id="formulario" className="ads-section ads-last">
           <div className="ads-container ads-hero-grid">
             <div>
-              <Label>DIAGNÓSTICO</Label>
+              <Label>PRÓXIMO PASSO</Label>
               <h2 className="ads-h2">
                 Vamos olhar sua marca <strong>de perto</strong>.
               </h2>
               <p className="ads-body ads-measure">
                 Preencha o formulário. Nossa equipe analisa seu perfil e entra em contato em{" "}
-                <strong>até 1 dia útil</strong> para agendar.
+                <strong>até 1 dia útil</strong> para agendar. Projetos a partir de{" "}
+                <strong>R$ 5 mil</strong>.
               </p>
             </div>
             <FormSlot />
@@ -324,7 +327,7 @@ function AdsPage() {
         aria-hidden={!sticky}
         tabIndex={sticky ? 0 : -1}
       >
-        Quero meu diagnóstico gratuito
+        Quero conversar sobre o projeto
       </a>
 
       <style>{`
