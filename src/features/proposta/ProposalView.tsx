@@ -414,41 +414,106 @@ export default function ProposalView({
       </Slide>
 
       {/* O QUE FAZEMOS */}
-      <Slide id="o-que-fazemos" chap="o-que-fazemos" tone="deep">
+      <Slide id="o-que-fazemos" chap="o-que-fazemos" tone="deep" className="lbc-what">
         <p className="lbc-kicker">
           <b>O que fazemos</b>
         </p>
         <h2 className="lbc-d lbc-h1">
           Estratégia de marca
-          <br />e Identidade Visual
+          <br />e <span className="hl">Identidade Visual</span>
         </h2>
-        <p className="lbc-promise">
-          Nós criamos <strong>estrategicamente o seu posicionamento de marca</strong> no mercado,
-          construímos a sua <strong>base de comunicação</strong> e destacamos o seu{" "}
-          <strong>diferencial de atuação</strong>.
+        <ol className="lbc-what-list">
+          <li>
+            <span className="n">01</span>
+            <b>Posicionamos a sua marca no mercado</b>
+            <p>
+              Definimos o seu <strong>público</strong>, o seu <strong>diferencial</strong> e como
+              conquistar o <strong>cliente ideal</strong>.
+            </p>
+          </li>
+          <li>
+            <span className="n">02</span>
+            <b>Organizamos a sua comunicação</b>
+            <p>
+              Para você saber <strong>o que falar</strong>, <strong>para quem</strong> e{" "}
+              <strong>de que forma</strong>.
+            </p>
+          </li>
+          <li>
+            <span className="n">03</span>
+            <b>Aumentamos a percepção de valor do seu serviço</b>
+            <p>
+              Para o cliente certo chegar <strong>disposto a pagar mais</strong>.
+            </p>
+          </li>
+        </ol>
+      </Slide>
+
+      {/* COMO FAZEMOS */}
+      <Slide chap="o-que-fazemos" tone="surface" className="lbc-how">
+        <p className="lbc-kicker">
+          <b>Como fazemos</b>
         </p>
-        <div className="lbc-flow" aria-label="Do posicionamento à identidade visual">
-          <div>
+        <h2 className="lbc-d lbc-h2">
+          Primeiro a estratégia,
+          <br />
+          <span className="hl">depois o visual</span>
+        </h2>
+        <ol className="lbc-how-steps">
+          <li>
             <small>Estratégia</small>
-            <b>Posicionamento de marca</b>
-          </div>
-          <div>
+            <span className="n">1</span>
+            <b>Pesquisa</b>
+            <p>
+              Você responde o <strong>Legacy Brand Canvas</strong> e fazemos as calls para entender
+              o seu negócio.
+            </p>
+          </li>
+          <li>
             <small>Estratégia</small>
-            <b>Base de comunicação</b>
-          </div>
-          <div>
+            <span className="n">2</span>
+            <b>Análise de concorrentes</b>
+            <p>
+              Vemos como o seu mercado se comunica e <strong>onde está a sua oportunidade</strong>.
+            </p>
+          </li>
+          <li>
             <small>Estratégia</small>
-            <b>Diferencial de atuação</b>
-          </div>
-          <div>
-            <small>Resultado</small>
-            <b>Identidade visual de alto padrão</b>
-          </div>
-        </div>
-        <p className="lbc-close-line">
-          Traduzimos tudo isso em uma identidade visual de alto padrão, totalmente intencional e
-          alinhada com os seus objetivos.
+            <span className="n">3</span>
+            <b>Posicionamento</b>
+            <p>
+              Definimos o seu <strong>diferencial</strong> e as{" "}
+              <strong>mensagens principais</strong> da marca.
+            </p>
+          </li>
+          <li className="visual">
+            <small>Visual</small>
+            <span className="n">4</span>
+            <b>Identidade visual</b>
+            <p>
+              Criamos logo, cores, tipografia e aplicações{" "}
+              <strong>a partir dessa estratégia</strong>.
+            </p>
+          </li>
+        </ol>
+      </Slide>
+
+      {/* RESULTADO */}
+      <Slide chap="o-que-fazemos" tone="deep" className="lbc-result">
+        <p className="lbc-kicker">
+          <b>Resultado</b>
         </p>
+        <h2 className="lbc-d lbc-h2">
+          O que muda na <span className="hl">sua marca</span>
+        </h2>
+        <ul className="lbc-result-grid">
+          {RESULTS.map((r) => (
+            <li key={r.title} className={r.hot ? "hot" : undefined}>
+              <b>{r.title}</b>
+              <p>{r.text}</p>
+            </li>
+          ))}
+        </ul>
       </Slide>
 
       {/* CASES */}
@@ -740,6 +805,34 @@ export default function ProposalView({
 /* =================== Subcomponentes =================== */
 
 /** Um slide de 1920x1080, centralizado e escalado para caber na tela. */
+const RESULTS = [
+  {
+    title: "Clareza na comunicação",
+    text: "Você sabe o que dizer e como falar com o cliente certo.",
+  },
+  {
+    title: "Identidade visual premium",
+    text: "Uma marca à altura do seu serviço e alinhada com os seus objetivos.",
+  },
+  {
+    title: "Mais percepção de valor",
+    text: "O cliente entende a diferença do seu trabalho antes de perguntar o preço.",
+  },
+  {
+    title: "Destaque no seu mercado",
+    text: "A sua marca deixa de se parecer com a dos concorrentes e passa a ser lembrada.",
+  },
+  {
+    title: "Consistência em todos os canais",
+    text: "Instagram, site, materiais e atendimento falando a mesma língua.",
+  },
+  {
+    title: "Ticket mais alto",
+    text: "Com o valor claro, você cobra mais pelos seus serviços.",
+    hot: true,
+  },
+];
+
 function Slide({
   id,
   chap,
