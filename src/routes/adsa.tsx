@@ -74,6 +74,35 @@ const PASSOS = [
   },
 ];
 
+// Mesmas perguntas do FAQ da /adsb (as mais tocadas no Clarity), com as
+// respostas ajustadas à oferta desta página: conversa e preço de partida.
+const FAQ = [
+  {
+    q: "Vocês atendem a minha área?",
+    a: "Atendemos profissionais liberais e empresas em todo o Brasil: saúde, estética, educação, advocacia, imobiliário, tecnologia e muito mais. O método começa pelo seu mercado, não por um modelo pronto.",
+  },
+  {
+    q: "Quanto custa um projeto?",
+    a: "Os projetos começam em R$ 5 mil. O valor final depende do escopo, e na conversa mostramos o investimento exato para o seu caso.",
+  },
+  {
+    q: "A conversa tem custo?",
+    a: "Não. São 25 minutos por vídeo para entender o seu momento e mostrar como trabalhamos. Você decide depois, sem compromisso.",
+  },
+  {
+    q: "Quanto tempo leva?",
+    a: "Cerca de 6 semanas, contadas a partir do momento em que você responde o Legacy Brand Canvas, a nossa ferramenta de estratégia.",
+  },
+  {
+    q: "Já tenho logo. Ainda faz sentido?",
+    a: "Faz. Muitos clientes chegam com uma logo e saem com uma marca: posicionamento, mensagem e um sistema visual que funciona em todos os pontos de contato.",
+  },
+  {
+    q: "Meu negócio ainda não fatura. Posso preencher?",
+    a: "Pode. Só vale saber que os projetos começam em R$ 5 mil. Na conversa, dizemos com sinceridade se faz sentido agora ou mais para frente.",
+  },
+];
+
 function AdsSlider() {
   const [index, setIndex] = useState(0);
   const [loaded, setLoaded] = useState(1);
@@ -293,6 +322,26 @@ function AdsPage() {
           </div>
         </section>
 
+        {/* FAQ */}
+        <section className="ads-section ads-faq-sec">
+          <div className="ads-container ads-faq-wrap">
+            <div>
+              <Label>PERGUNTAS FREQUENTES</Label>
+              <h2 className="ads-h2">
+                Antes de você <strong>preencher</strong>
+              </h2>
+            </div>
+            <div className="ads-faq">
+              {FAQ.map((f) => (
+                <details key={f.q}>
+                  <summary>{f.q}</summary>
+                  <p>{f.a}</p>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Formulário final */}
         <section id="formulario" className="ads-section ads-last">
           <div className="ads-container ads-hero-grid">
@@ -419,6 +468,27 @@ function AdsPage() {
         .ads-slider-dots { display: flex; gap: 5px; margin-top: 8px; }
         .ads-slider-dots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(244,242,239,0.45); transition: width .2s, background .2s; }
         .ads-slider-dots i.on { width: 16px; border-radius: 3px; background: #CFFF87; }
+
+        /* FAQ: sempre alinhado à esquerda, mesmo no celular (onde a página centraliza) */
+        .ads-faq-sec { padding-bottom: 0; }
+        .ads-faq-wrap { display: grid; gap: 4px; text-align: left; }
+        .ads-faq { border-top: 1px solid rgba(18,17,16,0.15); }
+        .ads-faq details { border-bottom: 1px solid rgba(18,17,16,0.1); }
+        .ads-faq summary {
+          cursor: pointer; list-style: none; position: relative;
+          padding: 18px 36px 18px 0; font-size: 16px; font-weight: 600; letter-spacing: -0.02em;
+        }
+        .ads-faq summary::-webkit-details-marker { display: none; }
+        .ads-faq summary::after {
+          content: "+"; position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+          font-size: 24px; font-weight: 400; color: #D75631; transition: transform .2s;
+        }
+        .ads-faq details[open] summary::after { transform: translateY(-50%) rotate(45deg); }
+        .ads-faq details p {
+          margin: 0; padding: 0 0 20px; font-size: 15px; line-height: 1.5;
+          color: rgba(18,17,16,0.65); max-width: 60ch;
+        }
+        .ads-faq summary:focus-visible { outline: 2px solid #121110; outline-offset: 2px; }
 
         .ads-about-cols { display: grid; gap: 20px; }
         .ads-method { display: grid; gap: 24px; }
@@ -571,6 +641,8 @@ function AdsPage() {
           .ads-about { display: grid; grid-template-columns: 1fr 2fr; }
           .ads-about-cols { grid-column: 2; grid-template-columns: repeat(2, minmax(0, 420px)); gap: 80px; }
           .ads-method { grid-template-columns: 1fr 1fr; gap: 80px; }
+          .ads-faq-wrap { grid-template-columns: 0.8fr 1.2fr; gap: 80px; }
+          .ads-faq summary { font-size: 17px; }
           .ads-method-title { font-size: 72px; }
           .ads-fit { grid-template-columns: 1fr 1fr; gap: 64px; }
           .ads-fit-col-right {
