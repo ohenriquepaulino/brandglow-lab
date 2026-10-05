@@ -67,17 +67,18 @@ function CasePage() {
       </section>
 
       <section className="b-sec tone-surface">
-        <div className="b-wrap b-blocks">
+        <div className={`b-wrap b-blocks${c.result ? " quatro" : ""}`}>
           <Bloco titulo="Contexto" texto={c.context} />
           <Bloco titulo="Desafio" texto={c.challenge} />
-          <Bloco titulo="O que foi feito" texto={c.delivery} />
+          <Bloco titulo="O que fizemos" texto={c.delivery} />
+          {c.result && <Bloco titulo="Resultado" texto={c.result} />}
         </div>
       </section>
 
       {galeria.length > 0 && (
         <section className="b-sec tone-paper">
           <div className="b-wrap">
-            <Kicker>Resultado</Kicker>
+            <Kicker>Galeria</Kicker>
             <h2 className="b-d b-h2">Aplicações da marca</h2>
             <div className="b-gallery">
               {galeria.map((src, i) => (

@@ -149,7 +149,7 @@
 .lbc-case-story-head { display: flex; align-items: baseline; gap: 32px; }
 .lbc-case-story-head .seg { order: 2; margin: 0; }
 .lbc-case-story .name { font-size: 88px; line-height: 1; }
-.lbc-case-story .story { display: grid; grid-template-columns: repeat(3, 1fr); gap: 56px; margin-top: 48px; border-top: 2px solid var(--ink); }
+.lbc-case-story .story { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 56px; margin-top: 48px; border-top: 2px solid var(--ink); }
 .lbc-case-story .story div { padding-top: 28px; }
 .lbc-case-story .story h4 { font-size: 26px; font-weight: 600; margin-bottom: 14px; }
 .lbc-case-story .story p { font-size: 22px; color: #4a4a4a; line-height: 1.5; }
@@ -174,7 +174,7 @@
 .lbc-webcase .quote { font-size: clamp(22px, 2.2vw, 32px); line-height: 1.25; font-weight: 300; max-width: 26ch; }
 .lbc-webcase .quote small { display: block; font-size: 13px; color: var(--muted); margin-top: 14px; }
 .lbc-webcase .handle { display: inline-block; margin-top: 16px; font-size: 14px; color: var(--muted); }
-.lbc-webcase .story { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(20px, 3vw, 48px); margin-bottom: clamp(28px, 3.5vw, 48px); border-top: 1.5px solid var(--ink); }
+.lbc-webcase .story { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: clamp(20px, 3vw, 48px); margin-bottom: clamp(28px, 3.5vw, 48px); border-top: 1.5px solid var(--ink); }
 .lbc-webcase .story div { padding-top: 18px; }
 .lbc-webcase .story h4 { font-size: 14px; font-weight: 600; margin-bottom: 10px; }
 .lbc-webcase .story p { font-size: 15px; color: var(--muted); line-height: 1.55; }
@@ -190,7 +190,7 @@
 .lbc-gal .meta a { display: inline-flex; gap: 8px; align-items: center; color: var(--ink); font-weight: 500; font-size: 14px; text-decoration: none; border-bottom: 1.5px solid var(--lime); padding-bottom: 2px; }
 @media (max-width: 900px) {
   .lbc-webcase .head { grid-template-columns: 1fr; }
-  .lbc-webcase .story { grid-template-columns: 1fr; border-top: 0; gap: 0; }
+  .lbc-webcase .story { grid-auto-flow: row; grid-template-columns: 1fr; border-top: 0; gap: 0; }
   .lbc-webcase .story div { border-top: 1.5px solid var(--ink); padding-bottom: 22px; }
 }
 @media (max-width: 560px) {

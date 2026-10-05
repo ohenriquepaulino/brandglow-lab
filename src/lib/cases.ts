@@ -57,17 +57,13 @@ import imgMoewaLogoTerracotta from "@/assets/moewa/moewa-logo-terracotta.png.ass
 import imgMoewaLogoOffwhite from "@/assets/moewa/moewa-logo-offwhite.png.asset.json";
 import imgMoewaPalette from "@/assets/moewa/moewa-palette.png.asset.json";
 
+import { CASE_TEXTOS, type CaseTexto } from "@/lib/cases-textos";
+
 // MedCopilot: imagens em public/ (exportadas da apresentação da identidade).
 const MEDCOPILOT = (f: string) => `/proposta/cases/medcopilot/medcopilot-${f}.jpg`;
 
-export type CaseStudy = {
+export type CaseStudy = CaseTexto & {
   slug: string;
-  name: string;
-  segment: string;
-  short: string;
-  context: string;
-  challenge: string;
-  delivery: string;
   accent: string;
   accentText: "ink" | "cream";
   heroImage?: string;
@@ -77,16 +73,7 @@ export type CaseStudy = {
 export const cases: CaseStudy[] = [
   {
     slug: "medcopilot",
-    name: "MedCopilot",
-    segment: "Tecnologia para a saúde · Healthtech",
-    short:
-      "Arquitetura e identidade de uma healthtech fundada por médicos: uma marca mãe que transmite confiança e um sistema de submarcas pronto para crescer a cada novo produto.",
-    context:
-      "A MedCopilot nasceu em 2019, criada por médicos e um cientista de dados, com uma missão clara: usar a tecnologia para facilitar o trabalho de quem cuida e melhorar a vida de quem é cuidado. Em pouco tempo, a empresa já atuava em várias frentes ao mesmo tempo (gestão de dados, consultoria financeira, suporte à anestesia e educação médica), falando com médicos, enfermeiros, gestores de clínicas e hospitais e estudantes de medicina.",
-    challenge:
-      "Cada nova solução ganhava vida própria, e o risco era a MedCopilot parecer um amontoado de ferramentas soltas em vez de uma empresa sólida. Em saúde isso custa caro: antes de testar qualquer tecnologia, o profissional precisa confiar em quem está por trás dela. O desafio era construir uma marca que unisse todos os produtos sob a mesma credibilidade, comunicasse inovação sem perder a seriedade e recebesse os próximos lançamentos sem precisar ser refeita.",
-    delivery:
-      "Começamos pela estratégia: definimos o núcleo da marca (inovadora, colaborativa e confiável) e a tese de que a MedCopilot é um hub de soluções tecnológicas, e não um produto. Daí veio uma arquitetura endossada: a marca mãe, em preto e cinza, dá seriedade e assina tudo; cada solução vira uma marca filha com cor própria (Data, Anest, APA e EDU Copilot, entre outras), numa paleta aberta que já reserva espaço para o próximo produto. O símbolo traduz essa lógica: três blocos que sobem como uma escada e se ligam como módulos, com o M de Med, o C de Copilot e um círculo que remete à linguagem das ferramentas de inteligência artificial. Basta trocar a letra e a cor para nascer uma nova submarca, sempre reconhecível como parte da família.",
+    ...CASE_TEXTOS["medcopilot"],
     accent: "#121110",
     accentText: "cream",
     heroImage: MEDCOPILOT("fachada"),
@@ -106,16 +93,7 @@ export const cases: CaseStudy[] = [
   },
   {
     slug: "joana-co",
-    name: "Joana Ulmer Co*",
-    segment: "Marca pessoal · Educação financeira",
-    short:
-      "Transformação da presença de uma profissional em uma marca pessoal com clareza, direção e narrativa para conectar com o público certo.",
-    context:
-      "Quando a Joana chegou até nós, o pedido era simples: um site. Mas bastaram algumas conversas para entendermos que o desafio era mais profundo. Ela sabia do impacto do que fazia, mas ainda não conseguia traduzir isso em palavras com a clareza que sua marca precisava.",
-    challenge:
-      "Faltava definição sobre seus diferenciais, seu público e o posicionamento certo para sair de um mercado impessoal e repetitivo. O desafio era transformar sua presença profissional em uma marca pessoal que soubesse o que diz, conectasse com quem importa e comunicasse com clareza o valor que entrega.",
-    delivery:
-      "Começamos pelo trabalho estratégico e, juntos, construímos uma base sólida: clareza sobre quem a Joana é, o que entrega e como se destacar com autenticidade. O resultado foi uma marca com direção, consistência e uma narrativa capaz de comunicar com precisão ao público ideal em todos os pontos de contato.",
+    ...CASE_TEXTOS["joana-co"],
     accent: "#f4ff85",
     accentText: "ink",
     heroImage: imgJoanaBillboardQuote.url,
@@ -139,16 +117,7 @@ export const cases: CaseStudy[] = [
   },
   {
     slug: "308-network",
-    name: "308NETWORK",
-    segment: "Decisões patrimoniais inteligentes",
-    short:
-      "Reposicionamento de uma marca imobiliária tradicional para uma referência em decisões patrimoniais inteligentes, pronta para expandir sua atuação.",
-    context:
-      "Com anos de mercado e uma reputação construída na base do atendimento e da confiança, a 308 já era reconhecida. Mas, para o próximo nível — tornar-se top of mind para investidores e famílias que valorizam estratégia — isso já não bastava.",
-    challenge:
-      "O modelo tradicional de imobiliária já não representava o que a 308 havia se tornado. O desafio era transformar essa percepção e fazer a marca ser vista como realmente era: uma parceira estratégica na construção e proteção de patrimônio imobiliário.",
-    delivery:
-      "Criamos um reposicionamento completo de marca para sustentar a expansão da 308, com narrativa mais estratégica, identidade visual de presença forte e aplicações que reforçam autoridade, clareza e visão de longo prazo em todos os pontos de contato.",
+    ...CASE_TEXTOS["308-network"],
     accent: "#121110",
     accentText: "cream",
     heroImage: img308OutBanner.url,
@@ -172,16 +141,7 @@ export const cases: CaseStudy[] = [
   },
   {
     slug: "moewa",
-    name: "MOEWA",
-    segment: "Estética, Emagrecimento & Longevidade",
-    short:
-      "Posicionamento de uma clínica de estética, emagrecimento e longevidade em um ecossistema de alto valor, com marca forte, comunidade viva e uma jornada integrada de protocolos.",
-    context:
-      "A MOEWA nasceu de uma história real: duas mulheres que vivem na pele a disciplina do autocuidado. O desafio era criar um posicionamento único capaz de refletir essa autenticidade e profundidade, transformando a marca, em um mar de rosas vermelhas, na única rosa branca do mercado.",
-    challenge:
-      "A estratégia começou redefinindo o propósito da marca: ser a clínica que completa a jornada de mulheres que já fazem metade do caminho sozinhas. O desafio era sair da lógica de uma clínica tradicional e construir uma percepção de alto valor, clareza e diferenciação real.",
-    delivery:
-      "A partir de uma tese de comunicação forte — 'Quando uma mulher está com autoestima elevada e organização mental, ela resolve qualquer problema' — unificamos a entrega técnica em uma jornada completa. Em vez de procedimentos isolados e promessas milagrosas de antes e depois, a MOEWA passou a se posicionar com uma experiência integrada em que estética corporal, nutrição e bem-estar caminham juntos. O resultado não aparece apenas no espelho, mas se sustenta no sono, na energia e no treino.",
+    ...CASE_TEXTOS["moewa"],
     accent: "#c45330",
     accentText: "cream",
     heroImage: imgMoewaClubeCard.url,
@@ -205,16 +165,7 @@ export const cases: CaseStudy[] = [
   },
   {
     slug: "geriacademy",
-    name: "Geriacademy",
-    segment: "Educação médica · 2026",
-    short:
-      "Posicionamento de uma escola médica com propósito em um ecossistema educacional de alto valor — marca forte, comunidade viva e esteira estratégica.",
-    context:
-      "A Geriacademy chegou com um propósito claro: qualificar o cuidado com o idoso no Brasil. O desafio era construir uma marca à altura desse propósito, capaz de sustentar uma plataforma educacional comprometida com uma transformação real no cuidado geriátrico.",
-    challenge:
-      "Posicionar a Geriacademy como mais do que uma escola — uma plataforma educacional de referência, com comunidade viva e esteira de produtos pronta para escalar.",
-    delivery:
-      "Base estratégica em três pilares — posicionamento único, mensagem clara e comunidade forte. Criação da narrativa de marca, da comunidade Geri Sim! (movimento que une profissionais da saúde em torno de uma nova visão sobre o envelhecer) e de uma esteira inteligente de produtos: cursos, certificações, plataforma viva, mentorias, encontros presenciais e uma IA própria, a GerIA.",
+    ...CASE_TEXTOS["geriacademy"],
     accent: "#121110",
     accentText: "cream",
     heroImage: img60.url,

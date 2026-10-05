@@ -289,6 +289,7 @@ export function EstiloSite() {
           .b-big { font-size: 80px; }
           .b-case-h1 { font-size: 104px; }
           .b-blocks { grid-template-columns: repeat(3, 1fr); gap: 48px; }
+          .b-blocks.quatro { grid-template-columns: repeat(4, 1fr); }
         }
       `}</style>
   );

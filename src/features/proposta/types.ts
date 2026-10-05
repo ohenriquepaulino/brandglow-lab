@@ -39,6 +39,7 @@ export interface CaseStudy {
   context?: string;
   challenge?: string;
   solution?: string;
+  result?: string;
   quote?: string;
   handle?: string;
   /** Link para o case completo no site, quando existir. */

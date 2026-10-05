@@ -18,6 +18,7 @@ export type ProposalPatch = Partial<
     | "cash_note"
     | "deadline_days"
     | "valid_until"
+    | "case_slugs"
   >
 >;
 

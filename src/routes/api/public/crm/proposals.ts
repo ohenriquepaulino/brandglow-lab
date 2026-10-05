@@ -22,6 +22,11 @@ const PatchSchema = z
       .string()
       .regex(/^\d{4}-\d{2}-\d{2}$/)
       .nullable(),
+    case_slugs: z
+      .array(z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/))
+      .min(1)
+      .max(20)
+      .nullable(),
   })
   .partial()
   .strict();
@@ -55,6 +60,7 @@ const COPY_COLUMNS = [
   "cash_note",
   "deadline_days",
   "valid_until",
+  "case_slugs",
 ] as const;
 
 function unauthorized() {

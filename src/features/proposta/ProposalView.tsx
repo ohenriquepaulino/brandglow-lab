@@ -805,7 +805,7 @@ function Shot({
 
 /**
  * Cases viram um ou dois slides:
- * - com Contexto/Desafio/O que foi feito: apresentação + história;
+ * - com Contexto/Desafio/O que fizemos/Resultado: apresentação + história;
  * - com frase da marca: frase ao lado das imagens;
  * - com resumo: resumo ao lado da imagem.
  */
@@ -822,7 +822,7 @@ function WebCase({ c, onOpen }: { c: CaseStudy; onOpen: (images: string[], i: nu
   const MAX_THUMBS = 4;
   const thumbs = images.slice(1, 1 + MAX_THUMBS);
   const rest = images.length - 1 - thumbs.length;
-  const hasStory = !!(c.context || c.challenge || c.solution);
+  const hasStory = !!(c.context || c.challenge || c.solution || c.result);
 
   if (!images.length) return null;
 
@@ -866,8 +866,14 @@ function WebCase({ c, onOpen }: { c: CaseStudy; onOpen: (images: string[], i: nu
             )}
             {c.solution && (
               <div>
-                <h4>O que foi feito</h4>
+                <h4>O que fizemos</h4>
                 <p>{c.solution}</p>
+              </div>
+            )}
+            {c.result && (
+              <div>
+                <h4>Resultado</h4>
+                <p>{c.result}</p>
               </div>
             )}
           </div>
@@ -929,7 +935,7 @@ function CaseSlides({
   const alive = c.images.filter((s) => !broken.has(s));
   const images = alive.length ? alive : backup;
   const markBroken = (src: string) => () => setBroken((b) => new Set(b).add(src));
-  const hasStory = !!(c.context || c.challenge || c.solution);
+  const hasStory = !!(c.context || c.challenge || c.solution || c.result);
 
   if (!images.length) return null;
 
@@ -1023,8 +1029,14 @@ function CaseSlides({
             )}
             {c.solution && (
               <div>
-                <h4>O que foi feito</h4>
+                <h4>O que fizemos</h4>
                 <p>{c.solution}</p>
+              </div>
+            )}
+            {c.result && (
+              <div>
+                <h4>Resultado</h4>
+                <p>{c.result}</p>
               </div>
             )}
           </div>

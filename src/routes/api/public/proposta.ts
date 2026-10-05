@@ -20,6 +20,7 @@ const PUBLIC_COLUMNS = [
   "cash_note",
   "deadline_days",
   "valid_until",
+  "case_slugs",
   "updated_at",
 ].join(",");
 

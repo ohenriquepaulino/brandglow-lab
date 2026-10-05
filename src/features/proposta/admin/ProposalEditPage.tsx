@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import ProposalView from "../ProposalView";
 import ProposalViewDirecao from "../ProposalViewDirecao";
+import CasePicker from "./CasePicker";
 import {
   deleteProposal,
   duplicateProposal,
@@ -285,6 +286,13 @@ export default function ProposalEditPage({
               />
               Mostrar diagnóstico
             </label>
+          )}
+          {!isDirecao && (
+            <CasePicker
+              value={draft.case_slugs}
+              onChange={(case_slugs) => edit({ case_slugs })}
+              buttonClassName={btn}
+            />
           )}
           <span className="hidden text-neutral-400 md:inline">
             Clique nos textos e valores com contorno para editar.
