@@ -4,7 +4,6 @@ import { ContactSection } from "@/components/site/ContactSection";
 import { PrivacyButton } from "@/components/site/PrivacyDialog";
 import { useAbVisit } from "@/lib/ab";
 import { useStickyCta } from "@/lib/useStickyCta";
-import logo from "@/assets/logo-legacy-v2.png.asset.json";
 import img308OutBanner from "@/assets/308-network/308-network-out-banner.webp.asset.json";
 import imgMoewaPosterManifesto from "@/assets/ads/moewa-poster-manifesto.webp.asset.json";
 import imgGeri from "@/assets/geriacademy/geriacademy-page-0060.webp.asset.json";
@@ -29,22 +28,25 @@ export const Route = createFileRoute("/adsa")({
       { property: "og:title", content: "Diagnóstico de marca | Legacy BrandCo." },
       {
         property: "og:description",
-        content:
-          "Estratégia de marca e identidade visual para negócios que já entregam resultado.",
+        content: "Estratégia de marca e identidade visual para negócios que já entregam resultado.",
       },
       { name: "robots", content: "noindex, follow" },
     ],
     links: [
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
+        rel: "preload",
+        href: "/proposta/fonts/inter-400.woff2",
+        as: "font",
+        type: "font/woff2",
+        crossOrigin: "anonymous",
       },
     ],
   }),
   component: AdsPage,
 });
+
+// Logo leve (webp de 16 KB, servido pelo próprio site), o mesmo da /adsb.
+const LOGO = "/proposta/brand/legacy-logo-preto.webp";
 
 /* SUBSTITUIR: prints de depoimentos. Editar array abaixo. */
 const depoimentos = [
@@ -119,12 +121,8 @@ function AdsSlider() {
   );
 }
 
-
-
 function Label({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="ads-label">{children}</p>
-  );
+  return <p className="ads-label">{children}</p>;
 }
 
 // Mesmo formulário e mesma oferta do /adsb: o teste compara a página, não a oferta.
@@ -132,7 +130,7 @@ function FormSlot() {
   return (
     <div className="ads-card ads-form-slot">
       <p className="ads-form-title">Diagnóstico gratuito</p>
-      <p className="ads-form-sub">Preencha e agendamos 25 minutos por vídeo com você.</p>
+      <p className="ads-form-sub">25 minutos por vídeo, sem custo.</p>
       <ContactSection
         redirectTo="/obrigado"
         redirectToNoRevenue="/tks"
@@ -154,11 +152,11 @@ function AdsPage() {
       <header className="ads-topbar">
         <div className="ads-container ads-topbar-inner">
           <img
-            src={logo.url}
+            src={LOGO}
             alt="Legacy BrandCo."
             className="ads-logo"
-            width={160}
-            height={32}
+            width={172}
+            height={61}
             loading="eager"
           />
         </div>
@@ -171,27 +169,27 @@ function AdsPage() {
             <div className="ads-hero-copy">
               <Label>CONSULTORIA DE MARCA</Label>
               <h1 className="ads-h1">
-                Construímos a <strong>estratégia</strong> e a{" "}
-                <strong>identidade visual</strong> da sua empresa
+                Construímos a <strong>estratégia</strong> e a <strong>identidade visual</strong> da
+                sua empresa
               </h1>
               <p className="ads-body ads-measure">
-                Em <strong>poucos dias</strong> você sai com sua identidade
-                visual renovada e com a <strong>comunicação clara</strong> para
-                poder atender melhor seus clientes e <strong>vender mais</strong>
+                <strong>Comunicação clara</strong> e uma identidade à altura do seu serviço, para{" "}
+                <strong>vender mais</strong>.
               </p>
-              <ul className="ads-facts">
-                <li>
-                  <b>+8</b> anos de operação
-                </li>
-                <li>
-                  <b>BR</b> clientes em todo o Brasil
-                </li>
-                <li>
-                  <b>80%</b> estratégia
-                </li>
-              </ul>
             </div>
             <FormSlot />
+            {/* No celular os números vêm depois do formulário, para ele caber na primeira tela. */}
+            <ul className="ads-facts">
+              <li>
+                <b>+8</b> anos de operação
+              </li>
+              <li>
+                <b>BR</b> clientes em todo o Brasil
+              </li>
+              <li>
+                <b>80%</b> estratégia
+              </li>
+            </ul>
           </div>
         </section>
 
@@ -226,19 +224,16 @@ function AdsPage() {
               <div>
                 <Label>SOBRE</Label>
                 <p className="ads-body ads-about-text">
-                  A Legacy BrandCo. é uma consultoria de{" "}
-                  <strong>estratégia de marca</strong> e{" "}
-                  <strong>identidade visual</strong> com{" "}
-                  <strong>mais de 8 anos</strong> de operação. Atendemos
-                  negócios em todo o Brasil, de profissionais liberais a
+                  A Legacy BrandCo. é uma consultoria de <strong>estratégia de marca</strong> e{" "}
+                  <strong>identidade visual</strong> com <strong>mais de 8 anos</strong> de
+                  operação. Atendemos negócios em todo o Brasil, de profissionais liberais a
                   empresas em crescimento.
                 </p>
               </div>
               <div>
                 <p className="ads-body ads-about-text">
-                  Nosso trabalho <strong>começa antes do visual</strong>.
-                  Entendemos o negócio, o mercado e o consumidor, e só depois
-                  traduzimos isso em uma marca.
+                  Nosso trabalho <strong>começa antes do visual</strong>. Entendemos o negócio, o
+                  mercado e o consumidor, e só depois traduzimos isso em uma marca.
                 </p>
               </div>
             </div>
@@ -256,7 +251,14 @@ function AdsPage() {
               {depoimentos.map((d) => (
                 <a key={d.src} href="#formulario" className="ads-shot-link">
                   <figure className="ads-shot ads-shot-dark">
-                    <img src={d.src} alt={d.alt} width={d.w} height={d.h} loading="lazy" decoding="async" />
+                    <img
+                      src={d.src}
+                      alt={d.alt}
+                      width={d.w}
+                      height={d.h}
+                      loading="lazy"
+                      decoding="async"
+                    />
                   </figure>
                 </a>
               ))}
@@ -282,10 +284,9 @@ function AdsPage() {
             </div>
             <p className="ads-body ads-measure">
               Antes de definir logotipo, cor ou tipografia, entendemos{" "}
-              <strong>o que o seu negócio faz</strong>,{" "}
-              <strong>contra quem ele compete</strong> e{" "}
-              <strong>quem precisa ser convencido</strong>. A identidade visual é
-              a <strong>conclusão</strong> desse processo, não o começo dele.
+              <strong>o que o seu negócio faz</strong>, <strong>contra quem ele compete</strong> e{" "}
+              <strong>quem precisa ser convencido</strong>. A identidade visual é a{" "}
+              <strong>conclusão</strong> desse processo, não o começo dele.
             </p>
           </div>
         </section>
@@ -299,8 +300,8 @@ function AdsPage() {
                 Vamos olhar sua marca <strong>de perto</strong>.
               </h2>
               <p className="ads-body ads-measure">
-                Preencha o formulário. Nossa equipe analisa seu perfil e entra
-                em contato em <strong>até 1 dia útil</strong> para agendar.
+                Preencha o formulário. Nossa equipe analisa seu perfil e entra em contato em{" "}
+                <strong>até 1 dia útil</strong> para agendar.
               </p>
             </div>
             <FormSlot />
@@ -310,7 +311,7 @@ function AdsPage() {
 
       <footer className="ads-footer">
         <div className="ads-container ads-footer-row">
-          <img src={logo.url} alt="Legacy BrandCo." width={120} height={24} loading="lazy" />
+          <img src={LOGO} alt="Legacy BrandCo." width={172} height={61} loading="lazy" />
           <div>
             © 2026 Legacy BrandCo. · <PrivacyButton />
           </div>
@@ -367,7 +368,13 @@ function AdsPage() {
         .ads-secondary, .ads-secondary * { color: rgba(18,17,16,0.6); }
         .ads-accent { color: #D75631; }
         .ads-dim { color: rgba(18,17,16,0.4); }
-        .ads-hero-grid { display: grid; gap: 40px; }
+        /* minmax(0, 1fr): sem isso, o campo de WhatsApp alargava a coluna além da
+           tela em celulares estreitos e cortava o texto. */
+        .ads-hero-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 40px; }
+        .ads-first .ads-hero-grid { grid-template-areas: "copy" "form" "facts"; }
+        .ads-first .ads-hero-copy { grid-area: copy; min-width: 0; }
+        .ads-first .ads-form-slot { grid-area: form; min-width: 0; }
+        .ads-first .ads-facts { grid-area: facts; }
         .ads-card {
           background: #FFFFFF; padding: 24px 20px; border: 1px solid rgba(18,17,16,0.08);
           border-radius: 12px; box-shadow: 0 12px 36px rgba(18,17,16,0.06);
@@ -376,7 +383,9 @@ function AdsPage() {
         .ads-form-title { font-size: 22px; font-weight: 600; letter-spacing: -0.03em; margin: 0; }
         .ads-form-sub { font-size: 14px; color: rgba(18,17,16,0.6); margin: 4px 0 20px; }
         .ads-form-slot form { gap: 18px !important; }
-        .ads-form-slot form > div { gap: 18px !important; grid-template-columns: 1fr !important; }
+        .ads-form-slot form > div { gap: 18px !important; grid-template-columns: minmax(0, 1fr) !important; }
+        /* 16px nos campos: abaixo disso o iPhone dá zoom na página ao tocar no campo. */
+        .ads-form-slot .input-light, .ads-form-slot .phone-wrap input { font-size: 16px; }
         .ads-form-slot button[type="submit"] {
           width: 100% !important; background: #CFFF87 !important; color: #121110 !important;
           border-radius: 8px !important; font-size: 15px !important; padding: 16px 24px !important;
@@ -492,7 +501,31 @@ function AdsPage() {
           .ads-facts { justify-content: center; }
           .ads-cta-row { justify-content: center; }
           .ads-form-slot { text-align: left; }
-          .ads-first { padding-top: 8px; }
+          .ads-first { padding-top: 4px; padding-bottom: 48px; }
+
+          /* Celular: texto e formulário inteiros na primeira tela. */
+          .ads-topbar { height: 40px; }
+          .ads-logo { height: 20px; }
+          .ads-first .ads-label { display: none; }
+          .ads-first .ads-h1 { font-size: 26px; }
+          .ads-first .ads-measure { margin-top: 10px; font-size: 15px; }
+          .ads-first .ads-hero-grid { gap: 16px; }
+          .ads-first .ads-facts { margin-top: 8px; }
+          .ads-form-slot.ads-card { padding: 16px 16px 14px; }
+          .ads-form-title { font-size: 20px; }
+          .ads-form-sub { font-size: 13px; margin: 2px 0 12px; }
+          .ads-form-slot form { gap: 10px !important; }
+          .ads-form-slot form > div { gap: 10px !important; }
+          .ads-form-slot label, .ads-form-slot form > div > div { gap: 5px !important; }
+          /* Rótulos numa linha só e sem a dica do WhatsApp: o formulário cabe na tela. */
+          .ads-form-slot label > span:first-child, .ads-form-slot form > div > div > label:first-child {
+            letter-spacing: 0.06em !important; font-size: 10.5px !important;
+          }
+          .ads-form-slot .phone-dica { display: none; }
+          .ads-form-slot .input-light { padding: 0.55rem 0.85rem; }
+          .ads-form-slot .phone-wrap input { padding-block: 0.55rem; }
+          .ads-form-slot button[type="submit"] { padding: 15px 20px !important; margin-top: 2px !important; }
+          .ads-form-slot button[type="submit"] + p { display: none; }
         }
 
         @media (min-width: 768px) {
@@ -525,7 +558,12 @@ function AdsPage() {
           .ads-h1 { font-size: 56px; }
           .ads-h2 { font-size: 36px; }
           .ads-body { font-size: 17px; }
-          .ads-hero-grid { grid-template-columns: 55% 45%; gap: 80px; align-items: start; }
+          /* fr em vez de 55%/45%: com o gap de 80px, as porcentagens somavam mais que a largura. */
+          .ads-hero-grid { grid-template-columns: minmax(0, 55fr) minmax(0, 45fr); gap: 80px; align-items: start; }
+          .ads-first .ads-hero-grid {
+            grid-template-columns: minmax(0, 55fr) minmax(0, 45fr); grid-template-rows: auto 1fr;
+            grid-template-areas: "copy form" "facts form"; row-gap: 0;
+          }
           .ads-card { padding: 32px; }
           .ads-about { display: grid; grid-template-columns: 1fr 2fr; }
           .ads-about-cols { grid-column: 2; grid-template-columns: repeat(2, minmax(0, 420px)); gap: 80px; }

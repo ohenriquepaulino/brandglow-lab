@@ -83,10 +83,14 @@ s.parentNode.insertBefore(t,s)}(window, document,'script',
 fbq('init', '757694619908324');
 fbq('track', 'PageView');`;
 
+// O GTM só carrega depois que a página termina de carregar: ele não é usado
+// para as conversões (o Pixel e o Clarity seguem na hora) e disputava rede e
+// processamento com a primeira dobra no celular.
 const GTM_HEAD_SCRIPT = `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+new Date().getTime(),event:'gtm.js'});var go=function(){var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);};
+if(d.readyState==='complete'){setTimeout(go,1500)}else{w.addEventListener('load',function(){setTimeout(go,1500)})}
 })(window,document,'script','dataLayer','GTM-TC7FD6LM');`;
 
 const CLARITY_SCRIPT = `(function(c,l,a,r,i,t,y){
@@ -106,30 +110,47 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "Consultoria brasileira de estratégia de marca e identidade visual para negócios que querem posicionar, atrair e convencer.",
       },
-      { property: "og:title", content: "Legacy BrandCo. — Estratégia e identidade visual de marca" },
+      {
+        property: "og:title",
+        content: "Legacy BrandCo. — Estratégia e identidade visual de marca",
+      },
       {
         property: "og:description",
-        content:
-          "Estratégia e identidade visual para marcas que querem liderar.",
+        content: "Estratégia e identidade visual para marcas que querem liderar.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:title", content: "Legacy BrandCo. — Estratégia e identidade visual de marca" },
-      { name: "description", content: "A Legacy BrandCo. website for a Brazilian brand strategy and visual identity consultancy." },
-      { property: "og:description", content: "A Legacy BrandCo. website for a Brazilian brand strategy and visual identity consultancy." },
-      { name: "twitter:description", content: "A Legacy BrandCo. website for a Brazilian brand strategy and visual identity consultancy." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f55bfd27-1b4e-4c85-998c-a4f501487f18/id-preview-a74339ee--4ed7aee0-bd7d-4037-9ba7-4c3cfcd58b79.lovable.app-1782344061066.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f55bfd27-1b4e-4c85-998c-a4f501487f18/id-preview-a74339ee--4ed7aee0-bd7d-4037-9ba7-4c3cfcd58b79.lovable.app-1782344061066.png" },
-    ],
-    links: [
-      { rel: "stylesheet", href: appCss },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800;900&display=swap",
+        name: "twitter:title",
+        content: "Legacy BrandCo. — Estratégia e identidade visual de marca",
+      },
+      {
+        name: "description",
+        content:
+          "A Legacy BrandCo. website for a Brazilian brand strategy and visual identity consultancy.",
+      },
+      {
+        property: "og:description",
+        content:
+          "A Legacy BrandCo. website for a Brazilian brand strategy and visual identity consultancy.",
+      },
+      {
+        name: "twitter:description",
+        content:
+          "A Legacy BrandCo. website for a Brazilian brand strategy and visual identity consultancy.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f55bfd27-1b4e-4c85-998c-a4f501487f18/id-preview-a74339ee--4ed7aee0-bd7d-4037-9ba7-4c3cfcd58b79.lovable.app-1782344061066.png",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f55bfd27-1b4e-4c85-998c-a4f501487f18/id-preview-a74339ee--4ed7aee0-bd7d-4037-9ba7-4c3cfcd58b79.lovable.app-1782344061066.png",
       },
     ],
+    links: [{ rel: "stylesheet", href: appCss }],
   }),
   shellComponent: RootShell,
   component: RootComponent,
@@ -142,18 +163,9 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
-        <script
-          id="meta-pixel"
-          dangerouslySetInnerHTML={{ __html: META_PIXEL_SCRIPT }}
-        />
-        <script
-          id="gtm-head"
-          dangerouslySetInnerHTML={{ __html: GTM_HEAD_SCRIPT }}
-        />
-        <script
-          id="ms-clarity"
-          dangerouslySetInnerHTML={{ __html: CLARITY_SCRIPT }}
-        />
+        <script id="meta-pixel" dangerouslySetInnerHTML={{ __html: META_PIXEL_SCRIPT }} />
+        <script id="gtm-head" dangerouslySetInnerHTML={{ __html: GTM_HEAD_SCRIPT }} />
+        <script id="ms-clarity" dangerouslySetInnerHTML={{ __html: CLARITY_SCRIPT }} />
       </head>
       <body>
         {children}

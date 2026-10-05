@@ -49,7 +49,6 @@ function normalize(value: string) {
     .toLowerCase();
 }
 
-
 function maskInstagram(value: string) {
   const cleaned = value.replace(/[^A-Za-z0-9._]/g, "").slice(0, 30);
   return cleaned ? `@${cleaned}` : "";
@@ -144,7 +143,6 @@ export function ContactSection({
     momentoValid &&
     verbaValid;
 
-
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -225,8 +223,8 @@ export function ContactSection({
               Vamos construir sua marca?
             </h2>
             <p className="mt-6 max-w-sm text-base leading-[1.7] text-muted-foreground">
-              Preencha o formulário. Nossa equipe vai analisar o seu perfil e
-              entrar em contato para uma conversa de qualificação.
+              Preencha o formulário. Nossa equipe vai analisar o seu perfil e entrar em contato para
+              uma conversa de qualificação.
             </p>
           </div>
 
@@ -236,18 +234,14 @@ export function ContactSection({
               aria-live="polite"
               className="flex min-h-[280px] flex-col justify-center border border-ink/10 p-10"
             >
-              <p className="text-2xl font-semibold text-ink">
-                Obrigado pelas informações.
-              </p>
+              <p className="text-2xl font-semibold text-ink">Obrigado pelas informações.</p>
               <p className="mt-3 text-base text-muted-foreground">
                 Entraremos em contato nos próximos minutos.
               </p>
             </div>
           ) : (
             <form onSubmit={onSubmit} noValidate className="flex flex-col gap-6">
-              {formHint && (
-                <p className="text-sm font-medium text-ink/80">{formHint}</p>
-              )}
+              {formHint && <p className="text-sm font-medium text-ink/80">{formHint}</p>}
               <div className="grid gap-6 md:grid-cols-2">
                 <Field
                   label="Nome completo"
@@ -281,11 +275,7 @@ export function ContactSection({
                 {!hideInstagram && (
                   <Field
                     label="@ do Instagram"
-                    error={
-                      attempted && !instagramValid
-                        ? "Informe um @ válido"
-                        : undefined
-                    }
+                    error={attempted && !instagramValid ? "Informe um @ válido" : undefined}
                   >
                     <input
                       required
@@ -366,25 +356,19 @@ export function ContactSection({
                   </>
                 )}
                 {showProfession && (
-
                   <ProfessionField
                     value={profession}
                     onChange={setProfession}
                     error={
-                      attempted && !professionValid
-                        ? "Informe sua área de atuação"
-                        : undefined
+                      attempted && !professionValid ? "Informe sua área de atuação" : undefined
                     }
                     invalid={attempted && !professionValid}
                   />
                 )}
               </div>
 
-
               {UTM_KEYS.map((k) =>
-                utms[k] ? (
-                  <input key={k} type="hidden" name={k} value={utms[k]} />
-                ) : null,
+                utms[k] ? <input key={k} type="hidden" name={k} value={utms[k]} /> : null,
               )}
 
               {attempted && !formValid && (
@@ -393,9 +377,7 @@ export function ContactSection({
                 </p>
               )}
 
-              {submitError && (
-                <p className="text-sm text-red-600">{submitError}</p>
-              )}
+              {submitError && <p className="text-sm text-red-600">{submitError}</p>}
 
               <button
                 type="submit"
@@ -477,6 +459,9 @@ export function ContactSection({
         .phone-wrap input {
           flex: 1;
           min-width: 0;
+          /* width em %: o campo não impõe largura mínima e encolhe no celular
+             estreito, em vez de alargar o formulário além da tela. */
+          width: 100%;
           border: 0;
           outline: none;
           background: transparent;
@@ -517,7 +502,6 @@ export function ContactSection({
           background: #f4f2ef;
         }
       `}</style>
-
     </section>
   );
 }
@@ -608,7 +592,9 @@ function PhoneField({
           value={br ? mascaraBR(digitos) : digitos}
           onChange={(e) => {
             setSaiu(false);
-            onDigitos(br ? limparBR(e.target.value) : e.target.value.replace(/\D/g, "").slice(0, 15));
+            onDigitos(
+              br ? limparBR(e.target.value) : e.target.value.replace(/\D/g, "").slice(0, 15),
+            );
           }}
           onBlur={() => setSaiu(true)}
           maxLength={20}
@@ -707,9 +693,7 @@ function ProfessionField({
           aria-expanded={showList}
           aria-autocomplete="list"
           aria-controls="profissao-suggest"
-          aria-activedescendant={
-            showList && active >= 0 ? `profissao-opt-${active}` : undefined
-          }
+          aria-activedescendant={showList && active >= 0 ? `profissao-opt-${active}` : undefined}
           className={inputClass(!invalid)}
           placeholder="Ex.: Odontologia, Advocacia, Moda..."
           aria-invalid={invalid}

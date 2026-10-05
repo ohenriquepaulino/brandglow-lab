@@ -57,6 +57,13 @@ export const Route = createFileRoute("/adsb")({
         type: "font/woff2",
         crossOrigin: "anonymous",
       },
+      {
+        rel: "preload",
+        href: "/proposta/fonts/inter-400.woff2",
+        as: "font",
+        type: "font/woff2",
+        crossOrigin: "anonymous",
+      },
     ],
   }),
   component: AdsBPage,
@@ -137,7 +144,11 @@ const DEPOIMENTOS = [
 ];
 
 const ETAPAS = [
-  { sem: "Semana 1", t: "Pesquisa", d: "Você responde o Legacy Brand Canvas e fazemos as calls de alinhamento." },
+  {
+    sem: "Semana 1",
+    t: "Pesquisa",
+    d: "Você responde o Legacy Brand Canvas e fazemos as calls de alinhamento.",
+  },
   { sem: "Semana 2", t: "Moodboard", d: "A direção visual da sua marca." },
   { sem: "Semanas 3 a 5", t: "Criação", d: "Testes, validação e apresentação da identidade." },
   { sem: "Semana 6", t: "Entrega", d: "Todos os arquivos organizados no Google Drive." },
@@ -189,7 +200,7 @@ function Form({ id }: { id: string }) {
   return (
     <div className="b-form" id={id}>
       <p className="b-form-title">Diagnóstico gratuito</p>
-      <p className="b-form-sub">Preencha e agendamos 25 minutos por vídeo com você.</p>
+      <p className="b-form-sub">25 minutos por vídeo, sem custo.</p>
       <ContactSection {...FORM_PROPS} />
     </div>
   );
@@ -287,23 +298,23 @@ function AdsBPage() {
               <span>Sua empresa é boa.</span> <span>Sua marca precisa mostrar isso.</span>
             </h1>
             <p className="b-lead">
-              Criamos a <strong>estratégia</strong> e a <strong>identidade visual</strong> de negócios
-              que entregam bem, mas ainda não comunicam o próprio valor. O primeiro passo é um
-              diagnóstico de <strong>25 minutos</strong>, sem custo.
+              <strong>Estratégia</strong> e <strong>identidade visual</strong> para negócios que
+              entregam bem.
             </p>
-            <ul className="b-facts">
-              <li>
-                <b>+8 anos</b> construindo marcas
-              </li>
-              <li>
-                <b>Brasil inteiro</b> de clientes
-              </li>
-              <li>
-                <b>80%</b> estratégia
-              </li>
-            </ul>
           </div>
           <Form id="diagnostico" />
+          {/* No celular os números vêm depois do formulário, para ele caber na primeira tela. */}
+          <ul className="b-facts">
+            <li>
+              <b>+8 anos</b> construindo marcas
+            </li>
+            <li>
+              <b>Brasil inteiro</b> de clientes
+            </li>
+            <li>
+              <b>80%</b> estratégia
+            </li>
+          </ul>
         </div>
       </section>
 
@@ -330,8 +341,8 @@ function AdsBPage() {
           <Kicker>O que fazemos</Kicker>
           <h2 className="b-d b-h2">Estratégia de marca e identidade visual</h2>
           <p className="b-promise">
-            Primeiro definimos <strong>como sua marca se posiciona</strong>, o que ela fala e o que a
-            diferencia. Só depois isso vira logo, cor e tipografia.
+            Primeiro definimos <strong>como sua marca se posiciona</strong>, o que ela fala e o que
+            a diferencia. Só depois isso vira logo, cor e tipografia.
           </p>
           <div className="b-flow">
             {[
@@ -381,7 +392,14 @@ function AdsBPage() {
           <div className="b-shots">
             {DEPOIMENTOS.map((d) => (
               <figure key={d.src} className="b-shot">
-                <img src={d.src} alt={d.alt} width={d.w} height={d.h} loading="lazy" decoding="async" />
+                <img
+                  src={d.src}
+                  alt={d.alt}
+                  width={d.w}
+                  height={d.h}
+                  loading="lazy"
+                  decoding="async"
+                />
               </figure>
             ))}
           </div>
@@ -523,7 +541,15 @@ function AdsBPage() {
         .b-facts { list-style: none; padding: 0; margin-top: 28px !important; display: grid; gap: 0; border-top: 1.5px solid var(--ink); }
         .b-facts li { padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
         .b-facts b { font-family: var(--display); font-weight: 400; font-size: 22px; margin-right: 6px; }
-        .b-hero-grid { display: grid; gap: 36px; }
+        /* minmax(0, 1fr): sem isso, o campo de WhatsApp (país + número) alargava a
+           coluna além da tela em celulares estreitos e cortava o texto (Clarity). */
+        .b-hero-grid {
+          display: grid; grid-template-columns: minmax(0, 1fr); gap: 36px;
+          grid-template-areas: "copy" "form" "facts";
+        }
+        .b-hero-copy { grid-area: copy; min-width: 0; }
+        .b-hero .b-form { grid-area: form; min-width: 0; }
+        .b-hero .b-facts { grid-area: facts; }
 
         /* formulário (reaproveita o ContactSection sem o bloco de texto dele) */
         .b-form {
@@ -539,10 +565,38 @@ function AdsBPage() {
         .b-form > section > div > div > *:first-child { display: none !important; }
         .b-form > section > div > div > * + * { border: 0 !important; padding: 0 !important; }
         .b-form form { gap: 18px !important; }
-        .b-form form > div { gap: 18px !important; grid-template-columns: 1fr !important; }
+        .b-form form > div { gap: 18px !important; grid-template-columns: minmax(0, 1fr) !important; }
         .b-form button[type="submit"] {
           width: 100% !important; background: var(--ink) !important; color: var(--lime) !important;
           border-radius: 10px !important; font-size: 16px !important; padding: 17px 24px !important;
+        }
+        /* 16px nos campos: abaixo disso o iPhone dá zoom na página ao tocar no campo. */
+        .b-form .input-light, .b-form .phone-wrap input { font-size: 16px; }
+
+        /* Celular: texto e formulário inteiros na primeira tela. */
+        @media (max-width: 767px) {
+          .b-hero { padding-block: 12px 44px; }
+          .b-hero .b-logo { height: 24px; margin-bottom: 12px; }
+          .b-hero .b-kicker { display: none; }
+          .b-hero .b-h1 { font-size: 32px; }
+          .b-hero .b-h1 span + span { margin-top: 0; }
+          .b-hero .b-lead { font-size: 15px; line-height: 1.4; margin-top: 10px; }
+          .b-hero-grid { gap: 16px; }
+          .b-hero .b-facts { margin-top: 10px !important; }
+          .b-form { padding: 16px 16px 14px; border-radius: 14px; }
+          .b-form-title { font-size: 22px; }
+          .b-form-sub { font-size: 13px; margin: 2px 0 12px !important; }
+          .b-form form { gap: 10px !important; }
+          .b-form form > div { gap: 10px !important; }
+          .b-form label, .b-form form > div > div { gap: 5px !important; }
+          /* Rótulos numa linha só e sem a dica do WhatsApp: o formulário cabe na tela. */
+          .b-form label > span:first-child, .b-form form > div > div > label:first-child,
+          .b-form form > div > div > span:first-child { letter-spacing: 0.06em !important; font-size: 10.5px !important; }
+          .b-form .phone-dica { display: none; }
+          .b-form .input-light { padding: 0.55rem 0.85rem; }
+          .b-form .phone-wrap input { padding-block: 0.55rem; }
+          .b-form button[type="submit"] { padding: 15px 20px !important; margin-top: 2px !important; }
+          .b-form button[type="submit"] + p { display: none; }
         }
 
         /* passos */
@@ -555,7 +609,7 @@ function AdsBPage() {
         /* o que fazemos */
         .b-promise { font-size: 20px; line-height: 1.35; font-weight: 400; max-width: 38ch; color: var(--deep-ink); }
         .b-promise strong { color: var(--lime); }
-        .b-flow { display: grid; grid-template-columns: 1fr 1fr; margin-top: 40px; border-top: 1px solid var(--deep-line); }
+        .b-flow { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 40px; border-top: 1px solid var(--deep-line); }
         .b-flow div { padding: 18px 16px 18px 0; border-bottom: 1px solid var(--deep-line); }
         .b-flow div:nth-child(even) { padding-left: 16px; border-left: 1px solid var(--deep-line); }
         .b-flow small { display: block; color: var(--deep-muted); font-size: 12px; margin-bottom: 6px; }
@@ -600,7 +654,7 @@ function AdsBPage() {
         .b-timeline p { font-size: 15px; color: var(--muted); }
 
         /* entregas */
-        .b-dl { list-style: none; padding: 0; display: grid; grid-template-columns: 1fr 1fr; border-top: 1.5px solid var(--ink); }
+        .b-dl { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1.5px solid var(--ink); }
         .b-dl li { padding: 16px 12px 16px 0; border-bottom: 1px solid var(--line); }
         .b-dl small { display: block; font-size: 12px; color: var(--muted); }
         .b-dl b { font-size: 16px; font-weight: 600; line-height: 1.25; }
@@ -673,7 +727,11 @@ function AdsBPage() {
           .b-h1 { font-size: 84px; }
           .b-h2 { font-size: 64px; }
           .b-lead { font-size: 19px; }
-          .b-hero-grid { grid-template-columns: 1.1fr 0.9fr; gap: 72px; align-items: start; }
+          .b-hero-grid {
+            grid-template-columns: 1.1fr 0.9fr; grid-template-rows: auto 1fr;
+            grid-template-areas: "copy form" "facts form"; column-gap: 72px; row-gap: 0;
+            align-items: start;
+          }
           .b-hero .b-form { margin-top: 70px; }
           .b-promise { font-size: 26px; }
           .b-flow b { font-size: 34px; }
