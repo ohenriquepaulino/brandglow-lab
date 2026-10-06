@@ -77,6 +77,9 @@ export async function abrirCameraFlutuante(
     .contagem[hidden] { display: none; }
     .sem { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
       color: #A8A29E; font-size: 13px; }
+    /* Sem isto o display:flex acima vence o atributo hidden e o aviso fica
+       por cima da câmera ligada. */
+    .sem[hidden] { display: none; }
   `;
   doc.head.append(estilo);
 
