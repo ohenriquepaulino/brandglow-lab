@@ -39,7 +39,8 @@ function KanbanPage() {
   const [fUtm, setFUtm] = useState("");
   const [search, setSearch] = useState("");
   const [showPerdidos, setShowPerdidos] = useState(false);
-  const [soFollowup, setSoFollowup] = useState(false);
+  // Filtro do menu de follow-up: null mostra todos os leads.
+  const [filtroFollowup, setFiltroFollowup] = useState<FollowupTipo | "todos" | null>(null);
 
   const [followupLidoEm, setFollowupLidoEm] = useState<string | null>(null);
   const [lendo, setLendo] = useState(false);
@@ -78,7 +79,7 @@ function KanbanPage() {
     try {
       setLeitura(await apiFollowupLer());
       await loadLeads(true);
-      setSoFollowup(true);
+      setFiltroFollowup("todos");
     } catch (err) {
       setErroLeitura(err instanceof Error ? err.message : String(err));
     }
@@ -122,7 +123,10 @@ function KanbanPage() {
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return leads.filter((l) => {
-      if (soFollowup && !temFollowup(l)) return false;
+      if (filtroFollowup && !temFollowup(l)) return false;
+      if (filtroFollowup && filtroFollowup !== "todos" && l.followup?.tipo !== filtroFollowup) {
+        return false;
+      }
       if (fFat && l.faturamento !== fFat) return false;
       if (fUtm && l.utm_source !== fUtm) return false;
       if (q) {
@@ -132,7 +136,7 @@ function KanbanPage() {
       }
       return true;
     });
-  }, [leads, fFat, fUtm, search, soFollowup]);
+  }, [leads, fFat, fUtm, search, filtroFollowup]);
 
   async function moveLead(leadId: string, dest: string) {
     const lead = leads.find((l) => l.id === leadId);
@@ -161,21 +165,14 @@ function KanbanPage() {
   return (
     <div className="flex min-h-screen" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
       <CrmSidebar />
-      <div className="min-h-screen flex-1" style={{ background: "#F4F2EF" }}>
+      {/* min-w-0: sem ele o quadro alarga a página (que tem overflow-x hidden) em vez de rolar. */}
+      <div className="min-h-screen min-w-0 flex-1" style={{ background: "#F4F2EF" }}>
         <header
           className="flex items-center justify-between border-b bg-white px-6 py-3"
           style={{ borderColor: "#E0DED9" }}
         >
           <p className="text-sm font-semibold text-neutral-900">Legacy BrandCo.</p>
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => void verFollowups()}
-              disabled={lendo}
-              className="rounded-md px-3 py-1.5 text-xs font-semibold disabled:opacity-60"
-              style={{ background: "#121110", color: "#CFFF87" }}
-            >
-              {lendo ? "Lendo o WhatsApp..." : "☐ Ver follow-ups"}
-            </button>
             <button
               onClick={() => void loadLeads()}
               className="rounded-md border px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50"
@@ -192,15 +189,6 @@ function KanbanPage() {
             </button>
           </div>
         </header>
-
-        <FollowupBar
-          lidoEm={followupLidoEm}
-          contagem={contagem}
-          leitura={leitura}
-          erro={erroLeitura}
-          ativo={soFollowup}
-          onToggle={() => setSoFollowup((v) => !v)}
-        />
 
         <div className="px-6 pt-5">
           <div className="flex flex-wrap items-end gap-3">
@@ -271,7 +259,7 @@ function KanbanPage() {
           </div>
         </div>
 
-        <main className="px-6 py-6">
+        <main className="px-6 pt-6 pb-28">
           {loading ? (
             <p className="text-sm text-neutral-500">Carregando leads...</p>
           ) : (
@@ -304,6 +292,17 @@ function KanbanPage() {
           )}
         </main>
 
+        <FollowupDock
+          lendo={lendo}
+          lidoEm={followupLidoEm}
+          contagem={contagem}
+          semConversa={leitura?.sem_conversa ?? 0}
+          erro={erroLeitura}
+          filtro={filtroFollowup}
+          onLer={() => void verFollowups()}
+          onFiltro={setFiltroFollowup}
+        />
+
         {opened && (
           <LeadPanel
             lead={opened}
@@ -326,61 +325,155 @@ function temFollowup(l: Lead) {
   return !!l.followup && COLUNAS_FOLLOWUP.includes(l.coluna);
 }
 
-function FollowupBar({
+/** Menu flutuante embaixo, no centro: lê o WhatsApp e filtra o quadro pelas tags. */
+function FollowupDock({
+  lendo,
   lidoEm,
   contagem,
-  leitura,
+  semConversa,
   erro,
-  ativo,
-  onToggle,
+  filtro,
+  onLer,
+  onFiltro,
 }: {
+  lendo: boolean;
   lidoEm: string | null;
   contagem: Record<FollowupTipo, number>;
-  leitura: FollowupLeitura | null;
+  semConversa: number;
   erro: string | null;
-  ativo: boolean;
-  onToggle: () => void;
+  filtro: FollowupTipo | "todos" | null;
+  onLer: () => void;
+  onFiltro: (f: FollowupTipo | "todos" | null) => void;
 }) {
   const total = contagem.responder + contagem.cobrar + contagem.puxar;
-  if (!lidoEm && !erro) return null;
+  const legenda = erro
+    ? `Não consegui ler o WhatsApp: ${erro}`
+    : lendo
+      ? "Lendo as conversas do WhatsApp..."
+      : lidoEm
+        ? `Lido ${haQuanto(Date.now() - new Date(lidoEm).getTime())}${
+            semConversa > 0 ? ` · ${semConversa} sem conversa` : ""
+          }`
+        : "Lê o WhatsApp e marca quem precisa de atenção";
+
   return (
-    <div
-      className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b bg-white px-6 py-2.5 text-xs"
-      style={{ borderColor: "#E0DED9" }}
-    >
-      {erro ? (
-        <p className="text-red-600">Não consegui ler o WhatsApp: {erro}</p>
-      ) : (
-        <>
-          <p className="font-semibold text-neutral-900">
-            {total === 0 ? "Nenhum follow-up pendente 🎉" : `${total} para follow-up`}
-          </p>
-          {(["responder", "cobrar", "puxar"] as FollowupTipo[]).map((t) =>
-            contagem[t] > 0 ? (
-              <span key={t} className="text-neutral-700">
-                {FOLLOWUP_INFO[t].emoji} {contagem[t]} {FOLLOWUP_INFO[t].label.toLowerCase()}
-              </span>
-            ) : null,
-          )}
-          {total > 0 && (
-            <button
-              onClick={onToggle}
-              aria-pressed={ativo}
-              className="rounded-md border px-2.5 py-1 font-medium text-neutral-700 hover:bg-neutral-50"
-              style={{ borderColor: "#E0DED9", background: ativo ? "#ECE9E4" : undefined }}
+    <div className="pointer-events-none fixed inset-x-0 bottom-5 z-30 flex justify-center px-4">
+      <div
+        className="pointer-events-auto flex max-w-full flex-col items-center gap-1.5 rounded-2xl px-2 pt-2 pb-1.5 shadow-[0_12px_40px_rgba(18,17,16,0.35)]"
+        style={{ background: "#121110" }}
+      >
+        <div className="flex max-w-full items-center gap-1 overflow-x-auto">
+          <button
+            onClick={onLer}
+            disabled={lendo}
+            className="flex shrink-0 items-center gap-2 rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-opacity hover:opacity-90 disabled:opacity-60"
+            style={{ background: "#CFFF87", color: "#121110" }}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="15"
+              height="15"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={lendo ? "animate-spin" : undefined}
             >
-              {ativo ? "Mostrar todos os leads" : "Mostrar só follow-ups"}
-            </button>
+              {lendo ? (
+                <path d="M21 12a9 9 0 1 1-6.2-8.56" />
+              ) : (
+                <>
+                  <rect x="3" y="3" width="18" height="18" rx="4" />
+                  <path d="M8 12.5l2.5 2.5L16 9.5" />
+                </>
+              )}
+            </svg>
+            {lidoEm ? "Ler de novo" : "Ver follow-ups"}
+          </button>
+
+          {lidoEm && total > 0 && (
+            <>
+              <span className="mx-1 h-6 w-px shrink-0 bg-white/15" />
+              <DockChip
+                ativo={filtro === "todos"}
+                onClick={() => onFiltro(filtro === "todos" ? null : "todos")}
+              >
+                Todos <span className="opacity-60">{total}</span>
+              </DockChip>
+              {(["responder", "cobrar", "puxar"] as FollowupTipo[]).map((t) =>
+                contagem[t] > 0 ? (
+                  <DockChip
+                    key={t}
+                    ativo={filtro === t}
+                    onClick={() => onFiltro(filtro === t ? null : t)}
+                  >
+                    <span
+                      className="h-2 w-2 shrink-0 rounded-full"
+                      style={{ background: TAG_COR[t] }}
+                    />
+                    {FOLLOWUP_INFO[t].label} <span className="opacity-60">{contagem[t]}</span>
+                  </DockChip>
+                ) : null,
+              )}
+              {filtro && (
+                <button
+                  onClick={() => onFiltro(null)}
+                  aria-label="Mostrar todos os leads"
+                  title="Mostrar todos os leads"
+                  className="ml-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white/60 hover:bg-white/10 hover:text-white"
+                >
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
+                    <path d="M6 6l12 12M18 6L6 18" />
+                  </svg>
+                </button>
+              )}
+            </>
           )}
-          <p className="ml-auto text-neutral-500">
-            {lidoEm && `Lido ${haQuanto(Date.now() - new Date(lidoEm).getTime())}`}
-            {leitura && leitura.sem_conversa > 0 && (
-              <> · {leitura.sem_conversa} sem conversa no WhatsApp</>
-            )}
-          </p>
-        </>
-      )}
+          {lidoEm && total === 0 && !lendo && (
+            <span className="px-3 text-[13px] font-medium text-white">
+              Nenhum follow-up pendente 🎉
+            </span>
+          )}
+        </div>
+        <p
+          className={`max-w-full truncate px-2 text-[10.5px] ${erro ? "text-red-300" : "text-white/50"}`}
+        >
+          {legenda}
+        </p>
+      </div>
     </div>
+  );
+}
+
+/** Cor do ponto de cada tag (o vermelho/laranja/cinza das tags dos cards). */
+const TAG_COR: Record<FollowupTipo, string> = {
+  responder: "#EF4444",
+  cobrar: "#F08A5D",
+  puxar: "#B0ABA4",
+};
+
+function DockChip({
+  ativo,
+  onClick,
+  children,
+}: {
+  ativo: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      aria-pressed={ativo}
+      className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-[12.5px] font-medium transition-colors"
+      style={{
+        background: ativo ? "rgba(255,255,255,0.14)" : "transparent",
+        color: ativo ? "#FFFFFF" : "rgba(255,255,255,0.75)",
+      }}
+    >
+      {children}
+    </button>
   );
 }
 

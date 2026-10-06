@@ -11,7 +11,7 @@ import {
   whatsappHref,
   type Lead,
 } from "@/lib/crm-auth";
-import { COLUNAS_FOLLOWUP, FOLLOWUP_INFO, detalheFollowup } from "@/lib/followup";
+import { COLUNAS_FOLLOWUP, FOLLOWUP_INFO, detalheCurto } from "@/lib/followup";
 
 export function LeadCard({
   lead,
@@ -53,11 +53,7 @@ export function LeadCard({
   return (
     <div
       ref={setNodeRef}
-      style={{
-        ...style,
-        borderColor: followupInfo?.cor ?? "#E0DED9",
-        borderWidth: followupInfo ? 2 : undefined,
-      }}
+      style={{ ...style, borderColor: "#E0DED9" }}
       className="group relative cursor-grab overflow-visible rounded-lg border bg-white p-3.5 shadow-sm active:cursor-grabbing"
       {...attributes}
       {...listeners}
@@ -152,13 +148,17 @@ export function LeadCard({
 
         {followup && followupInfo && (
           <p
-            className="mb-2 inline-flex max-w-full items-center gap-1 rounded-md px-2 py-1 text-[11px] font-semibold leading-tight"
-            style={{ background: followupInfo.cor, color: followupInfo.texto }}
+            className="mb-2 inline-flex max-w-full items-center gap-1.5 rounded-full py-0.5 pr-2 pl-1.5 text-[11px] leading-5"
+            style={{ background: followupInfo.fundo, color: followupInfo.tinta }}
           >
-            <span aria-hidden="true">{followupInfo.emoji}</span>
-            <span className="uppercase tracking-wide">{followupInfo.label}</span>
-            <span className="font-normal opacity-90">
-              · {detalheFollowup(followup.tipo, Date.now() - new Date(followup.ultima_msg_em).getTime())}
+            <span
+              aria-hidden="true"
+              className="h-1.5 w-1.5 shrink-0 rounded-full"
+              style={{ background: followupInfo.ponto }}
+            />
+            <span className="font-semibold">{followupInfo.label}</span>
+            <span className="truncate opacity-80">
+              {detalheCurto(followup.tipo, Date.now() - new Date(followup.ultima_msg_em).getTime())}
             </span>
           </p>
         )}

@@ -42,34 +42,43 @@ export function classificar(ultimaDe: "lead" | "nos", idadeMs: number): Followup
 
 export const FOLLOWUP_INFO: Record<
   FollowupTipo,
-  { emoji: string; label: string; titulo: string; dica: string; cor: string; texto: string; ordem: number }
+  {
+    emoji: string;
+    label: string;
+    titulo: string;
+    dica: string;
+    /** Tag do card: fundo, texto e ponto. */
+    fundo: string;
+    tinta: string;
+    ponto: string;
+  }
 > = {
   responder: {
     emoji: "🔴",
     label: "Responder",
     titulo: "Responder agora",
     dica: "o lead está esperando",
-    cor: "#B91C1C",
-    texto: "#FFFFFF",
-    ordem: 0,
+    fundo: "#FDE8E8",
+    tinta: "#991B1B",
+    ponto: "#DC2626",
   },
   cobrar: {
     emoji: "🟠",
     label: "Cobrar",
     titulo: "Cobrar resposta",
     dica: "a gente falou por último",
-    cor: "#D75631",
-    texto: "#FFFFFF",
-    ordem: 1,
+    fundo: "#FBE9E1",
+    tinta: "#9A3412",
+    ponto: "#D75631",
   },
   puxar: {
     emoji: "⚪",
     label: "Puxar assunto",
     titulo: "Puxar assunto",
     dica: "ninguém fala há 5 dias ou mais",
-    cor: "#121110",
-    texto: "#CFFF87",
-    ordem: 2,
+    fundo: "#EEECE8",
+    tinta: "#44403C",
+    ponto: "#8A847C",
   },
 };
 
@@ -91,4 +100,10 @@ export function detalheFollowup(tipo: FollowupTipo, idadeMs: number): string {
   if (tipo === "responder") return `mandou mensagem ${haQuanto(idadeMs)}`;
   if (tipo === "cobrar") return `${n} ${n === 1 ? "dia" : "dias"} sem retorno`;
   return `${n} dias parado`;
+}
+
+/** Versão curta para a tag do card: "há 5h", "3 dias sem retorno", "12 dias parado". */
+export function detalheCurto(tipo: FollowupTipo, idadeMs: number): string {
+  if (tipo === "responder") return haQuanto(idadeMs);
+  return detalheFollowup(tipo, idadeMs);
 }
