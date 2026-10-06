@@ -22,6 +22,7 @@ import {
 } from "@/lib/crm-auth";
 import { LeadCard } from "@/components/crm/LeadCard";
 import { LeadPanel } from "@/components/crm/LeadPanel";
+import { GanhoModal } from "@/components/crm/GanhoModal";
 import { CrmSidebar } from "@/components/crm/Sidebar";
 
 export const Route = createFileRoute("/crm/kanban")({
@@ -34,6 +35,8 @@ function KanbanPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [opened, setOpened] = useState<Lead | null>(null);
+  // Lead esperando o valor fechado para ir para Ganho.
+  const [paraGanho, setParaGanho] = useState<Lead | null>(null);
 
   const [fFat, setFFat] = useState("");
   const [fUtm, setFUtm] = useState("");
@@ -138,21 +141,33 @@ function KanbanPage() {
     });
   }, [leads, fFat, fUtm, search, filtroFollowup]);
 
-  async function moveLead(leadId: string, dest: string) {
+  async function moveLead(leadId: string, dest: string, valorFechado?: number) {
     const lead = leads.find((l) => l.id === leadId);
     if (!lead || lead.coluna === dest) return;
+    // Ganho pede o valor antes: o card só muda depois de confirmar.
+    if (dest === "ganho" && valorFechado === undefined) {
+      setParaGanho(lead);
+      return;
+    }
 
     const origem = lead.coluna;
-    setLeads((prev) => prev.map((l) => (l.id === leadId ? { ...l, coluna: dest } : l)));
+    const campos: Partial<Lead> =
+      dest === "ganho"
+        ? { coluna: dest, valor_fechado: valorFechado, ganho_em: new Date().toISOString() }
+        : origem === "ganho"
+          ? { coluna: dest, valor_fechado: null, ganho_em: null }
+          : { coluna: dest };
+    setLeads((prev) => prev.map((l) => (l.id === leadId ? { ...l, ...campos } : l)));
     if (opened?.id === leadId) {
-      setOpened((p) => (p ? { ...p, coluna: dest } : p));
+      setOpened((p) => (p ? { ...p, ...campos } : p));
     }
 
     try {
-      await apiUpdateColumn(leadId, dest, origem);
+      await apiUpdateColumn(leadId, dest, origem, valorFechado);
     } catch (err) {
       console.error(err);
-      setLeads((prev) => prev.map((l) => (l.id === leadId ? { ...l, coluna: origem } : l)));
+      setLeads((prev) => prev.map((l) => (l.id === leadId ? lead : l)));
+      alert("Não foi possível mover o lead. Tente novamente.");
     }
   }
 
@@ -302,6 +317,18 @@ function KanbanPage() {
           onLer={() => void verFollowups()}
           onFiltro={setFiltroFollowup}
         />
+
+        {paraGanho && (
+          <GanhoModal
+            lead={paraGanho}
+            onCancel={() => setParaGanho(null)}
+            onConfirm={async (valor) => {
+              const id = paraGanho.id;
+              setParaGanho(null);
+              await moveLead(id, "ganho", valor);
+            }}
+          />
+        )}
 
         {opened && (
           <LeadPanel

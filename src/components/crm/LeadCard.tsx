@@ -4,10 +4,12 @@ import { CSS } from "@dnd-kit/utilities";
 import {
   COLUNAS,
   COLUNA_PERDIDO,
+  formatBRL,
   formatDate,
   instagramHandle,
   instagramHref,
   isSemFaturamento,
+  valorFechado,
   whatsappHref,
   type Lead,
 } from "@/lib/crm-auth";
@@ -31,6 +33,7 @@ export function LeadCard({
   const followup =
     lead.followup && COLUNAS_FOLLOWUP.includes(lead.coluna) ? lead.followup : null;
   const followupInfo = followup ? FOLLOWUP_INFO[followup.tipo] : null;
+  const valor = lead.coluna === "ganho" ? valorFechado(lead) : null;
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
@@ -160,6 +163,14 @@ export function LeadCard({
             <span className="truncate opacity-80">
               {detalheCurto(followup.tipo, Date.now() - new Date(followup.ultima_msg_em).getTime())}
             </span>
+          </p>
+        )}
+        {valor !== null && (
+          <p
+            className="mb-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold leading-5"
+            style={{ background: "#CFFF87", color: "#121110" }}
+          >
+            🏆 {formatBRL(valor)}
           </p>
         )}
         <div className="flex items-start justify-between gap-2">

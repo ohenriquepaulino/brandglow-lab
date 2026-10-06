@@ -27,6 +27,7 @@ import { Route as CrmVideosRouteImport } from './routes/crm.videos'
 import { Route as CrmTarefasRouteImport } from './routes/crm.tarefas'
 import { Route as CrmKanbanRouteImport } from './routes/crm.kanban'
 import { Route as CrmGravadorRouteImport } from './routes/crm.gravador'
+import { Route as CrmDashboardRouteImport } from './routes/crm.dashboard'
 import { Route as CrmAbRouteImport } from './routes/crm.ab'
 import { Route as CasesSlugRouteImport } from './routes/cases.$slug'
 import { Route as CrmPropostasIndexRouteImport } from './routes/crm.propostas.index'
@@ -138,6 +139,11 @@ const CrmKanbanRoute = CrmKanbanRouteImport.update({
 const CrmGravadorRoute = CrmGravadorRouteImport.update({
   id: '/gravador',
   path: '/gravador',
+  getParentRoute: () => CrmRoute,
+} as any)
+const CrmDashboardRoute = CrmDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => CrmRoute,
 } as any)
 const CrmAbRoute = CrmAbRouteImport.update({
@@ -268,6 +274,7 @@ export interface FileRoutesByFullPath {
   '/tks': typeof TksRoute
   '/cases/$slug': typeof CasesSlugRoute
   '/crm/ab': typeof CrmAbRoute
+  '/crm/dashboard': typeof CrmDashboardRoute
   '/crm/gravador': typeof CrmGravadorRoute
   '/crm/kanban': typeof CrmKanbanRoute
   '/crm/tarefas': typeof CrmTarefasRoute
@@ -309,6 +316,7 @@ export interface FileRoutesByTo {
   '/tks': typeof TksRoute
   '/cases/$slug': typeof CasesSlugRoute
   '/crm/ab': typeof CrmAbRoute
+  '/crm/dashboard': typeof CrmDashboardRoute
   '/crm/gravador': typeof CrmGravadorRoute
   '/crm/kanban': typeof CrmKanbanRoute
   '/crm/tarefas': typeof CrmTarefasRoute
@@ -352,6 +360,7 @@ export interface FileRoutesById {
   '/tks': typeof TksRoute
   '/cases/$slug': typeof CasesSlugRoute
   '/crm/ab': typeof CrmAbRoute
+  '/crm/dashboard': typeof CrmDashboardRoute
   '/crm/gravador': typeof CrmGravadorRoute
   '/crm/kanban': typeof CrmKanbanRoute
   '/crm/tarefas': typeof CrmTarefasRoute
@@ -396,6 +405,7 @@ export interface FileRouteTypes {
     | '/tks'
     | '/cases/$slug'
     | '/crm/ab'
+    | '/crm/dashboard'
     | '/crm/gravador'
     | '/crm/kanban'
     | '/crm/tarefas'
@@ -437,6 +447,7 @@ export interface FileRouteTypes {
     | '/tks'
     | '/cases/$slug'
     | '/crm/ab'
+    | '/crm/dashboard'
     | '/crm/gravador'
     | '/crm/kanban'
     | '/crm/tarefas'
@@ -479,6 +490,7 @@ export interface FileRouteTypes {
     | '/tks'
     | '/cases/$slug'
     | '/crm/ab'
+    | '/crm/dashboard'
     | '/crm/gravador'
     | '/crm/kanban'
     | '/crm/tarefas'
@@ -673,6 +685,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CrmGravadorRouteImport
       parentRoute: typeof CrmRoute
     }
+    '/crm/dashboard': {
+      id: '/crm/dashboard'
+      path: '/dashboard'
+      fullPath: '/crm/dashboard'
+      preLoaderRoute: typeof CrmDashboardRouteImport
+      parentRoute: typeof CrmRoute
+    }
     '/crm/ab': {
       id: '/crm/ab'
       path: '/ab'
@@ -832,6 +851,7 @@ declare module '@tanstack/react-router' {
 
 interface CrmRouteChildren {
   CrmAbRoute: typeof CrmAbRoute
+  CrmDashboardRoute: typeof CrmDashboardRoute
   CrmGravadorRoute: typeof CrmGravadorRoute
   CrmKanbanRoute: typeof CrmKanbanRoute
   CrmTarefasRoute: typeof CrmTarefasRoute
@@ -844,6 +864,7 @@ interface CrmRouteChildren {
 
 const CrmRouteChildren: CrmRouteChildren = {
   CrmAbRoute: CrmAbRoute,
+  CrmDashboardRoute: CrmDashboardRoute,
   CrmGravadorRoute: CrmGravadorRoute,
   CrmKanbanRoute: CrmKanbanRoute,
   CrmTarefasRoute: CrmTarefasRoute,

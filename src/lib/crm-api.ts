@@ -42,8 +42,13 @@ export async function apiUpdateColumn(
   id: string,
   coluna: string,
   coluna_origem: string,
+  valor_fechado?: number,
 ): Promise<void> {
-  await call({ action: "update_column", id, coluna, coluna_origem });
+  await call({ action: "update_column", id, coluna, coluna_origem, valor_fechado });
+}
+
+export async function apiUpdateValor(id: string, valor_fechado: number): Promise<void> {
+  await call({ action: "update_valor", id, valor_fechado });
 }
 
 export async function apiUpdateAnotacoes(id: string, anotacoes: string): Promise<Lead | null> {
