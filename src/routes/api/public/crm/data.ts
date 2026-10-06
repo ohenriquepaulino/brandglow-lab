@@ -50,12 +50,15 @@ export const Route = createFileRoute("/api/public/crm/data")({
 
         switch (payload.action) {
           case "list_leads": {
-            const { data, error } = await supabase
-              .from("leads")
-              .select("*")
-              .order("criado_em", { ascending: false });
+            const [{ data, error }, { data: config }] = await Promise.all([
+              supabase
+                .from("leads")
+                .select("*, followup:followup_leads(tipo, ultima_msg_em, ultima_de)")
+                .order("criado_em", { ascending: false }),
+              supabase.from("whatsapp_config").select("followup_lido_em").eq("id", 1).maybeSingle(),
+            ]);
             if (error) return Response.json({ error: error.message }, { status: 500 });
-            return Response.json({ data });
+            return Response.json({ data, followup_lido_em: config?.followup_lido_em ?? null });
           }
           case "list_historico": {
             const { data, error } = await supabase

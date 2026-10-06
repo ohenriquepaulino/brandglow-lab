@@ -8,7 +8,9 @@ import {
   useSensors,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import { apiDeleteLead, apiListLeads, apiUpdateColumn } from "@/lib/crm-api";
+import { apiDeleteLead, apiListLeadsComFollowup, apiUpdateColumn } from "@/lib/crm-api";
+import { apiFollowupLer, type FollowupLeitura } from "@/lib/whatsapp-api";
+import { COLUNAS_FOLLOWUP, FOLLOWUP_INFO, haQuanto, type FollowupTipo } from "@/lib/followup";
 import {
   COLUNAS,
   COLUNA_PERDIDO,
@@ -37,6 +39,12 @@ function KanbanPage() {
   const [fUtm, setFUtm] = useState("");
   const [search, setSearch] = useState("");
   const [showPerdidos, setShowPerdidos] = useState(false);
+  const [soFollowup, setSoFollowup] = useState(false);
+
+  const [followupLidoEm, setFollowupLidoEm] = useState<string | null>(null);
+  const [lendo, setLendo] = useState(false);
+  const [leitura, setLeitura] = useState<FollowupLeitura | null>(null);
+  const [erroLeitura, setErroLeitura] = useState<string | null>(null);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
@@ -55,12 +63,26 @@ function KanbanPage() {
   async function loadLeads(silent = false) {
     if (!silent) setLoading(true);
     try {
-      const data = await apiListLeads();
+      const { leads: data, followupLidoEm: lidoEm } = await apiListLeadsComFollowup();
       setLeads(data.map((l) => ({ ...l, coluna: normalizeColuna(l.coluna) })));
+      setFollowupLidoEm(lidoEm);
     } catch (err) {
       console.error(err);
     }
     if (!silent) setLoading(false);
+  }
+
+  async function verFollowups() {
+    setLendo(true);
+    setErroLeitura(null);
+    try {
+      setLeitura(await apiFollowupLer());
+      await loadLeads(true);
+      setSoFollowup(true);
+    } catch (err) {
+      setErroLeitura(err instanceof Error ? err.message : String(err));
+    }
+    setLendo(false);
   }
 
   function handleLogout() {
@@ -90,9 +112,17 @@ function KanbanPage() {
     [leads],
   );
 
+  const comFollowup = useMemo(() => leads.filter(temFollowup), [leads]);
+  const contagem = useMemo(() => {
+    const c: Record<FollowupTipo, number> = { responder: 0, cobrar: 0, puxar: 0 };
+    for (const l of comFollowup) c[l.followup!.tipo]++;
+    return c;
+  }, [comFollowup]);
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return leads.filter((l) => {
+      if (soFollowup && !temFollowup(l)) return false;
       if (fFat && l.faturamento !== fFat) return false;
       if (fUtm && l.utm_source !== fUtm) return false;
       if (q) {
@@ -102,7 +132,7 @@ function KanbanPage() {
       }
       return true;
     });
-  }, [leads, fFat, fUtm, search]);
+  }, [leads, fFat, fUtm, search, soFollowup]);
 
   async function moveLead(leadId: string, dest: string) {
     const lead = leads.find((l) => l.id === leadId);
@@ -139,6 +169,14 @@ function KanbanPage() {
           <p className="text-sm font-semibold text-neutral-900">Legacy BrandCo.</p>
           <div className="flex items-center gap-2">
             <button
+              onClick={() => void verFollowups()}
+              disabled={lendo}
+              className="rounded-md px-3 py-1.5 text-xs font-semibold disabled:opacity-60"
+              style={{ background: "#121110", color: "#CFFF87" }}
+            >
+              {lendo ? "Lendo o WhatsApp..." : "☐ Ver follow-ups"}
+            </button>
+            <button
               onClick={() => void loadLeads()}
               className="rounded-md border px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50"
               style={{ borderColor: "#E0DED9" }}
@@ -154,6 +192,15 @@ function KanbanPage() {
             </button>
           </div>
         </header>
+
+        <FollowupBar
+          lidoEm={followupLidoEm}
+          contagem={contagem}
+          leitura={leitura}
+          erro={erroLeitura}
+          ativo={soFollowup}
+          onToggle={() => setSoFollowup((v) => !v)}
+        />
 
         <div className="px-6 pt-5">
           <div className="flex flex-wrap items-end gap-3">
@@ -262,12 +309,77 @@ function KanbanPage() {
             lead={opened}
             onClose={() => setOpened(null)}
             onUpdated={(updated) => {
-              setLeads((prev) => prev.map((l) => (l.id === updated.id ? updated : l)));
-              setOpened(updated);
+              // A rota de edição não devolve a tag de follow-up: mantém a que já tinha.
+              const comTag = { ...updated, followup: updated.followup ?? opened.followup };
+              setLeads((prev) => prev.map((l) => (l.id === updated.id ? comTag : l)));
+              setOpened(comTag);
             }}
           />
         )}
       </div>
+    </div>
+  );
+}
+
+/** Tag vale só nas etapas de follow-up: mover para Ganho/Perdido já tira o card da lista. */
+function temFollowup(l: Lead) {
+  return !!l.followup && COLUNAS_FOLLOWUP.includes(l.coluna);
+}
+
+function FollowupBar({
+  lidoEm,
+  contagem,
+  leitura,
+  erro,
+  ativo,
+  onToggle,
+}: {
+  lidoEm: string | null;
+  contagem: Record<FollowupTipo, number>;
+  leitura: FollowupLeitura | null;
+  erro: string | null;
+  ativo: boolean;
+  onToggle: () => void;
+}) {
+  const total = contagem.responder + contagem.cobrar + contagem.puxar;
+  if (!lidoEm && !erro) return null;
+  return (
+    <div
+      className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b bg-white px-6 py-2.5 text-xs"
+      style={{ borderColor: "#E0DED9" }}
+    >
+      {erro ? (
+        <p className="text-red-600">Não consegui ler o WhatsApp: {erro}</p>
+      ) : (
+        <>
+          <p className="font-semibold text-neutral-900">
+            {total === 0 ? "Nenhum follow-up pendente 🎉" : `${total} para follow-up`}
+          </p>
+          {(["responder", "cobrar", "puxar"] as FollowupTipo[]).map((t) =>
+            contagem[t] > 0 ? (
+              <span key={t} className="text-neutral-700">
+                {FOLLOWUP_INFO[t].emoji} {contagem[t]} {FOLLOWUP_INFO[t].label.toLowerCase()}
+              </span>
+            ) : null,
+          )}
+          {total > 0 && (
+            <button
+              onClick={onToggle}
+              aria-pressed={ativo}
+              className="rounded-md border px-2.5 py-1 font-medium text-neutral-700 hover:bg-neutral-50"
+              style={{ borderColor: "#E0DED9", background: ativo ? "#ECE9E4" : undefined }}
+            >
+              {ativo ? "Mostrar todos os leads" : "Mostrar só follow-ups"}
+            </button>
+          )}
+          <p className="ml-auto text-neutral-500">
+            {lidoEm && `Lido ${haQuanto(Date.now() - new Date(lidoEm).getTime())}`}
+            {leitura && leitura.sem_conversa > 0 && (
+              <> · {leitura.sem_conversa} sem conversa no WhatsApp</>
+            )}
+          </p>
+        </>
+      )}
     </div>
   );
 }

@@ -11,6 +11,8 @@ import {
   apiWhatsAppStatus,
   apiWhatsAppSaveAviso,
   apiWhatsAppTestAviso,
+  apiFollowupSaveResumo,
+  apiFollowupTestResumo,
   type AvisoConfig,
   type EstadoWhatsApp,
   type WhatsAppConfig,
@@ -97,6 +99,7 @@ function WhatsAppContent() {
 
   const [envios, setEnvios] = useState<WhatsAppEnvio[]>([]);
   const [aviso, setAviso] = useState<AvisoConfig | null>(null);
+  const [resumoAtivo, setResumoAtivo] = useState<boolean | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -120,6 +123,7 @@ function WhatsAppContent() {
           aviso_ativo: data.config.aviso_ativo,
           aviso_grupo_nome: data.config.aviso_grupo_nome,
         });
+        setResumoAtivo(data.config.followup_resumo_ativo);
       }
     } catch (err) {
       console.error(err);
@@ -340,6 +344,10 @@ function WhatsAppContent() {
 
       {aviso && <AvisoGrupo inicial={aviso} conectado={estado === "conectado"} />}
 
+      {resumoAtivo !== null && (
+        <ResumoFollowup inicial={resumoAtivo} conectado={estado === "conectado"} />
+      )}
+
       {/* Últimos envios */}
       <section className="rounded-lg border bg-white p-5" style={{ borderColor: BORDER }}>
         <div className="flex items-center justify-between">
@@ -430,6 +438,67 @@ function AvisoGrupo({ inicial, conectado }: { inicial: AvisoConfig; conectado: b
           style={{ borderColor: BORDER }}
         >
           Enviar teste no grupo
+        </button>
+        {msg && <p className="text-xs text-neutral-600">{msg}</p>}
+      </div>
+    </section>
+  );
+}
+
+function ResumoFollowup({ inicial, conectado }: { inicial: boolean; conectado: boolean }) {
+  const [ativo, setAtivo] = useState(inicial);
+  const [msg, setMsg] = useState<string | null>(null);
+
+  async function alternar(novo: boolean) {
+    setAtivo(novo);
+    try {
+      await apiFollowupSaveResumo(novo);
+    } catch (err) {
+      setAtivo(!novo);
+      alert(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  async function testar() {
+    setMsg("Lendo o WhatsApp e enviando...");
+    try {
+      await apiFollowupTestResumo();
+      setMsg("Resumo enviado no grupo.");
+    } catch (err) {
+      setMsg(`Falhou: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  return (
+    <section className="rounded-lg border bg-white p-5" style={{ borderColor: BORDER }}>
+      <div className="flex items-center justify-between">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-neutral-500">
+          Resumo de follow-up no grupo
+        </p>
+        <label className="flex cursor-pointer items-center gap-2 text-sm text-neutral-800">
+          <input
+            type="checkbox"
+            checked={ativo}
+            onChange={(e) => alternar(e.target.checked)}
+            className="h-4 w-4 accent-neutral-900"
+          />
+          Ativo
+        </label>
+      </div>
+      <p className="mt-2 text-xs text-neutral-500">
+        De segunda a sexta, às 8h, chega no mesmo grupo do aviso a lista do dia em formato de
+        to-do: <em>🔴 responder</em> (o lead falou por último há 2h ou mais), <em>🟠 cobrar</em>{" "}
+        (nós falamos por último há 2 dias ou mais) e <em>⚪ puxar assunto</em> (ninguém fala há 5
+        dias ou mais). O teste envia a lista de agora e não conta como o resumo do dia.
+      </p>
+      <div className="mt-3 flex items-center gap-3">
+        <button
+          onClick={testar}
+          disabled={!conectado}
+          className="rounded-md border px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50 disabled:opacity-40"
+          style={{ borderColor: BORDER }}
+        >
+          Enviar resumo agora
         </button>
         {msg && <p className="text-xs text-neutral-600">{msg}</p>}
       </div>

@@ -11,6 +11,14 @@ export type WhatsAppConfig = { ativo: boolean; mensagem: string; atraso_segundos
 
 export type AvisoConfig = { aviso_ativo: boolean; aviso_grupo_nome: string | null };
 
+export type FollowupLeitura = {
+  ativos: number;
+  sem_conversa: number;
+  responder: number;
+  cobrar: number;
+  puxar: number;
+};
+
 export type WhatsAppEnvio = {
   id: string;
   lead_id: string | null;
@@ -40,7 +48,7 @@ async function call<T = unknown>(body: Record<string, unknown>): Promise<T> {
 export async function apiWhatsAppGet() {
   const { data } = await call<{
     data: {
-      config: (WhatsAppConfig & AvisoConfig) | null;
+      config: (WhatsAppConfig & AvisoConfig & { followup_resumo_ativo: boolean }) | null;
       envios: WhatsAppEnvio[];
       evolution_configurada: boolean;
     };
@@ -85,4 +93,17 @@ export async function apiWhatsAppSaveAviso(aviso_ativo: boolean) {
 
 export async function apiWhatsAppTestAviso() {
   await call({ action: "test_aviso" });
+}
+
+export async function apiFollowupLer(): Promise<FollowupLeitura> {
+  const { data } = await call<{ data: FollowupLeitura }>({ action: "followup_ler" });
+  return data;
+}
+
+export async function apiFollowupSaveResumo(ativo: boolean) {
+  await call({ action: "followup_save_resumo", ativo });
+}
+
+export async function apiFollowupTestResumo() {
+  await call({ action: "followup_test_resumo" });
 }

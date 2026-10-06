@@ -11,6 +11,7 @@ import {
   whatsappHref,
   type Lead,
 } from "@/lib/crm-auth";
+import { COLUNAS_FOLLOWUP, FOLLOWUP_INFO, detalheFollowup } from "@/lib/followup";
 
 export function LeadCard({
   lead,
@@ -27,6 +28,9 @@ export function LeadCard({
     useDraggable({ id: lead.id });
 
   const semFaturamento = isSemFaturamento(lead);
+  const followup =
+    lead.followup && COLUNAS_FOLLOWUP.includes(lead.coluna) ? lead.followup : null;
+  const followupInfo = followup ? FOLLOWUP_INFO[followup.tipo] : null;
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
@@ -49,7 +53,11 @@ export function LeadCard({
   return (
     <div
       ref={setNodeRef}
-      style={{ ...style, borderColor: "#E0DED9" }}
+      style={{
+        ...style,
+        borderColor: followupInfo?.cor ?? "#E0DED9",
+        borderWidth: followupInfo ? 2 : undefined,
+      }}
       className="group relative cursor-grab overflow-visible rounded-lg border bg-white p-3.5 shadow-sm active:cursor-grabbing"
       {...attributes}
       {...listeners}
@@ -142,6 +150,18 @@ export function LeadCard({
         className="w-full pr-12 text-left"
       >
 
+        {followup && followupInfo && (
+          <p
+            className="mb-2 inline-flex max-w-full items-center gap-1 rounded-md px-2 py-1 text-[11px] font-semibold leading-tight"
+            style={{ background: followupInfo.cor, color: followupInfo.texto }}
+          >
+            <span aria-hidden="true">{followupInfo.emoji}</span>
+            <span className="uppercase tracking-wide">{followupInfo.label}</span>
+            <span className="font-normal opacity-90">
+              · {detalheFollowup(followup.tipo, Date.now() - new Date(followup.ultima_msg_em).getTime())}
+            </span>
+          </p>
+        )}
         <div className="flex items-start justify-between gap-2">
           <p className="text-sm font-semibold text-neutral-900">{lead.nome}</p>
         </div>

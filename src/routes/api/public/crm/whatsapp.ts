@@ -13,6 +13,7 @@ import {
   montarMensagem,
   normalizarTelefone,
 } from "@/lib/whatsapp.server";
+import { enviarResumoFollowup, lerFollowups } from "@/lib/followup.server";
 
 const ActionSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("get") }),
@@ -33,6 +34,9 @@ const ActionSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("list_envios_lead"), lead_id: z.string().uuid() }),
   z.object({ action: z.literal("save_aviso"), aviso_ativo: z.boolean() }),
   z.object({ action: z.literal("test_aviso") }),
+  z.object({ action: z.literal("followup_ler") }),
+  z.object({ action: z.literal("followup_save_resumo"), ativo: z.boolean() }),
+  z.object({ action: z.literal("followup_test_resumo") }),
 ]);
 
 function unauthorized() {
@@ -73,7 +77,9 @@ export const Route = createFileRoute("/api/public/crm/whatsapp")({
             const [{ data: config, error }, { data: envios }] = await Promise.all([
               supabase
                 .from("whatsapp_config")
-                .select("ativo, mensagem, atraso_segundos, aviso_ativo, aviso_grupo_nome")
+                .select(
+                  "ativo, mensagem, atraso_segundos, aviso_ativo, aviso_grupo_nome, followup_resumo_ativo",
+                )
                 .eq("id", 1)
                 .maybeSingle(),
               supabase
@@ -165,6 +171,38 @@ export const Route = createFileRoute("/api/public/crm/whatsapp")({
               .eq("id", 1);
             if (error) return Response.json({ error: error.message }, { status: 500 });
             return Response.json({ success: true });
+          }
+          case "followup_ler": {
+            try {
+              const leitura = await lerFollowups(supabase);
+              const por = (t: string) => leitura.itens.filter((i) => i.tipo === t).length;
+              return Response.json({
+                data: {
+                  ativos: leitura.ativos,
+                  sem_conversa: leitura.semConversa,
+                  responder: por("responder"),
+                  cobrar: por("cobrar"),
+                  puxar: por("puxar"),
+                },
+              });
+            } catch (e) {
+              return erro(e);
+            }
+          }
+          case "followup_save_resumo": {
+            const { error } = await supabase
+              .from("whatsapp_config")
+              .update({ followup_resumo_ativo: payload.ativo, updated_at: new Date().toISOString() })
+              .eq("id", 1);
+            if (error) return Response.json({ error: error.message }, { status: 500 });
+            return Response.json({ success: true });
+          }
+          case "followup_test_resumo": {
+            try {
+              return Response.json({ data: await enviarResumoFollowup(supabase, { forcar: true }) });
+            } catch (e) {
+              return erro(e);
+            }
           }
           case "test_aviso": {
             try {

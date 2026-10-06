@@ -1,3 +1,4 @@
+import type { Followup } from "@/lib/followup";
 import { telefoneInternacional } from "./telefone";
 
 export const CRM_USER = "legacybrandco";
@@ -78,6 +79,8 @@ export type Lead = {
   coluna: string;
   anotacoes: string | null;
   criado_em: string;
+  /** Tag da última leitura de follow-up (botão "Ver follow-ups"). */
+  followup?: Followup | null;
 };
 
 export type Movimentacao = {
