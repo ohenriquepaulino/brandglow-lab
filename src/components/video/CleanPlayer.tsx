@@ -8,8 +8,9 @@ import { formatTempo, youtubeThumb } from "@/lib/video";
 //   - o iframe tem 3x a altura da caixa e fica centralizado: o vídeo (16:9)
 //     aparece inteiro no meio e as barras do YouTube (título em cima, logo
 //     embaixo) ficam fora da área visível;
-//   - uma camada por cima do iframe recebe todos os cliques, então nada do
-//     YouTube é clicável;
+//   - o primeiro toque (na nossa capa) atravessa até o player do YouTube, para
+//     o navegador liberar o som; depois disso uma camada por cima do iframe
+//     recebe todos os cliques e nada do YouTube é clicável;
 //   - capa antes do play, tela própria no fim (cobre a grade de sugestões).
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -52,11 +53,14 @@ export function CleanPlayer({
   titulo,
   duracaoConhecida,
   eventos,
+  chaveRetomar,
 }: {
   youtubeId: string;
   titulo: string;
   duracaoConhecida?: number | null;
   eventos: PlayerEventos;
+  /** localStorage onde guardar o ponto em que parou (um por link). */
+  chaveRetomar?: string;
 }) {
   const caixaRef = useRef<HTMLDivElement>(null);
   const hostRef = useRef<HTMLDivElement>(null);
@@ -77,15 +81,75 @@ export function CleanPlayer({
   const [controles, setControles] = useState(true);
   const [telaCheia, setTelaCheia] = useState(false);
   const [telaCheiaFalsa, setTelaCheiaFalsa] = useState(false);
-  // Alguns celulares (iPhone) só deixam o vídeo começar com um toque dentro
-  // do próprio player. Se o play pedido por nós não pega, liberamos o toque.
-  const [precisaToque, setPrecisaToque] = useState(false);
+  // Tocou na capa e o vídeo ainda não começou: mostra "carregando" na hora.
+  const [iniciando, setIniciando] = useState(false);
+  // O navegador não deixou ligar o som sozinho: mostra o botão "Ativar som".
+  const [somBloqueado, setSomBloqueado] = useState(false);
+  // Retomou de onde a pessoa tinha parado numa visita anterior (segundo).
+  const [retomadoDe, setRetomadoDe] = useState<number | null>(null);
   const [arrastando, setArrastando] = useState<number | null>(null);
   const [capaQ, setCapaQ] = useState<"maxres" | "hq">("maxres");
 
   const parado = useRef(true);
+  const jaComecou = useRef(false);
   const esconderTimer = useRef<number | null>(null);
-  const playTimer = useRef<number | null>(null);
+  const ultimoSalvo = useRef(0);
+
+  // ─── Continuar de onde parou ─────────────────────────────────────────────
+  const chaveRef = useRef(chaveRetomar);
+  chaveRef.current = chaveRetomar;
+  function lerPosicao(): number {
+    try {
+      return chaveRef.current ? Number(localStorage.getItem(chaveRef.current)) || 0 : 0;
+    } catch {
+      return 0;
+    }
+  }
+  function salvarPosicao(seg: number, dur: number) {
+    if (!chaveRef.current || Math.abs(seg - ultimoSalvo.current) < 3) return;
+    ultimoSalvo.current = seg;
+    try {
+      if (seg > 15 && (!dur || seg < dur - 15)) localStorage.setItem(chaveRef.current, String(seg));
+    } catch {
+      // sem localStorage: só não retoma
+    }
+  }
+  function esquecerPosicao() {
+    try {
+      if (chaveRef.current) localStorage.removeItem(chaveRef.current);
+    } catch {
+      // idem
+    }
+  }
+
+  /**
+   * Primeira vez que o vídeo começa: garante o som, devolve o foco para os
+   * atalhos de teclado e retoma de onde a pessoa parou numa visita anterior.
+   * Só usa refs e setters (roda dentro do evento do YouTube).
+   */
+  function primeiroPlay(p: any) {
+    try {
+      if (p.isMuted?.()) p.unMute();
+      if ((p.getVolume?.() ?? 100) < 10) p.setVolume(100);
+    } catch {
+      // segue
+    }
+    window.setTimeout(() => {
+      const m = !!playerRef.current?.isMuted?.();
+      setMudo(m);
+      setSomBloqueado(m);
+    }, 800);
+    caixaRef.current?.focus({ preventScroll: true });
+
+    const salvo = lerPosicao();
+    const d = p.getDuration?.() ?? 0;
+    if (salvo > 15 && (!d || salvo < d - 15)) {
+      p.seekTo(salvo, true);
+      setTempo(salvo);
+      setRetomadoDe(salvo);
+      window.setTimeout(() => setRetomadoDe(null), 7000);
+    }
+  }
 
   // ─── YouTube ────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -128,8 +192,11 @@ export function CleanPlayer({
             const pos = Math.floor(p.getCurrentTime?.() ?? 0);
             // 1 tocando, 2 pausado, 0 fim, 3 carregando
             if (e.data === 1) {
-              if (playTimer.current) window.clearTimeout(playTimer.current);
-              setPrecisaToque(false);
+              setIniciando(false);
+              if (!jaComecou.current) {
+                jaComecou.current = true;
+                primeiroPlay(p);
+              }
               setComecou(true);
               setTocando(true);
               setCarregando(false);
@@ -153,9 +220,11 @@ export function CleanPlayer({
               setTocando(false);
               setCarregando(false);
               setTerminou(true);
+              esquecerPosicao();
               ev.current.onFim?.(Math.round(p.getDuration?.() ?? pos));
             } else if (e.data === 3) {
               setCarregando(true);
+              if (!jaComecou.current) setIniciando(true);
             }
           },
         },
@@ -182,10 +251,46 @@ export function CleanPlayer({
       const t = p.getCurrentTime();
       setTempo(t);
       setBaixado(p.getVideoLoadedFraction?.() ?? 0);
+      // O ícone de som segue o estado real do player.
+      const m = p.isMuted?.();
+      if (typeof m === "boolean") setMudo(m);
       ev.current.onAmostra?.(Math.floor(t));
+      salvarPosicao(Math.floor(t), p.getDuration?.() ?? 0);
     }, 250);
     return () => window.clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tocando]);
+
+  // Tocar na capa = tocar dentro do iframe do YouTube (o toque passa pela
+  // capa). A janela perde o foco para o iframe: é o sinal para mostrar
+  // "carregando" na hora, antes do YouTube responder.
+  // O YouTube só começa sozinho quando o toque cai no botão de play dele (o
+  // meio da capa, embaixo do nosso botão verde). Se o toque caiu em outro
+  // ponto da capa, mandamos o play logo em seguida — o toque já aconteceu
+  // dentro do player, então o som continua liberado.
+  useEffect(() => {
+    if (comecou) return;
+    const aoPerderFoco = () => {
+      window.setTimeout(() => {
+        if (!hostRef.current?.contains(document.activeElement)) return;
+        setIniciando(true);
+        window.setTimeout(() => {
+          const p = playerRef.current;
+          const estado = p?.getPlayerState?.();
+          if (!jaComecou.current && estado !== 1 && estado !== 3) p?.playVideo?.();
+        }, 600);
+      }, 0);
+    };
+    window.addEventListener("blur", aoPerderFoco);
+    return () => window.removeEventListener("blur", aoPerderFoco);
+  }, [comecou]);
+
+  // Se o YouTube não responder ao toque em alguns segundos, volta o botão.
+  useEffect(() => {
+    if (!iniciando || comecou) return;
+    const t = window.setTimeout(() => setIniciando(false), 8000);
+    return () => window.clearTimeout(t);
+  }, [iniciando, comecou]);
 
   // ─── Ações ──────────────────────────────────────────────────────────────
   const mostrarControles = useCallback(() => {
@@ -201,15 +306,31 @@ export function CleanPlayer({
     } else mostrarControles();
   }, [tocando, mostrarControles]);
 
+  // Play pelos nossos controles (pause/continuar, teclado, "assistir de novo").
+  // Depois do primeiro toque dentro do player, o navegador já libera o som.
   const tocar = useCallback(() => {
     const p = playerRef.current;
     if (!p?.playVideo) return;
     p.playVideo();
-    if (playTimer.current) window.clearTimeout(playTimer.current);
-    playTimer.current = window.setTimeout(() => {
-      const estado = playerRef.current?.getPlayerState?.();
-      if (estado !== 1 && estado !== 3) setPrecisaToque(true);
-    }, 1500);
+  }, []);
+
+  const ativarSom = useCallback(() => {
+    const p = playerRef.current;
+    if (!p) return;
+    p.unMute();
+    if ((p.getVolume?.() ?? 100) < 10) p.setVolume(100);
+    setMudo(false);
+    setSomBloqueado(false);
+  }, []);
+
+  const voltarAoInicio = useCallback(() => {
+    const p = playerRef.current;
+    if (!p) return;
+    const de = Math.floor(p.getCurrentTime?.() ?? 0);
+    p.seekTo(0, true);
+    setTempo(0);
+    setRetomadoDe(null);
+    ev.current.onPulo?.(de, 0);
   }, []);
 
   const alternar = useCallback(() => {
@@ -249,6 +370,7 @@ export function CleanPlayer({
     if (p.isMuted()) {
       p.unMute();
       setMudo(false);
+      setSomBloqueado(false);
     } else {
       p.mute();
       setMudo(true);
@@ -378,16 +500,21 @@ export function CleanPlayer({
           width: cheia ? "min(100%, calc(100dvh * 16 / 9))" : "100%",
         }}
       >
-        {/* Iframe do YouTube: 3x mais alto, centralizado, sem receber clique */}
+        {/* Iframe do YouTube: 3x mais alto, centralizado. Antes do primeiro
+            play ele recebe o toque (que atravessa a capa): o navegador só
+            libera o som quando o play nasce de um toque dentro do player.
+            A área visível é só o meio do iframe, onde fica o play do
+            YouTube: título, logo e links estão fora da tela. Depois que
+            começa, nada do YouTube recebe clique. */}
         <div
           ref={hostRef}
           className="absolute left-0 w-full [&_iframe]:h-full [&_iframe]:w-full"
-          style={{ top: "-100%", height: "300%", pointerEvents: precisaToque ? "auto" : "none" }}
+          style={{ top: "-100%", height: "300%", pointerEvents: comecou ? "none" : "auto" }}
         >
         </div>
 
-        {/* Camada de clique: nada do YouTube fica clicável */}
-        {!precisaToque && (
+        {/* Camada de clique dos nossos controles */}
+        {comecou && (
           <div className="absolute inset-0" onPointerUp={cliqueNoVideo} onDoubleClick={alternarTelaCheia} />
         )}
 
@@ -409,13 +536,12 @@ export function CleanPlayer({
           </button>
         )}
 
-        {/* Capa antes do primeiro play */}
-        {!comecou && !precisaToque && (
-          <button
-            onClick={tocar}
-            disabled={!pronto}
-            aria-label="Assistir"
-            className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-white"
+        {/* Capa antes do primeiro play. Só visual: o toque atravessa para o
+            player (ver acima). */}
+        {!comecou && (
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-4 text-white"
           >
             <img
               src={youtubeThumb(youtubeId, capaQ)}
@@ -429,29 +555,62 @@ export function CleanPlayer({
               draggable={false}
             />
             <span className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-black/40" />
-            <span
-              className={`relative flex h-16 w-16 items-center justify-center rounded-full bg-[#CFFF87] text-[#121110] shadow-[0_10px_40px_rgba(207,255,135,0.35)] transition-transform duration-200 hover:scale-105 md:h-24 md:w-24 ${
-                pronto ? "" : "opacity-70"
-              }`}
-            >
-              {pronto ? (
-                <Play className="ml-1 h-7 w-7 md:h-10 md:w-10" fill="currentColor" />
+            <span className="relative flex items-center justify-center">
+              {pronto && !iniciando && (
+                <span className="lbc-pulso absolute inset-0 rounded-full bg-[#CFFF87]" />
+              )}
+              <span
+                className={`relative flex h-16 w-16 items-center justify-center rounded-full bg-[#CFFF87] text-[#121110] shadow-[0_10px_40px_rgba(207,255,135,0.35)] md:h-24 md:w-24 ${
+                  pronto ? "" : "opacity-70"
+                }`}
+              >
+                {pronto && !iniciando ? (
+                  <Play className="ml-1 h-7 w-7 md:h-10 md:w-10" fill="currentColor" />
+                ) : (
+                  <span className="h-6 w-6 animate-spin rounded-full border-2 border-[#121110]/25 border-t-[#121110] md:h-8 md:w-8" />
+                )}
+              </span>
+            </span>
+            <span className="relative flex items-center gap-2 rounded-full bg-black/50 px-3.5 py-1.5 text-xs font-medium text-white/95 backdrop-blur-sm md:text-sm">
+              {iniciando ? (
+                "Carregando..."
               ) : (
-                <span className="h-6 w-6 animate-spin rounded-full border-2 border-[#121110]/25 border-t-[#121110]" />
+                <>
+                  Assistir
+                  {duracao > 0 && <span className="tabular-nums text-white/70">· {formatTempo(duracao)}</span>}
+                </>
               )}
             </span>
-            {duracao > 0 && (
-              <span className="relative rounded-full bg-black/45 px-3 py-1 text-xs font-medium tracking-wide text-white/90 backdrop-blur-sm md:text-sm">
-                {formatTempo(duracao)}
-              </span>
-            )}
+            <style>{`
+              @keyframes lbc-pulso { 0% { transform: scale(1); opacity: .45 } 80%, 100% { transform: scale(1.55); opacity: 0 } }
+              .lbc-pulso { animation: lbc-pulso 2s cubic-bezier(.2,.6,.3,1) infinite; }
+              @media (prefers-reduced-motion: reduce) { .lbc-pulso { animation: none; opacity: 0; } }
+            `}</style>
+          </div>
+        )}
+
+        {/* O navegador não deixou ligar o som sozinho */}
+        {comecou && somBloqueado && !terminou && (
+          <button
+            onClick={ativarSom}
+            className="absolute left-1/2 top-4 z-10 flex -translate-x-1/2 items-center gap-2 rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-[#121110] shadow-lg md:top-6"
+          >
+            <Volume2 className="h-4 w-4" />
+            Ativar som
           </button>
         )}
 
-        {precisaToque && !comecou && (
-          <p className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/70 px-4 py-2 text-xs font-medium text-white">
-            Toque no vídeo para começar
-          </p>
+        {/* Retomou de onde parou */}
+        {comecou && retomadoDe !== null && !somBloqueado && !terminou && (
+          <div className="absolute left-1/2 top-4 z-10 flex -translate-x-1/2 items-center gap-3 whitespace-nowrap rounded-full bg-black/75 py-1.5 pl-4 pr-1.5 text-xs text-white backdrop-blur-sm md:top-6 md:text-sm">
+            <span>Continuando de {formatTempo(retomadoDe)}</span>
+            <button
+              onClick={voltarAoInicio}
+              className="rounded-full bg-white/15 px-3 py-1 font-medium hover:bg-white/25"
+            >
+              Voltar ao início
+            </button>
+          </div>
         )}
 
         {/* Fim: cobre a grade de sugestões do YouTube */}

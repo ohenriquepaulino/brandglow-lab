@@ -184,6 +184,7 @@ function VideoPage() {
                 titulo={dados.titulo}
                 duracaoConhecida={dados.duracao_seg}
                 eventos={rastreio.eventos}
+                chaveRetomar={`lbc_v_pos_${slug}`}
               />
             ) : (
               <div className="aspect-video w-full animate-pulse rounded-xl bg-white/[0.06] md:rounded-2xl" />
