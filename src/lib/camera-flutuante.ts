@@ -20,6 +20,8 @@ export type CameraFlutuante = {
   /** Número grande no meio da janela durante a contagem; null tira. */
   contagem: (n: number | null) => void;
   trocarCamera: (stream: MediaStream | null) => void;
+  /** Vira a imagem na horizontal. Sai assim no vídeo (a gravação é da tela). */
+  inverter: (sim: boolean) => void;
   fechar: () => void;
 };
 
@@ -46,6 +48,7 @@ export async function abrirCameraFlutuante(
   stream: MediaStream,
   controles: Controles,
   aoFechar: () => void,
+  invertida = false,
 ): Promise<CameraFlutuante> {
   const dpip = documentPiP();
   if (!dpip) return abrirPiPSimples(stream, aoFechar);
@@ -59,6 +62,7 @@ export async function abrirCameraFlutuante(
     html, body { margin: 0; height: 100%; background: #121110; overflow: hidden;
       font-family: Inter, system-ui, sans-serif; }
     video { position: fixed; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    video.invertida { transform: scaleX(-1); }
     .barra { position: fixed; left: 8px; right: 8px; bottom: 8px; display: flex; gap: 6px;
       align-items: center; padding: 6px; border-radius: 10px; background: rgba(18,17,16,.82);
       color: #fff; opacity: 0; transition: opacity .15s; }
@@ -87,6 +91,7 @@ export async function abrirCameraFlutuante(
   video.autoplay = true;
   video.muted = true;
   video.playsInline = true;
+  video.classList.toggle("invertida", invertida);
 
   const sem = doc.createElement("div");
   sem.className = "sem";
@@ -152,6 +157,7 @@ export async function abrirCameraFlutuante(
       contagemEl.textContent = n === null ? "" : String(n);
     },
     trocarCamera,
+    inverter: (sim) => video.classList.toggle("invertida", sim),
     fechar: () => {
       if (!fechada) janela.close();
     },
@@ -175,6 +181,8 @@ async function abrirPiPSimples(
     trocarCamera: (s) => {
       video.srcObject = s;
     },
+    // O PiP comum (Safari/Firefox) é desenhado pelo navegador e ignora CSS.
+    inverter: () => {},
     fechar: () => {
       if (document.pictureInPictureElement === video) void document.exitPictureInPicture();
     },

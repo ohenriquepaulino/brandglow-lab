@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Circle,
   Download,
+  FlipHorizontal2,
   Mic,
   MicOff,
   Monitor,
@@ -31,6 +32,15 @@ export const Route = createFileRoute("/crm/gravador")({
 });
 
 const BORDER = "#E0DED9";
+const INVERTER_KEY = "lbc_gravador_inverter";
+
+function lerInvertida() {
+  try {
+    return localStorage.getItem(INVERTER_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
 
 function GravadorPage() {
   const navigate = useNavigate();
@@ -114,6 +124,10 @@ function GravadorContent() {
   const [micId, setMicId] = useState("");
   const [contagem, setContagem] = useState<number | null>(null);
   const [flutuanteAberta, setFlutuanteAberta] = useState(false);
+  // Algumas câmeras (driver, app da webcam, câmera virtual) já mandam a imagem
+  // espelhada. Inverter vira de volta, na prévia e na janela flutuante — e
+  // portanto no vídeo, que grava a tela.
+  const [invertida, setInvertida] = useState(lerInvertida);
   const [resultado, setResultado] = useState<(Resultado & { url: string; nome: string }) | null>(
     null,
   );
@@ -150,6 +164,15 @@ function GravadorContent() {
   useEffect(() => {
     flutuanteRef.current?.trocarCamera(camera);
   }, [camera]);
+
+  useEffect(() => {
+    flutuanteRef.current?.inverter(invertida);
+    try {
+      localStorage.setItem(INVERTER_KEY, invertida ? "1" : "0");
+    } catch {
+      // sem localStorage: vale só nesta visita
+    }
+  }, [invertida]);
 
   // Cronômetro na tela enquanto grava.
   useEffect(() => {
@@ -264,6 +287,7 @@ function GravadorContent() {
           flutuanteRef.current = null;
           setFlutuanteAberta(false);
         },
+        invertida,
       );
       setFlutuanteAberta(true);
     } catch (e) {
@@ -330,6 +354,8 @@ function GravadorContent() {
             muted
             playsInline
             className="block aspect-video w-full bg-neutral-900 object-contain"
+            // Só a câmera vira; a prévia da tela fica como está.
+            style={invertida && !tela ? { transform: "scaleX(-1)" } : undefined}
           />
           {!ativado && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center">
@@ -556,7 +582,21 @@ function GravadorContent() {
               >
                 {g?.temCamera ? <Video size={16} /> : <VideoOff size={16} />}
               </BotaoIcone>
+              <BotaoIcone
+                ativo={invertida}
+                disabled={!ativado}
+                titulo={invertida ? "Desfazer inversão da imagem" : "Inverter imagem (desespelhar)"}
+                onClick={() => setInvertida((v) => !v)}
+              >
+                <FlipHorizontal2 size={16} />
+              </BotaoIcone>
             </div>
+            {invertida && (
+              <p className="text-xs text-neutral-500">
+                Imagem invertida: sai assim no vídeo. Desligue se o texto atrás de você aparecer ao
+                contrário.
+              </p>
+            )}
             {temFlutuante && (
               <BotaoSec
                 disabled={!g?.temCamera}
