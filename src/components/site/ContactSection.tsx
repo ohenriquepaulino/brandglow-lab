@@ -91,6 +91,7 @@ export function ContactSection({
   ctaLabel = "Quero começar",
   showProfession = false,
   ctaNote,
+  hidePrivacy = false,
 }: {
   redirectTo?: string;
   redirectToNoRevenue?: string;
@@ -101,6 +102,8 @@ export function ContactSection({
   showProfession?: boolean;
   /** Linha curta logo abaixo do botão (ex.: "Gratuito · 25 min por vídeo"). */
   ctaNote?: string;
+  /** Sem a linha da política abaixo do botão (a página já tem no rodapé). */
+  hidePrivacy?: boolean;
 } = {}) {
   const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false);
@@ -388,9 +391,11 @@ export function ContactSection({
               </button>
               {ctaNote && <p className="-mt-3 text-xs text-ink/60">{ctaNote}</p>}
               {/* div, não p: o <dialog> da política não pode ficar dentro de <p>. */}
-              <div className="text-[11px] leading-snug text-ink/50">
-                Seus dados são usados só para entrarmos em contato. <PrivacyButton />
-              </div>
+              {!hidePrivacy && (
+                <div className="text-[11px] leading-snug text-ink/50">
+                  Seus dados são usados só para entrarmos em contato. <PrivacyButton />
+                </div>
+              )}
             </form>
           )}
         </div>

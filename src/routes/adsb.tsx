@@ -80,6 +80,8 @@ const FORM_PROPS = {
   revenueLabel: "Faturamento mensal da empresa",
   ctaLabel: "Quero meu diagnóstico",
   ctaNote: "Gratuito · 25 min por vídeo · resposta em até 1 dia útil",
+  // A política fica só no rodapé.
+  hidePrivacy: true,
 } as const;
 
 const PASSOS = [
@@ -88,7 +90,7 @@ const PASSOS = [
   {
     n: "03",
     t: "Diagnóstico de 25 min",
-    d: "Por vídeo. Você sai sabendo onde sua marca perde valor, contratando ou não.",
+    d: "Por vídeo. Mostramos onde sua marca perde valor e apresentamos como funciona o nosso trabalho de identidade visual.",
   },
 ];
 
@@ -167,8 +169,12 @@ const ENTREGAS = [
 
 const FAQ = [
   {
+    q: "Para que serve o diagnóstico?",
+    a: "Para você conhecer o nosso trabalho de estratégia e identidade visual antes de decidir. Em 25 minutos por vídeo, olhamos a sua marca, mostramos onde ela está perdendo valor e apresentamos como funciona o projeto: etapas, prazo e investimento.",
+  },
+  {
     q: "O diagnóstico é pago?",
-    a: "Não. São 25 minutos por vídeo em que mostramos onde a sua marca está perdendo valor e o que resolver primeiro. Você sai com essa leitura, contratando ou não.",
+    a: "Não. A conversa é sem custo e sem compromisso: você sai com a leitura da sua marca e decide depois se quer seguir com o projeto.",
   },
   {
     q: "Quanto custa um projeto?",
@@ -188,7 +194,7 @@ const FAQ = [
   },
   {
     q: "Meu negócio ainda não fatura. Posso preencher?",
-    a: "Pode. Olhamos o momento do seu negócio e dizemos com sinceridade o que faz sentido agora.",
+    a: "Pode, sim. Mas, sendo transparentes: o nosso trabalho faz mais sentido para quem já tem faturamento e uma verba separada para investir numa identidade visual estratégica. Se você ainda está começando, a conversa serve para entender o seu momento e dizer com sinceridade quando vale a pena dar esse passo.",
   },
 ];
 
@@ -200,7 +206,10 @@ function Form({ id }: { id: string }) {
   return (
     <div className="b-form" id={id}>
       <p className="b-form-title">Diagnóstico gratuito</p>
-      <p className="b-form-sub">25 minutos por vídeo, sem custo.</p>
+      <p className="b-form-sub">
+        25 min por vídeo, sem custo: olhamos a sua marca e apresentamos o nosso trabalho de
+        identidade visual.
+      </p>
       <ContactSection {...FORM_PROPS} />
     </div>
   );

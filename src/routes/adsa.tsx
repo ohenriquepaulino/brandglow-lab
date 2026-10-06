@@ -170,6 +170,7 @@ function FormSlot() {
         revenueLabel="Faturamento mensal da empresa"
         ctaLabel="Quero conversar sobre o projeto"
         ctaNote="Conversa sem custo · 25 min por vídeo · resposta em até 1 dia útil"
+        hidePrivacy
       />
     </div>
   );
