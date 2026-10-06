@@ -359,14 +359,14 @@ function FollowupDock({
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-5 z-30 flex justify-center px-4">
       <div
-        className="pointer-events-auto flex max-w-full flex-col items-center gap-1.5 rounded-2xl px-2 pt-2 pb-1.5 shadow-[0_12px_40px_rgba(18,17,16,0.35)]"
-        style={{ background: "#121110" }}
+        className="pointer-events-auto flex max-w-full flex-col items-center gap-1 rounded-[22px] border border-white/10 p-1.5 pb-1 shadow-[0_18px_50px_-12px_rgba(18,17,16,0.55)] backdrop-blur-xl"
+        style={{ background: "rgba(18,17,16,0.92)" }}
       >
-        <div className="flex max-w-full items-center gap-1 overflow-x-auto">
+        <div className="flex max-w-full items-center gap-1.5 overflow-x-auto">
           <button
             onClick={onLer}
             disabled={lendo}
-            className="flex shrink-0 items-center gap-2 rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-opacity hover:opacity-90 disabled:opacity-60"
+            className="flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-[13px] font-semibold transition-all hover:brightness-105 active:scale-[0.97] disabled:opacity-60"
             style={{ background: "#CFFF87", color: "#121110" }}
           >
             <svg
@@ -394,25 +394,35 @@ function FollowupDock({
 
           {lidoEm && total > 0 && (
             <>
-              <span className="mx-1 h-6 w-px shrink-0 bg-white/15" />
+              <span className="mx-1.5 h-6 w-px shrink-0 bg-white/12" />
+              <span className="flex shrink-0 items-center gap-1 pr-1 text-[11px] font-medium uppercase tracking-[0.12em] text-white/45">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 5h18l-7 8.5V19l-4 2v-7.5L3 5z" />
+                </svg>
+                Filtrar
+              </span>
               <DockChip
                 ativo={filtro === "todos"}
+                contagem={total}
+                titulo="Mostrar só os leads com follow-up"
                 onClick={() => onFiltro(filtro === "todos" ? null : "todos")}
               >
-                Todos <span className="opacity-60">{total}</span>
+                Todos
               </DockChip>
               {(["responder", "cobrar", "puxar"] as FollowupTipo[]).map((t) =>
                 contagem[t] > 0 ? (
                   <DockChip
                     key={t}
                     ativo={filtro === t}
+                    contagem={contagem[t]}
+                    titulo={`Mostrar só "${FOLLOWUP_INFO[t].label}"`}
                     onClick={() => onFiltro(filtro === t ? null : t)}
                   >
                     <span
                       className="h-2 w-2 shrink-0 rounded-full"
                       style={{ background: TAG_COR[t] }}
                     />
-                    {FOLLOWUP_INFO[t].label} <span className="opacity-60">{contagem[t]}</span>
+                    {FOLLOWUP_INFO[t].label}
                   </DockChip>
                 ) : null,
               )}
@@ -421,7 +431,7 @@ function FollowupDock({
                   onClick={() => onFiltro(null)}
                   aria-label="Mostrar todos os leads"
                   title="Mostrar todos os leads"
-                  className="ml-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white/60 hover:bg-white/10 hover:text-white"
+                  className="ml-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white/60 transition-colors hover:bg-white/10 hover:text-white"
                 >
                   <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
                     <path d="M6 6l12 12M18 6L6 18" />
@@ -455,10 +465,14 @@ const TAG_COR: Record<FollowupTipo, string> = {
 
 function DockChip({
   ativo,
+  contagem,
+  titulo,
   onClick,
   children,
 }: {
   ativo: boolean;
+  contagem: number;
+  titulo: string;
   onClick: () => void;
   children: React.ReactNode;
 }) {
@@ -466,13 +480,21 @@ function DockChip({
     <button
       onClick={onClick}
       aria-pressed={ativo}
-      className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-[12.5px] font-medium transition-colors"
-      style={{
-        background: ativo ? "rgba(255,255,255,0.14)" : "transparent",
-        color: ativo ? "#FFFFFF" : "rgba(255,255,255,0.75)",
-      }}
+      title={ativo ? "Clique para tirar o filtro" : titulo}
+      className={`group flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border py-1.5 pr-1.5 pl-3 text-[12.5px] font-medium transition-all active:scale-[0.96] ${
+        ativo
+          ? "border-transparent bg-white text-[#121110] shadow-[0_0_0_3px_rgba(255,255,255,0.14)]"
+          : "border-white/15 bg-white/[0.04] text-white/85 hover:border-white/35 hover:bg-white/10 hover:text-white"
+      }`}
     >
       {children}
+      <span
+        className={`min-w-[22px] rounded-full px-1.5 text-center text-[11px] font-semibold leading-[18px] tabular-nums ${
+          ativo ? "bg-[#121110]/10 text-[#121110]" : "bg-white/10 text-white/80 group-hover:bg-white/15"
+        }`}
+      >
+        {contagem}
+      </span>
     </button>
   );
 }
