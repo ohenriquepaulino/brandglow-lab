@@ -61,6 +61,8 @@ import { CASE_TEXTOS, type CaseTexto } from "@/lib/cases-textos";
 
 // MedCopilot: imagens em public/ (exportadas da apresentação da identidade).
 const MEDCOPILOT = (f: string) => `/proposta/cases/medcopilot/medcopilot-${f}.jpg`;
+// Ô de Casa: imagens em public/ (do projeto no Behance, convertidas para jpg leve).
+const ODECASA = (f: string) => `/proposta/cases/o-de-casa/o-de-casa-${f}.jpg`;
 
 export type CaseStudy = CaseTexto & {
   slug: string;
@@ -181,6 +183,25 @@ export const cases: CaseStudy[] = [
       img49.url,
       img50.url,
       img44.url,
+    ],
+  },
+  {
+    slug: "o-de-casa",
+    ...CASE_TEXTOS["o-de-casa"],
+    accent: "#F95607",
+    accentText: "cream",
+    heroImage: ODECASA("cartaz"),
+    gallery: [
+      ODECASA("mosaico"),
+      ODECASA("cartao-app"),
+      ODECASA("site"),
+      ODECASA("envelope"),
+      ODECASA("instagram"),
+      ODECASA("logo"),
+      ODECASA("banner"),
+      ODECASA("tipografia"),
+      ODECASA("paleta"),
+      ODECASA("construcao"),
     ],
   },
 ];

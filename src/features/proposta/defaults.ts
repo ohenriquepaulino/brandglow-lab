@@ -70,6 +70,7 @@ export const DEFAULT_CASE_ORDER = [
   "moewa",
   "joana-co",
   "308-network",
+  "o-de-casa",
 ];
 
 /* ---------- Direção de Marca Legacy ---------- */
