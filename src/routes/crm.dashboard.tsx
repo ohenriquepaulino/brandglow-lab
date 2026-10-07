@@ -16,6 +16,7 @@ import {
 } from "@/lib/crm-auth";
 import { grupoDoSegmento } from "@/lib/segmentos";
 import { CrmSidebar } from "@/components/crm/Sidebar";
+import { BotaoAtualizar } from "@/components/crm/BotaoAtualizar";
 
 export const Route = createFileRoute("/crm/dashboard")({
   ssr: false,
@@ -64,15 +65,26 @@ function DashboardPage() {
   const [leads, setLeads] = useState<Lead[] | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [periodo, setPeriodo] = useState<PeriodoId>("30");
+  const [carregando, setCarregando] = useState(false);
+
+  async function carregar() {
+    setCarregando(true);
+    setErro(null);
+    try {
+      const data = await apiListLeads();
+      setLeads(data.map((l) => ({ ...l, coluna: normalizeColuna(l.coluna) })));
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : String(e));
+    }
+    setCarregando(false);
+  }
 
   useEffect(() => {
     if (!isCrmAuthed()) {
       navigate({ to: "/crm" });
       return;
     }
-    apiListLeads()
-      .then((data) => setLeads(data.map((l) => ({ ...l, coluna: normalizeColuna(l.coluna) }))))
-      .catch((e) => setErro(e instanceof Error ? e.message : String(e)));
+    void carregar();
   }, [navigate]);
 
   function handleLogout() {
@@ -92,13 +104,16 @@ function DashboardPage() {
           style={{ borderColor: BORDER }}
         >
           <p className="text-sm font-semibold text-neutral-900">Dashboard</p>
-          <button
-            onClick={handleLogout}
-            className="rounded-md border px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50"
-            style={{ borderColor: BORDER }}
-          >
-            Sair
-          </button>
+          <div className="flex items-center gap-2">
+            <BotaoAtualizar onClick={() => void carregar()} carregando={carregando} />
+            <button
+              onClick={handleLogout}
+              className="rounded-md border px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50"
+              style={{ borderColor: BORDER }}
+            >
+              Sair
+            </button>
+          </div>
         </header>
 
         <main className="mx-auto max-w-6xl space-y-5 px-4 py-6 sm:px-6">

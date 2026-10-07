@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { crmLogout, isCrmAuthed } from "@/lib/crm-auth";
 import { CrmSidebar } from "@/components/crm/Sidebar";
+import { BotaoAtualizar } from "@/components/crm/BotaoAtualizar";
 import { apiAbResumo, type AbNumeros, type AbResumo } from "@/lib/ab-api";
 import { AB_IGNORAR_KEY } from "@/lib/ab";
 
@@ -33,6 +34,9 @@ function desdeDoPeriodo(id: PeriodoId): string | null {
 function AbPage() {
   const navigate = useNavigate();
   const [authed, setAuthed] = useState(false);
+  // Muda a cada clique em "Atualizar": o AbContent busca os números de novo.
+  const [versao, setVersao] = useState(0);
+  const [carregando, setCarregando] = useState(false);
 
   useEffect(() => {
     if (!isCrmAuthed()) {
@@ -65,23 +69,32 @@ function AbPage() {
           style={{ borderColor: BORDER }}
         >
           <p className="text-sm font-semibold text-neutral-900">Teste A/B · landing pages</p>
-          <button
-            onClick={handleLogout}
-            className="rounded-md border px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50"
-            style={{ borderColor: BORDER }}
-          >
-            Sair
-          </button>
+          <div className="flex items-center gap-2">
+            <BotaoAtualizar onClick={() => setVersao((v) => v + 1)} carregando={carregando} />
+            <button
+              onClick={handleLogout}
+              className="rounded-md border px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50"
+              style={{ borderColor: BORDER }}
+            >
+              Sair
+            </button>
+          </div>
         </header>
         <main className="mx-auto max-w-4xl space-y-6 px-6 py-6">
-          {authed && <AbContent />}
+          {authed && <AbContent versao={versao} onCarregando={setCarregando} />}
         </main>
       </div>
     </div>
   );
 }
 
-function AbContent() {
+function AbContent({
+  versao,
+  onCarregando,
+}: {
+  versao: number;
+  onCarregando: (carregando: boolean) => void;
+}) {
   const [periodo, setPeriodo] = useState<PeriodoId>("inicio");
   const [campanha, setCampanha] = useState("");
   const [dados, setDados] = useState<AbResumo | null>(null);
@@ -100,7 +113,9 @@ function AbContent() {
     return () => {
       vivo = false;
     };
-  }, [periodo, campanha]);
+  }, [periodo, campanha, versao]);
+
+  useEffect(() => onCarregando(carregando), [carregando, onCarregando]);
 
   async function copiar() {
     try {
