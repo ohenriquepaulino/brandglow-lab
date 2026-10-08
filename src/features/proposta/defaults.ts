@@ -178,6 +178,10 @@ export const SO_ESTRATEGIA_DELIVERABLES: Deliverable[] = [
     title: "Jeito de falar",
     text: "Tom de voz, palavras que a marca usa e evita, com exemplos de antes e depois.",
   },
+  {
+    title: "Linha editorial",
+    text: "Os temas que a sua marca deve postar no Instagram e o papel de cada um: atrair, gerar confiança e vender.",
+  },
 ];
 
 export const SO_ESTRATEGIA_STEPS = [
@@ -194,7 +198,7 @@ export const SO_ESTRATEGIA_STEPS = [
   {
     when: "Até o dia 20",
     title: "Construção da estratégia",
-    text: "Cliente ideal, posicionamento, narrativa, mensagens e tom de voz.",
+    text: "Cliente ideal, posicionamento, narrativa, mensagens, tom de voz e linha editorial.",
   },
   {
     when: "Dia 25",

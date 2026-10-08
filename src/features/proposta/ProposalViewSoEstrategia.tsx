@@ -156,8 +156,8 @@ export default function ProposalViewSoEstrategia({
           <p className="lbc-kicker">
             <b>O que você recebe</b>
           </p>
-          <h2 className="lbc-d lbc-dm-h1">Seis entregas que formam a base da sua marca</h2>
-          <ol className="lbc-dm-grid-3 lbc-dm-dl">
+          <h2 className="lbc-d lbc-dm-h1">Sete entregas que formam a base da sua marca</h2>
+          <ol className="lbc-dm-grid-4 lbc-dm-dl">
             {SO_ESTRATEGIA_DELIVERABLES.map((d, i) => (
               <li key={d.title}>
                 <small>{String(i + 1).padStart(2, "0")}</small>
