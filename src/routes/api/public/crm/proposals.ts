@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { makeSlug } from "@/features/proposta/format";
-import { DIRECAO_DEFAULTS } from "@/features/proposta/defaults";
+import { DIRECAO_DEFAULTS, SO_ESTRATEGIA_DEFAULTS } from "@/features/proposta/defaults";
 
 const PatchSchema = z
   .object({
@@ -37,7 +37,7 @@ const ActionSchema = z.discriminatedUnion("action", [
   z.object({
     action: z.literal("create"),
     client_name: z.string().max(120),
-    product: z.enum(["estrategia", "direcao"]).optional(),
+    product: z.enum(["estrategia", "direcao", "so_estrategia"]).optional(),
   }),
   z.object({ action: z.literal("update"), id: z.string().uuid(), patch: PatchSchema }),
   z.object({ action: z.literal("duplicate"), id: z.string().uuid() }),
@@ -136,7 +136,13 @@ export const Route = createFileRoute("/api/public/crm/proposals")({
                     product: "direcao",
                     client_name: payload.client_name.trim(),
                   }
-                : { client_name: payload.client_name.trim() },
+                : payload.product === "so_estrategia"
+                  ? {
+                      ...SO_ESTRATEGIA_DEFAULTS,
+                      product: "so_estrategia",
+                      client_name: payload.client_name.trim(),
+                    }
+                  : { client_name: payload.client_name.trim() },
             );
 
           case "update": {

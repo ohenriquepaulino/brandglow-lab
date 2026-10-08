@@ -116,7 +116,9 @@ export default function ProposalsListPage({ onOpen }: { onOpen: (id: string) => 
                       className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${
                         productOf(p) === "direcao"
                           ? "bg-[#b8ff80] text-neutral-900"
-                          : "bg-neutral-100 text-neutral-600"
+                          : productOf(p) === "so_estrategia"
+                            ? "bg-neutral-900 text-[#b8ff80]"
+                            : "bg-neutral-100 text-neutral-600"
                       }`}
                     >
                       {PRODUCT_LABELS[productOf(p)]}
