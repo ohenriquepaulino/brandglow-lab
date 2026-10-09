@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { UTM_KEYS, captureUtmsFromUrl, type UtmData } from "@/lib/utm";
 import { PrivacyButton } from "@/components/site/PrivacyDialog";
-import { leadSignal, saveLeadFaturamento } from "@/lib/lead-signal";
+import { leadSignal, saveLeadFaturamento, saveLeadTelefone } from "@/lib/lead-signal";
 import {
   BRASIL,
   PAISES,
@@ -182,6 +182,7 @@ export function ContactSection({
           utm_campaign: utms.utm_campaign ?? null,
           utm_content: utms.utm_content ?? null,
           utm_term: utms.utm_term ?? null,
+          gclid: utms.gclid ?? null,
           event_id: eventId,
           page_url: window.location.href,
         }),
@@ -193,7 +194,10 @@ export function ContactSection({
       if (target) {
         // O evento Lead do navegador dispara na pagina de obrigado,
         // com o mesmo event_id enviado a Conversions API (deduplicacao).
-        if (!noRevenue) saveLeadFaturamento(revenue);
+        if (!noRevenue) {
+          saveLeadFaturamento(revenue);
+          saveLeadTelefone(`+${telefoneLegivel(pais, phone).replace(/\D/g, "")}`);
+        }
         const search: Record<string, string> = { ev: eventId };
         UTM_KEYS.forEach((k) => {
           const v = utms[k];

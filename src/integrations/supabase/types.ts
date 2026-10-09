@@ -139,6 +139,7 @@ export type Database = {
           coluna: string
           criado_em: string
           faturamento: string
+          gclid: string | null
           id: string
           instagram: string | null
           momento_negocio: string | null
@@ -158,6 +159,7 @@ export type Database = {
           coluna?: string
           criado_em?: string
           faturamento: string
+          gclid?: string | null
           id?: string
           instagram?: string | null
           momento_negocio?: string | null
@@ -177,6 +179,7 @@ export type Database = {
           coluna?: string
           criado_em?: string
           faturamento?: string
+          gclid?: string | null
           id?: string
           instagram?: string | null
           momento_negocio?: string | null

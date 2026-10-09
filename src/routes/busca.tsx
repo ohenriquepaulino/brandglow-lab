@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PaginaAdsA } from "@/components/ads/PaginaAdsA";
 
-// Versão A do teste A/B (antiga /ads). As campanhas apontam para /ads, que
-// sorteia entre esta página e a /adsb — ver src/lib/ab.ts.
-export const Route = createFileRoute("/adsa")({
+// Destino das campanhas do Google Ads (rede de pesquisa). É a mesma página da
+// /adsa, que já mostra o preço de partida, mas fora do teste A/B da Meta: as
+// visitas daqui não entram no painel /crm/ab, e o lead chega com pagina=/busca.
+export const Route = createFileRoute("/busca")({
   head: () => ({
     meta: [
       { title: "Estratégia e identidade visual | Legacy BrandCo." },
@@ -38,5 +39,5 @@ export const Route = createFileRoute("/adsa")({
       },
     ],
   }),
-  component: () => <PaginaAdsA variante="a" />,
+  component: () => <PaginaAdsA variante={null} />,
 });

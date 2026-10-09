@@ -52,3 +52,23 @@ export function readLeadFaturamento(): string | null {
     return null;
   }
 }
+
+// Telefone em E.164 (+5511988887777) para as conversões otimizadas do Google
+// Ads, que o gtag criptografa (SHA-256) antes de enviar. Mesmo caminho da faixa.
+const TELEFONE_KEY = "lb_lead_telefone";
+
+export function saveLeadTelefone(e164: string) {
+  try {
+    sessionStorage.setItem(TELEFONE_KEY, e164);
+  } catch {
+    // sem storage: a conversão vai sem o telefone
+  }
+}
+
+export function readLeadTelefone(): string | null {
+  try {
+    return sessionStorage.getItem(TELEFONE_KEY);
+  } catch {
+    return null;
+  }
+}

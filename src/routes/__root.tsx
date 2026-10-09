@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { GOOGLE_ADS_ID } from "../lib/google-ads";
 
 function NotFoundComponent() {
   return (
@@ -98,6 +99,10 @@ if(d.readyState==='complete'){setTimeout(go,1500)}else{w.addEventListener('load'
 // debug: true enquanto os anúncios estão em teste.
 const OPENAI_PIXEL_SCRIPT = `!function(w,d,s,u){if(w.oaiq)return;var q=function(){q.q.push(arguments)};q.q=[];w.oaiq=q;var j=d.createElement(s);j.async=1;j.src=u;var f=d.getElementsByTagName(s)[0];f.parentNode.insertBefore(j,f)}(window,document,"script","https://bzrcdn.openai.com/sdk/oaiq.min.js");oaiq("init",{pixelId:"MEsGYuAUsMpqVqv29bHnpY",debug:true});`;
 
+// Tag do Google Ads. Carrega na hora, e não junto com o GTM, para gravar o
+// clique (gclid) assim que a pessoa chega. A conversão só sai no /obrigado.
+const GOOGLE_ADS_SCRIPT = `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}window.gtag=gtag;gtag('js',new Date());gtag('config','${GOOGLE_ADS_ID}',{allow_enhanced_conversions:true});`;
+
 const CLARITY_SCRIPT = `(function(c,l,a,r,i,t,y){
 c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
 t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
@@ -169,6 +174,8 @@ function RootShell({ children }: { children: ReactNode }) {
       <head>
         <HeadContent />
         <script id="openai-pixel" dangerouslySetInnerHTML={{ __html: OPENAI_PIXEL_SCRIPT }} />
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID}`} />
+        <script id="google-ads" dangerouslySetInnerHTML={{ __html: GOOGLE_ADS_SCRIPT }} />
         <script id="meta-pixel" dangerouslySetInnerHTML={{ __html: META_PIXEL_SCRIPT }} />
         <script id="gtm-head" dangerouslySetInnerHTML={{ __html: GTM_HEAD_SCRIPT }} />
         <script id="ms-clarity" dangerouslySetInnerHTML={{ __html: CLARITY_SCRIPT }} />
