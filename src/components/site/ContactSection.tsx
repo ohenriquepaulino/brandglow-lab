@@ -71,16 +71,14 @@ const REVENUE_OPTIONS = [
 // Só para quem ainda não fatura. Não fatura não quer dizer sem dinheiro: muita
 // gente está lançando ou já tem outro negócio. Isso ajuda a priorizar no CRM.
 const MOMENTO_OPTIONS = [
-  "Ainda estou planejando o negócio",
+  "Estou planejando",
   "Estou lançando agora",
   "Já lancei, mas ainda não vendi",
-  "Já tenho outro negócio que fatura",
+  "Tenho outra empresa que já fatura",
 ];
-const VERBA_OPTIONS = [
-  "Sim, já tenho verba separada",
-  "Estou me organizando para isso",
-  "Ainda não",
-];
+// Em reais desde 2026-10-09: "já tenho verba" não dizia quanto. Leads antigos
+// guardam as respostas antigas ("Sim, já tenho verba separada" etc.).
+const VERBA_OPTIONS = ["R$ 2 a 5 mil", "R$ 5 a 10 mil", "Acima de R$ 10 mil"];
 
 export function ContactSection({
   redirectTo,
@@ -341,7 +339,7 @@ export function ContactSection({
                       </select>
                     </Field>
                     <Field
-                      label="Já tem verba para investir na marca?"
+                      label="Quanto você pretende investir na marca?"
                       error={attempted && !verbaValid ? "Selecione uma opção" : undefined}
                     >
                       <select
