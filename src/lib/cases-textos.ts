@@ -103,4 +103,18 @@ export const CASE_TEXTOS: Record<string, CaseTexto> = {
     result:
       "Uma marca que vira referência imediata: quando o assunto é imóvel, o cliente lembra do Leandro e da 308.",
   },
+  "o-de-casa": {
+    name: "Ô de Casa",
+    segment: "Mercado imobiliário · Belo Horizonte",
+    short:
+      "Marca estratégica para uma imobiliária mineira que subiu de patamar para atender clientes de médio e alto padrão.",
+    context:
+      "A Ô de Casa estava mudando de posição no mercado de Belo Horizonte para atender clientes de médio e alto padrão.",
+    challenge:
+      "Deixar de ser mais uma imobiliária e criar uma conexão forte com o cliente ideal, sem perder a proximidade do jeito mineiro.",
+    delivery:
+      "Posicionamento e identidade visual. A marca aproveita a expressão mineira do nome para criar proximidade, com uma identidade moderna, criativa e confiável, que coloca o cliente no centro.",
+    result:
+      "Clareza na comunicação, marca consistente em todos os pontos de contato, mais facilidade para produzir conteúdo e maior percepção de valor por parte dos clientes.",
+  },
 };

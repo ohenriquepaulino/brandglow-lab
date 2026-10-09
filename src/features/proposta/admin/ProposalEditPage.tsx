@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import ProposalView from "../ProposalView";
 import ProposalViewDirecao from "../ProposalViewDirecao";
+import ProposalViewSoEstrategia from "../ProposalViewSoEstrategia";
 import CasePicker from "./CasePicker";
 import {
   deleteProposal,
@@ -44,8 +45,10 @@ export default function ProposalEditPage({
 
   const dirty = Object.keys(patch).length > 0;
   const draft: Proposal | null = proposal ? { ...proposal, ...patch } : null;
-  // Na Direção de Marca Legacy, diagnóstico, cases e entregas são fixos.
-  const isDirecao = !!draft && productOf(draft) === "direcao";
+  // Na Direção de Marca Legacy e na Estratégia de Marca, diagnóstico, cases,
+  // entregas e parcelas são fixos.
+  const product = draft ? productOf(draft) : "estrategia";
+  const isDirecao = product !== "estrategia";
 
   useEffect(() => {
     let alive = true;
@@ -302,7 +305,11 @@ export default function ProposalEditPage({
 
       <div className="print:hidden" style={{ height: barHeight }} aria-hidden />
       {isDirecao ? (
-        <ProposalViewDirecao proposal={draft} onEdit={edit} topOffset={barHeight} />
+        product === "so_estrategia" ? (
+          <ProposalViewSoEstrategia proposal={draft} onEdit={edit} topOffset={barHeight} />
+        ) : (
+          <ProposalViewDirecao proposal={draft} onEdit={edit} topOffset={barHeight} />
+        )
       ) : (
         <ProposalView proposal={draft} onEdit={edit} topOffset={barHeight} />
       )}

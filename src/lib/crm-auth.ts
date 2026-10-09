@@ -1,3 +1,4 @@
+import type { Followup } from "@/lib/followup";
 import { telefoneInternacional } from "./telefone";
 
 export const CRM_USER = "legacybrandco";
@@ -78,6 +79,11 @@ export type Lead = {
   coluna: string;
   anotacoes: string | null;
   criado_em: string;
+  /** Preenchidos ao mover para Ganho. */
+  valor_fechado?: number | string | null;
+  ganho_em?: string | null;
+  /** Tag da última leitura de follow-up (botão "Ver follow-ups"). */
+  followup?: Followup | null;
 };
 
 export type Movimentacao = {
@@ -118,4 +124,29 @@ export function formatDate(iso: string): string {
 export function formatDateTime(iso: string): string {
   const d = new Date(iso);
   return d.toLocaleString("pt-BR");
+}
+
+/** numeric do Postgres chega como string ou número. */
+export function valorFechado(lead: { valor_fechado?: number | string | null }): number | null {
+  if (lead.valor_fechado === null || lead.valor_fechado === undefined) return null;
+  const n = Number(lead.valor_fechado);
+  return Number.isFinite(n) ? n : null;
+}
+
+export function formatBRL(valor: number, centavos = false): string {
+  return valor.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    minimumFractionDigits: centavos ? 2 : 0,
+    maximumFractionDigits: centavos ? 2 : 0,
+  });
+}
+
+/** "12.500,50" / "12500" / "R$ 12.500" -> 12500.5. Vazio ou inválido -> null. */
+export function lerValorBRL(texto: string): number | null {
+  const limpo = texto.replace(/[^\d,.-]/g, "").trim();
+  if (!limpo) return null;
+  // Vírgula é o separador decimal; pontos são de milhar.
+  const n = Number(limpo.replace(/\./g, "").replace(",", "."));
+  return Number.isFinite(n) && n >= 0 ? n : null;
 }

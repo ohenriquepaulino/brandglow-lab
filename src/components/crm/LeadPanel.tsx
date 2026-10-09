@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
-import { apiListHistorico, apiUpdateAnotacoes } from "@/lib/crm-api";
+import { apiListHistorico, apiUpdateAnotacoes, apiUpdateValor } from "@/lib/crm-api";
 import { apiWhatsAppEnviosDoLead, type WhatsAppEnvio } from "@/lib/whatsapp-api";
 import {
   TODAS_COLUNAS,
+  formatBRL,
   formatDateTime,
+  lerValorBRL,
+  valorFechado,
   instagramHandle,
   instagramHref,
   isSemFaturamento,
@@ -48,6 +51,27 @@ export function LeadPanel({
     }
   }
 
+  const valorAtual = valorFechado(lead);
+  const [valorTexto, setValorTexto] = useState("");
+  useEffect(() => {
+    setValorTexto(valorAtual === null ? "" : valorAtual.toLocaleString("pt-BR"));
+  }, [lead.id, valorAtual]);
+
+  async function saveValor() {
+    const novo = lerValorBRL(valorTexto);
+    if (novo === null || novo === valorAtual) {
+      setValorTexto(valorAtual === null ? "" : valorAtual.toLocaleString("pt-BR"));
+      return;
+    }
+    try {
+      await apiUpdateValor(lead.id, novo);
+      onUpdated({ ...lead, valor_fechado: novo });
+    } catch (err) {
+      console.error(err);
+      alert("Não foi possível salvar o valor.");
+    }
+  }
+
   const colunaLabel = (id: string) => TODAS_COLUNAS.find((c) => c.id === id)?.label ?? id;
 
   const utms = [
@@ -78,6 +102,32 @@ export function LeadPanel({
             ✕
           </button>
         </div>
+
+        {lead.coluna === "ganho" && (
+          <div className="mt-5 rounded-xl p-4" style={{ background: "#F3FFE0" }}>
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-neutral-600">
+              🏆 Valor fechado
+            </p>
+            <div className="mt-1 flex items-center gap-1">
+              <span className="text-lg font-semibold text-neutral-500">R$</span>
+              <input
+                value={valorTexto}
+                onChange={(e) => setValorTexto(e.target.value)}
+                onBlur={saveValor}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+                }}
+                inputMode="decimal"
+                aria-label="Valor fechado"
+                className="w-full bg-transparent text-2xl font-semibold text-neutral-900 outline-none"
+              />
+            </div>
+            <p className="mt-1 text-[11px] text-neutral-500">
+              {lead.ganho_em ? `Ganho em ${formatDateTime(lead.ganho_em)} · ` : ""}
+              {valorAtual !== null ? formatBRL(valorAtual) : "Sem valor"} · clique para editar
+            </p>
+          </div>
+        )}
 
         <dl className="mt-6 space-y-4 text-sm">
           <Row label="WhatsApp">

@@ -1,5 +1,9 @@
-/** Produto da proposta. Nulo, ausente ou desconhecido = "estrategia". */
-export type ProposalProduct = "estrategia" | "direcao";
+/**
+ * Produto da proposta. Nulo, ausente ou desconhecido = "estrategia".
+ * estrategia = Estratégia + Identidade Visual; direcao = Direção de Marca Legacy;
+ * so_estrategia = Estratégia de Marca, sem identidade visual.
+ */
+export type ProposalProduct = "estrategia" | "direcao" | "so_estrategia";
 
 export interface Deliverable {
   title: string;

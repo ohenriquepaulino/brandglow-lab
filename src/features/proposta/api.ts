@@ -24,7 +24,7 @@ export type ProposalPatch = Partial<
 
 /** Nulo, ausente ou desconhecido vira "estrategia" (o modelo original). */
 export const productOf = (p: Pick<Proposal, "product">): ProposalProduct =>
-  p.product === "direcao" ? "direcao" : "estrategia";
+  p.product === "direcao" || p.product === "so_estrategia" ? p.product : "estrategia";
 
 function normalize(row: Record<string, unknown>): Proposal {
   return {

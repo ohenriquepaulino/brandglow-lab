@@ -15,8 +15,19 @@ async function call<T = any>(body: Record<string, unknown>): Promise<T> {
 }
 
 export async function apiListLeads(): Promise<Lead[]> {
-  const { data } = await call<{ data: Lead[] }>({ action: "list_leads" });
-  return data ?? [];
+  return (await apiListLeadsComFollowup()).leads;
+}
+
+/** Leads + quando foi a última leitura de follow-up. */
+export async function apiListLeadsComFollowup(): Promise<{
+  leads: Lead[];
+  followupLidoEm: string | null;
+}> {
+  const { data, followup_lido_em } = await call<{
+    data: Lead[];
+    followup_lido_em: string | null;
+  }>({ action: "list_leads" });
+  return { leads: data ?? [], followupLidoEm: followup_lido_em ?? null };
 }
 
 export async function apiListHistorico(lead_id: string): Promise<Movimentacao[]> {
@@ -31,8 +42,13 @@ export async function apiUpdateColumn(
   id: string,
   coluna: string,
   coluna_origem: string,
+  valor_fechado?: number,
 ): Promise<void> {
-  await call({ action: "update_column", id, coluna, coluna_origem });
+  await call({ action: "update_column", id, coluna, coluna_origem, valor_fechado });
+}
+
+export async function apiUpdateValor(id: string, valor_fechado: number): Promise<void> {
+  await call({ action: "update_valor", id, valor_fechado });
 }
 
 export async function apiUpdateAnotacoes(id: string, anotacoes: string): Promise<Lead | null> {

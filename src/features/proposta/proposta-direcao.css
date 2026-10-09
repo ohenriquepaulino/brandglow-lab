@@ -561,3 +561,13 @@
     display: none !important;
   }
 }
+
+/* Estratégia de Marca: três formas de pagamento lado a lado (uma por linha no celular). */
+.lbc-dm .lbc-dm-opts.three {
+  margin-top: clamp(28px, 4vw, 48px);
+}
+@media (min-width: 900px) {
+  .lbc-dm .lbc-dm-opts.three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

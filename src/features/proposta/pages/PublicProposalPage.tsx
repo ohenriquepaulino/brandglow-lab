@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import ProposalView from "../ProposalView";
 import ProposalViewDirecao from "../ProposalViewDirecao";
+import ProposalViewSoEstrategia from "../ProposalViewSoEstrategia";
 import { getPublicProposal, productOf } from "../api";
 import type { Proposal } from "../types";
 import { BRAND } from "../defaults";
@@ -46,6 +47,8 @@ export default function PublicProposalPage({ slug }: { slug: string }) {
   if (state.status === "ok" && state.data)
     return productOf(state.data) === "direcao" ? (
       <ProposalViewDirecao proposal={state.data} autoPrint={autoPrint} />
+    ) : productOf(state.data) === "so_estrategia" ? (
+      <ProposalViewSoEstrategia proposal={state.data} autoPrint={autoPrint} />
     ) : (
       <ProposalView proposal={state.data} autoPrint={autoPrint} />
     );

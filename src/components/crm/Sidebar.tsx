@@ -4,12 +4,14 @@ import {
   FileText,
   FlaskConical,
   KanbanSquare,
+  LayoutDashboard,
   ListChecks,
   MessageCircle,
   Video,
 } from "lucide-react";
 
 const NAV_ITEMS = [
+  { to: "/crm/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/crm/kanban", label: "Leads", icon: KanbanSquare },
   { to: "/crm/tarefas", label: "Tarefas", icon: ListChecks },
   { to: "/crm/propostas", label: "Propostas", icon: FileText },

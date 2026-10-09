@@ -41,6 +41,7 @@ const FORM_PROPS = {
 // MOEWA: os assets originais têm 2 MB cada; as versões da proposta são leves.
 const MOEWA = (f: string) => `/proposta/cases/moewa/moewa-${f}.jpg`;
 const MEDCOPILOT = (f: string) => `/proposta/cases/medcopilot/medcopilot-${f}.jpg`;
+const ODECASA = (f: string) => `/proposta/cases/o-de-casa/o-de-casa-${f}.jpg`;
 
 /** Os cases da home, com o slug da página de cada um (src/lib/cases.ts). */
 export const VITRINE = [
@@ -93,6 +94,14 @@ export const VITRINE = [
     seg: "Educação financeira",
     antes: "Marca pessoal sem direção",
     depois: "Um posicionamento que cabe numa pergunta: quanto você investiria na sua paz?",
+  },
+  {
+    slug: "o-de-casa",
+    imgs: ["cartaz", "mosaico", "cartao-app", "site", "envelope", "instagram"].map(ODECASA),
+    nome: "Ô de Casa",
+    seg: "Mercado imobiliário",
+    antes: "Mais uma imobiliária",
+    depois: "Uma marca mineira e moderna, à altura de clientes de médio e alto padrão.",
   },
 ];
 

@@ -70,6 +70,7 @@ export const DEFAULT_CASE_ORDER = [
   "moewa",
   "joana-co",
   "308-network",
+  "o-de-casa",
 ];
 
 /* ---------- Direção de Marca Legacy ---------- */
@@ -77,6 +78,7 @@ export const DEFAULT_CASE_ORDER = [
 export const PRODUCT_LABELS: Record<ProposalProduct, string> = {
   estrategia: "Estratégia de Marca e Identidade Visual",
   direcao: "Direção de Marca Legacy",
+  so_estrategia: "Estratégia de Marca",
 };
 
 /** Valores aplicados ao criar uma proposta de Direção de Marca Legacy. */
@@ -134,5 +136,73 @@ export const DIRECAO_DELIVERABLES: Deliverable[] = [
   {
     title: "Plano de 90 dias",
     text: "Ações em três ciclos de 30 dias, com prioridades, responsáveis, calendário do primeiro mês e ajustes do seu perfil.",
+  },
+];
+
+/* ---------- Estratégia de Marca (só estratégia, sem identidade visual) ---------- */
+
+/** Valores aplicados ao criar uma proposta de Estratégia de Marca. */
+export const SO_ESTRATEGIA_DEFAULTS = {
+  cover_label: "Proposta de Estratégia de Marca",
+  show_diagnosis: false,
+  price_total: 5000,
+  installments: 2,
+  installments_note: "50% na contratação e 50% na entrega",
+  cash_discount_pct: 10,
+  cash_note: "Pagamento via Pix na contratação",
+  deadline_days: 25,
+} satisfies Partial<Proposal>;
+
+export const SO_ESTRATEGIA_DELIVERABLES: Deliverable[] = [
+  {
+    title: "Diagnóstico e mercado",
+    text: "Como a sua marca está hoje, o que os concorrentes comunicam e onde está o espaço livre.",
+  },
+  {
+    title: "Cliente ideal",
+    text: "Quem é, o que deseja, o que faz ele comprar e quem a sua marca deve deixar de atrair.",
+  },
+  {
+    title: "Posicionamento",
+    text: "Como a sua marca quer ser lembrada, o seu diferencial e as provas que sustentam isso.",
+  },
+  {
+    title: "Narrativa da marca",
+    text: "Propósito, história e a ideia central que guia toda a comunicação.",
+  },
+  {
+    title: "Mensagens-chave",
+    text: "A frase que resume o seu negócio, com versões prontas pra bio, apresentação e WhatsApp.",
+  },
+  {
+    title: "Jeito de falar",
+    text: "Tom de voz, palavras que a marca usa e evita, com exemplos de antes e depois.",
+  },
+  {
+    title: "Linha editorial",
+    text: "Os temas que a sua marca deve postar no Instagram e o papel de cada um: atrair, gerar confiança e vender.",
+  },
+];
+
+export const SO_ESTRATEGIA_STEPS = [
+  {
+    when: "Início",
+    title: "Briefing Legacy",
+    text: "Você responde a nossa ferramenta de briefing. O prazo começa aqui.",
+  },
+  {
+    when: "Até o dia 8",
+    title: "Pesquisa e diagnóstico",
+    text: "Analisamos a sua marca, as suas redes e os seus concorrentes.",
+  },
+  {
+    when: "Até o dia 20",
+    title: "Construção da estratégia",
+    text: "Cliente ideal, posicionamento, narrativa, mensagens, tom de voz e linha editorial.",
+  },
+  {
+    when: "Dia 25",
+    title: "Entrega",
+    text: "Você recebe o Guia de Estratégia da Marca.",
   },
 ];

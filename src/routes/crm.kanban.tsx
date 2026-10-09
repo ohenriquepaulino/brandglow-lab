@@ -8,7 +8,9 @@ import {
   useSensors,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import { apiDeleteLead, apiListLeads, apiUpdateColumn } from "@/lib/crm-api";
+import { apiDeleteLead, apiListLeadsComFollowup, apiUpdateColumn } from "@/lib/crm-api";
+import { apiFollowupLer, type FollowupLeitura } from "@/lib/whatsapp-api";
+import { COLUNAS_FOLLOWUP, FOLLOWUP_INFO, haQuanto, type FollowupTipo } from "@/lib/followup";
 import {
   COLUNAS,
   COLUNA_PERDIDO,
@@ -20,6 +22,7 @@ import {
 } from "@/lib/crm-auth";
 import { LeadCard } from "@/components/crm/LeadCard";
 import { LeadPanel } from "@/components/crm/LeadPanel";
+import { GanhoModal } from "@/components/crm/GanhoModal";
 import { CrmSidebar } from "@/components/crm/Sidebar";
 
 export const Route = createFileRoute("/crm/kanban")({
@@ -32,11 +35,20 @@ function KanbanPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [opened, setOpened] = useState<Lead | null>(null);
+  // Lead esperando o valor fechado para ir para Ganho.
+  const [paraGanho, setParaGanho] = useState<Lead | null>(null);
 
   const [fFat, setFFat] = useState("");
   const [fUtm, setFUtm] = useState("");
   const [search, setSearch] = useState("");
   const [showPerdidos, setShowPerdidos] = useState(false);
+  // Filtro do menu de follow-up: null mostra todos os leads.
+  const [filtroFollowup, setFiltroFollowup] = useState<FollowupTipo | "todos" | null>(null);
+
+  const [followupLidoEm, setFollowupLidoEm] = useState<string | null>(null);
+  const [lendo, setLendo] = useState(false);
+  const [leitura, setLeitura] = useState<FollowupLeitura | null>(null);
+  const [erroLeitura, setErroLeitura] = useState<string | null>(null);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
@@ -55,12 +67,26 @@ function KanbanPage() {
   async function loadLeads(silent = false) {
     if (!silent) setLoading(true);
     try {
-      const data = await apiListLeads();
+      const { leads: data, followupLidoEm: lidoEm } = await apiListLeadsComFollowup();
       setLeads(data.map((l) => ({ ...l, coluna: normalizeColuna(l.coluna) })));
+      setFollowupLidoEm(lidoEm);
     } catch (err) {
       console.error(err);
     }
     if (!silent) setLoading(false);
+  }
+
+  async function verFollowups() {
+    setLendo(true);
+    setErroLeitura(null);
+    try {
+      setLeitura(await apiFollowupLer());
+      await loadLeads(true);
+      setFiltroFollowup("todos");
+    } catch (err) {
+      setErroLeitura(err instanceof Error ? err.message : String(err));
+    }
+    setLendo(false);
   }
 
   function handleLogout() {
@@ -90,9 +116,20 @@ function KanbanPage() {
     [leads],
   );
 
+  const comFollowup = useMemo(() => leads.filter(temFollowup), [leads]);
+  const contagem = useMemo(() => {
+    const c: Record<FollowupTipo, number> = { responder: 0, cobrar: 0, puxar: 0 };
+    for (const l of comFollowup) c[l.followup!.tipo]++;
+    return c;
+  }, [comFollowup]);
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return leads.filter((l) => {
+      if (filtroFollowup && !temFollowup(l)) return false;
+      if (filtroFollowup && filtroFollowup !== "todos" && l.followup?.tipo !== filtroFollowup) {
+        return false;
+      }
       if (fFat && l.faturamento !== fFat) return false;
       if (fUtm && l.utm_source !== fUtm) return false;
       if (q) {
@@ -102,23 +139,35 @@ function KanbanPage() {
       }
       return true;
     });
-  }, [leads, fFat, fUtm, search]);
+  }, [leads, fFat, fUtm, search, filtroFollowup]);
 
-  async function moveLead(leadId: string, dest: string) {
+  async function moveLead(leadId: string, dest: string, valorFechado?: number) {
     const lead = leads.find((l) => l.id === leadId);
     if (!lead || lead.coluna === dest) return;
+    // Ganho pede o valor antes: o card só muda depois de confirmar.
+    if (dest === "ganho" && valorFechado === undefined) {
+      setParaGanho(lead);
+      return;
+    }
 
     const origem = lead.coluna;
-    setLeads((prev) => prev.map((l) => (l.id === leadId ? { ...l, coluna: dest } : l)));
+    const campos: Partial<Lead> =
+      dest === "ganho"
+        ? { coluna: dest, valor_fechado: valorFechado, ganho_em: new Date().toISOString() }
+        : origem === "ganho"
+          ? { coluna: dest, valor_fechado: null, ganho_em: null }
+          : { coluna: dest };
+    setLeads((prev) => prev.map((l) => (l.id === leadId ? { ...l, ...campos } : l)));
     if (opened?.id === leadId) {
-      setOpened((p) => (p ? { ...p, coluna: dest } : p));
+      setOpened((p) => (p ? { ...p, ...campos } : p));
     }
 
     try {
-      await apiUpdateColumn(leadId, dest, origem);
+      await apiUpdateColumn(leadId, dest, origem, valorFechado);
     } catch (err) {
       console.error(err);
-      setLeads((prev) => prev.map((l) => (l.id === leadId ? { ...l, coluna: origem } : l)));
+      setLeads((prev) => prev.map((l) => (l.id === leadId ? lead : l)));
+      alert("Não foi possível mover o lead. Tente novamente.");
     }
   }
 
@@ -131,7 +180,8 @@ function KanbanPage() {
   return (
     <div className="flex min-h-screen" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
       <CrmSidebar />
-      <div className="min-h-screen flex-1" style={{ background: "#F4F2EF" }}>
+      {/* min-w-0: sem ele o quadro alarga a página (que tem overflow-x hidden) em vez de rolar. */}
+      <div className="min-h-screen min-w-0 flex-1" style={{ background: "#F4F2EF" }}>
         <header
           className="flex items-center justify-between border-b bg-white px-6 py-3"
           style={{ borderColor: "#E0DED9" }}
@@ -224,7 +274,7 @@ function KanbanPage() {
           </div>
         </div>
 
-        <main className="px-6 py-6">
+        <main className="px-6 pt-6 pb-28">
           {loading ? (
             <p className="text-sm text-neutral-500">Carregando leads...</p>
           ) : (
@@ -257,18 +307,222 @@ function KanbanPage() {
           )}
         </main>
 
+        <FollowupDock
+          lendo={lendo}
+          lidoEm={followupLidoEm}
+          contagem={contagem}
+          semConversa={leitura?.sem_conversa ?? 0}
+          erro={erroLeitura}
+          filtro={filtroFollowup}
+          onLer={() => void verFollowups()}
+          onFiltro={setFiltroFollowup}
+        />
+
+        {paraGanho && (
+          <GanhoModal
+            lead={paraGanho}
+            onCancel={() => setParaGanho(null)}
+            onConfirm={async (valor) => {
+              const id = paraGanho.id;
+              setParaGanho(null);
+              await moveLead(id, "ganho", valor);
+            }}
+          />
+        )}
+
         {opened && (
           <LeadPanel
             lead={opened}
             onClose={() => setOpened(null)}
             onUpdated={(updated) => {
-              setLeads((prev) => prev.map((l) => (l.id === updated.id ? updated : l)));
-              setOpened(updated);
+              // A rota de edição não devolve a tag de follow-up: mantém a que já tinha.
+              const comTag = { ...updated, followup: updated.followup ?? opened.followup };
+              setLeads((prev) => prev.map((l) => (l.id === updated.id ? comTag : l)));
+              setOpened(comTag);
             }}
           />
         )}
       </div>
     </div>
+  );
+}
+
+/** Tag vale só nas etapas de follow-up: mover para Ganho/Perdido já tira o card da lista. */
+function temFollowup(l: Lead) {
+  return !!l.followup && COLUNAS_FOLLOWUP.includes(l.coluna);
+}
+
+/** Menu flutuante embaixo, no centro: lê o WhatsApp e filtra o quadro pelas tags. */
+function FollowupDock({
+  lendo,
+  lidoEm,
+  contagem,
+  semConversa,
+  erro,
+  filtro,
+  onLer,
+  onFiltro,
+}: {
+  lendo: boolean;
+  lidoEm: string | null;
+  contagem: Record<FollowupTipo, number>;
+  semConversa: number;
+  erro: string | null;
+  filtro: FollowupTipo | "todos" | null;
+  onLer: () => void;
+  onFiltro: (f: FollowupTipo | "todos" | null) => void;
+}) {
+  const total = contagem.responder + contagem.cobrar + contagem.puxar;
+  const legenda = erro
+    ? `Não consegui ler o WhatsApp: ${erro}`
+    : lendo
+      ? "Lendo as conversas do WhatsApp..."
+      : lidoEm
+        ? `Lido ${haQuanto(Date.now() - new Date(lidoEm).getTime())}${
+            semConversa > 0 ? ` · ${semConversa} sem conversa` : ""
+          }`
+        : "Lê o WhatsApp e marca quem precisa de atenção";
+
+  return (
+    <div className="pointer-events-none fixed inset-x-0 bottom-5 z-30 flex justify-center px-4">
+      <div
+        className="pointer-events-auto flex max-w-full flex-col items-center gap-1 rounded-[22px] border border-white/10 p-1.5 pb-1 shadow-[0_18px_50px_-12px_rgba(18,17,16,0.55)] backdrop-blur-xl"
+        style={{ background: "rgba(18,17,16,0.92)" }}
+      >
+        <div className="flex max-w-full items-center gap-1.5 overflow-x-auto">
+          <button
+            onClick={onLer}
+            disabled={lendo}
+            className="flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-[13px] font-semibold transition-all hover:brightness-105 active:scale-[0.97] disabled:opacity-60"
+            style={{ background: "#CFFF87", color: "#121110" }}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="15"
+              height="15"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={lendo ? "animate-spin" : undefined}
+            >
+              {lendo ? (
+                <path d="M21 12a9 9 0 1 1-6.2-8.56" />
+              ) : (
+                <>
+                  <rect x="3" y="3" width="18" height="18" rx="4" />
+                  <path d="M8 12.5l2.5 2.5L16 9.5" />
+                </>
+              )}
+            </svg>
+            {lidoEm ? "Ler de novo" : "Ver follow-ups"}
+          </button>
+
+          {lidoEm && total > 0 && (
+            <>
+              <span className="mx-1.5 h-6 w-px shrink-0 bg-white/12" />
+              <span className="flex shrink-0 items-center gap-1 pr-1 text-[11px] font-medium uppercase tracking-[0.12em] text-white/45">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 5h18l-7 8.5V19l-4 2v-7.5L3 5z" />
+                </svg>
+                Filtrar
+              </span>
+              <DockChip
+                ativo={filtro === "todos"}
+                contagem={total}
+                titulo="Mostrar só os leads com follow-up"
+                onClick={() => onFiltro(filtro === "todos" ? null : "todos")}
+              >
+                Todos
+              </DockChip>
+              {(["responder", "cobrar", "puxar"] as FollowupTipo[]).map((t) =>
+                contagem[t] > 0 ? (
+                  <DockChip
+                    key={t}
+                    ativo={filtro === t}
+                    contagem={contagem[t]}
+                    titulo={`Mostrar só "${FOLLOWUP_INFO[t].label}"`}
+                    onClick={() => onFiltro(filtro === t ? null : t)}
+                  >
+                    <span
+                      className="h-2 w-2 shrink-0 rounded-full"
+                      style={{ background: TAG_COR[t] }}
+                    />
+                    {FOLLOWUP_INFO[t].label}
+                  </DockChip>
+                ) : null,
+              )}
+              {filtro && (
+                <button
+                  onClick={() => onFiltro(null)}
+                  aria-label="Mostrar todos os leads"
+                  title="Mostrar todos os leads"
+                  className="ml-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+                >
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
+                    <path d="M6 6l12 12M18 6L6 18" />
+                  </svg>
+                </button>
+              )}
+            </>
+          )}
+          {lidoEm && total === 0 && !lendo && (
+            <span className="px-3 text-[13px] font-medium text-white">
+              Nenhum follow-up pendente 🎉
+            </span>
+          )}
+        </div>
+        <p
+          className={`max-w-full truncate px-2 text-[10.5px] ${erro ? "text-red-300" : "text-white/50"}`}
+        >
+          {legenda}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/** Cor do ponto de cada tag (o vermelho/laranja/cinza das tags dos cards). */
+const TAG_COR: Record<FollowupTipo, string> = {
+  responder: "#EF4444",
+  cobrar: "#F08A5D",
+  puxar: "#B0ABA4",
+};
+
+function DockChip({
+  ativo,
+  contagem,
+  titulo,
+  onClick,
+  children,
+}: {
+  ativo: boolean;
+  contagem: number;
+  titulo: string;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      aria-pressed={ativo}
+      title={ativo ? "Clique para tirar o filtro" : titulo}
+      className={`group flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border py-1.5 pr-1.5 pl-3 text-[12.5px] font-medium transition-all active:scale-[0.96] ${
+        ativo
+          ? "border-transparent bg-white text-[#121110] shadow-[0_0_0_3px_rgba(255,255,255,0.14)]"
+          : "border-white/15 bg-white/[0.04] text-white/85 hover:border-white/35 hover:bg-white/10 hover:text-white"
+      }`}
+    >
+      {children}
+      <span
+        className={`min-w-[22px] rounded-full px-1.5 text-center text-[11px] font-semibold leading-[18px] tabular-nums ${
+          ativo ? "bg-[#121110]/10 text-[#121110]" : "bg-white/10 text-white/80 group-hover:bg-white/15"
+        }`}
+      >
+        {contagem}
+      </span>
+    </button>
   );
 }
 

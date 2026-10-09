@@ -83,6 +83,22 @@ export const CASES: CaseStudy[] = [
       ASSET("cases/308-network/308-network-iphone-app-patrimonio.jpg"),
     ],
   },
+  {
+    slug: "o-de-casa",
+    ...texto("o-de-casa"),
+    handle: "@odecasaimoveis",
+    siteUrl: `${SITE}/cases/o-de-casa`,
+    images: [
+      ASSET("cases/o-de-casa/o-de-casa-cartaz.jpg"),
+      ASSET("cases/o-de-casa/o-de-casa-mosaico.jpg"),
+      ASSET("cases/o-de-casa/o-de-casa-cartao-app.jpg"),
+      ASSET("cases/o-de-casa/o-de-casa-site.jpg"),
+      ASSET("cases/o-de-casa/o-de-casa-envelope.jpg"),
+      ASSET("cases/o-de-casa/o-de-casa-instagram.jpg"),
+      ASSET("cases/o-de-casa/o-de-casa-logo.jpg"),
+      ASSET("cases/o-de-casa/o-de-casa-tipografia.jpg"),
+    ],
+  },
 ];
 
 /** Imagens locais extraídas da apresentação, caso as do site mudem de endereço. */

@@ -10,6 +10,13 @@ const ActionSchema = z.discriminatedUnion("action", [
     id: z.string().uuid(),
     coluna: z.string().min(1).max(60),
     coluna_origem: z.string().min(1).max(60),
+    // Obrigatório ao mover para "ganho" (o CRM pede antes de mover).
+    valor_fechado: z.number().min(0).max(100_000_000).optional(),
+  }),
+  z.object({
+    action: z.literal("update_valor"),
+    id: z.string().uuid(),
+    valor_fechado: z.number().min(0).max(100_000_000),
   }),
   z.object({
     action: z.literal("update_anotacoes"),
@@ -50,12 +57,15 @@ export const Route = createFileRoute("/api/public/crm/data")({
 
         switch (payload.action) {
           case "list_leads": {
-            const { data, error } = await supabase
-              .from("leads")
-              .select("*")
-              .order("criado_em", { ascending: false });
+            const [{ data, error }, { data: config }] = await Promise.all([
+              supabase
+                .from("leads")
+                .select("*, followup:followup_leads(tipo, ultima_msg_em, ultima_de)")
+                .order("criado_em", { ascending: false }),
+              supabase.from("whatsapp_config").select("followup_lido_em").eq("id", 1).maybeSingle(),
+            ]);
             if (error) return Response.json({ error: error.message }, { status: 500 });
-            return Response.json({ data });
+            return Response.json({ data, followup_lido_em: config?.followup_lido_em ?? null });
           }
           case "list_historico": {
             const { data, error } = await supabase
@@ -67,16 +77,34 @@ export const Route = createFileRoute("/api/public/crm/data")({
             return Response.json({ data });
           }
           case "update_column": {
-            const { error } = await supabase
-              .from("leads")
-              .update({ coluna: payload.coluna })
-              .eq("id", payload.id);
+            const ganho = payload.coluna === "ganho";
+            if (ganho && payload.valor_fechado === undefined) {
+              return Response.json({ error: "Informe o valor fechado" }, { status: 400 });
+            }
+            const campos: Record<string, unknown> = { coluna: payload.coluna };
+            if (ganho) {
+              campos.valor_fechado = payload.valor_fechado;
+              campos.ganho_em = new Date().toISOString();
+            } else if (payload.coluna_origem === "ganho") {
+              campos.valor_fechado = null;
+              campos.ganho_em = null;
+            }
+            const { error } = await supabase.from("leads").update(campos).eq("id", payload.id);
             if (error) return Response.json({ error: error.message }, { status: 500 });
             await supabase.from("historico_movimentacoes").insert({
               lead_id: payload.id,
               coluna_origem: payload.coluna_origem,
               coluna_destino: payload.coluna,
             });
+            return Response.json({ success: true });
+          }
+          case "update_valor": {
+            const { error } = await supabase
+              .from("leads")
+              .update({ valor_fechado: payload.valor_fechado })
+              .eq("id", payload.id)
+              .eq("coluna", "ganho");
+            if (error) return Response.json({ error: error.message }, { status: 500 });
             return Response.json({ success: true });
           }
           case "update_anotacoes": {

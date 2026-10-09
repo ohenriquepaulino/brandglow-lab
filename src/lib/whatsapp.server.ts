@@ -24,7 +24,10 @@ function evoConfig() {
   };
 }
 
-async function evo(path: string, init: { method?: string; body?: unknown } = {}) {
+export async function evo(
+  path: string,
+  init: { method?: string; body?: unknown; timeoutMs?: number } = {},
+) {
   const cfg = evoConfig();
   if (!cfg)
     throw new Error("Evolution API não configurada (EVOLUTION_API_URL / EVOLUTION_API_KEY)");
@@ -32,7 +35,7 @@ async function evo(path: string, init: { method?: string; body?: unknown } = {})
     method: init.method ?? "GET",
     headers: { apikey: cfg.key, "Content-Type": "application/json" },
     body: init.body ? JSON.stringify(init.body) : undefined,
-    signal: AbortSignal.timeout(TIMEOUT_MS),
+    signal: AbortSignal.timeout(init.timeoutMs ?? TIMEOUT_MS),
   });
   const data = await res.json().catch(() => ({}));
   return { ok: res.ok, status: res.status, data: data as EvoJson };
@@ -110,6 +113,29 @@ export function montarMensagem(template: string, nome: string): string {
   const primeiro = nome.trim().split(/\s+/)[0] ?? "";
   const primeiroFmt = primeiro ? primeiro[0].toUpperCase() + primeiro.slice(1).toLowerCase() : "";
   return template.replace(/\{primeiro-nome\}/g, primeiroFmt).replace(/\{nome\}/g, nome.trim());
+}
+
+/** Imagem por URL pública, com legenda. */
+export async function enviarImagem(telefone: string, url: string, legenda: string) {
+  const r = await evo("/message/sendMedia/{instance}", {
+    method: "POST",
+    body: {
+      number: telefone,
+      mediatype: "image",
+      mimetype: "image/png",
+      media: url,
+      fileName: url.split("/").pop(),
+      caption: legenda,
+    },
+    timeoutMs: 30_000,
+  });
+  if (!r.ok) {
+    const detalhe = JSON.stringify(r.data?.response?.message ?? r.data?.message ?? r.data).slice(
+      0,
+      300,
+    );
+    throw new Error(`Evolution ${r.status}: ${detalhe}`);
+  }
 }
 
 export async function enviarTexto(telefone: string, texto: string) {
@@ -325,7 +351,7 @@ export async function processarFila(supabase: SupabaseClient) {
 
 // Domínio publicado. O webhook aponta sempre para cá, mesmo que o CRM seja
 // aberto pelo preview do Lovable (o mesmo endereço do pg_cron).
-const SITE_URL = "https://legacybc.com.br";
+export const SITE_URL = "https://legacybc.com.br";
 
 /** Colunas de onde uma resposta do lead move o card. Mais adiante, não mexe. */
 const COLUNAS_ANTES_DE_CONVERSAR = ["novo-lead", "aguardando-resposta", "contato-feito"];
@@ -363,7 +389,7 @@ export async function garantirWebhook(supabase: SupabaseClient) {
  * DDD + 8 últimos dígitos: casa "(11) 98888-7777" do formulário com o JID
  * "551188887777@s.whatsapp.net" (o WhatsApp às vezes omite o 9º dígito).
  */
-function chaveTelefone(raw: string): string | null {
+export function chaveTelefone(raw: string): string | null {
   let d = raw.replace(/\D/g, "");
   if (d.length >= 12 && d.startsWith("55")) d = d.slice(2);
   if (d.length < 10) return null;

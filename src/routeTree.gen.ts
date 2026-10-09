@@ -27,6 +27,7 @@ import { Route as CrmVideosRouteImport } from './routes/crm.videos'
 import { Route as CrmTarefasRouteImport } from './routes/crm.tarefas'
 import { Route as CrmKanbanRouteImport } from './routes/crm.kanban'
 import { Route as CrmGravadorRouteImport } from './routes/crm.gravador'
+import { Route as CrmDashboardRouteImport } from './routes/crm.dashboard'
 import { Route as CrmAbRouteImport } from './routes/crm.ab'
 import { Route as CasesSlugRouteImport } from './routes/cases.$slug'
 import { Route as CrmPropostasIndexRouteImport } from './routes/crm.propostas.index'
@@ -38,6 +39,7 @@ import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/l
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicWhatsappWebhookRouteImport } from './routes/api/public/whatsapp/webhook'
 import { Route as ApiPublicWhatsappProcessRouteImport } from './routes/api/public/whatsapp/process'
+import { Route as ApiPublicWhatsappFollowupRouteImport } from './routes/api/public/whatsapp/followup'
 import { Route as ApiPublicVideoTrackRouteImport } from './routes/api/public/video/track'
 import { Route as ApiPublicVideoProcessRouteImport } from './routes/api/public/video/process'
 import { Route as ApiPublicLeadsSubmitRouteImport } from './routes/api/public/leads/submit'
@@ -139,6 +141,11 @@ const CrmGravadorRoute = CrmGravadorRouteImport.update({
   path: '/gravador',
   getParentRoute: () => CrmRoute,
 } as any)
+const CrmDashboardRoute = CrmDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => CrmRoute,
+} as any)
 const CrmAbRoute = CrmAbRouteImport.update({
   id: '/ab',
   path: '/ab',
@@ -197,6 +204,12 @@ const ApiPublicWhatsappProcessRoute =
   ApiPublicWhatsappProcessRouteImport.update({
     id: '/api/public/whatsapp/process',
     path: '/api/public/whatsapp/process',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicWhatsappFollowupRoute =
+  ApiPublicWhatsappFollowupRouteImport.update({
+    id: '/api/public/whatsapp/followup',
+    path: '/api/public/whatsapp/followup',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicVideoTrackRoute = ApiPublicVideoTrackRouteImport.update({
@@ -261,6 +274,7 @@ export interface FileRoutesByFullPath {
   '/tks': typeof TksRoute
   '/cases/$slug': typeof CasesSlugRoute
   '/crm/ab': typeof CrmAbRoute
+  '/crm/dashboard': typeof CrmDashboardRoute
   '/crm/gravador': typeof CrmGravadorRoute
   '/crm/kanban': typeof CrmKanbanRoute
   '/crm/tarefas': typeof CrmTarefasRoute
@@ -285,6 +299,7 @@ export interface FileRoutesByFullPath {
   '/api/public/leads/submit': typeof ApiPublicLeadsSubmitRoute
   '/api/public/video/process': typeof ApiPublicVideoProcessRoute
   '/api/public/video/track': typeof ApiPublicVideoTrackRoute
+  '/api/public/whatsapp/followup': typeof ApiPublicWhatsappFollowupRoute
   '/api/public/whatsapp/process': typeof ApiPublicWhatsappProcessRoute
   '/api/public/whatsapp/webhook': typeof ApiPublicWhatsappWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -301,6 +316,7 @@ export interface FileRoutesByTo {
   '/tks': typeof TksRoute
   '/cases/$slug': typeof CasesSlugRoute
   '/crm/ab': typeof CrmAbRoute
+  '/crm/dashboard': typeof CrmDashboardRoute
   '/crm/gravador': typeof CrmGravadorRoute
   '/crm/kanban': typeof CrmKanbanRoute
   '/crm/tarefas': typeof CrmTarefasRoute
@@ -325,6 +341,7 @@ export interface FileRoutesByTo {
   '/api/public/leads/submit': typeof ApiPublicLeadsSubmitRoute
   '/api/public/video/process': typeof ApiPublicVideoProcessRoute
   '/api/public/video/track': typeof ApiPublicVideoTrackRoute
+  '/api/public/whatsapp/followup': typeof ApiPublicWhatsappFollowupRoute
   '/api/public/whatsapp/process': typeof ApiPublicWhatsappProcessRoute
   '/api/public/whatsapp/webhook': typeof ApiPublicWhatsappWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -343,6 +360,7 @@ export interface FileRoutesById {
   '/tks': typeof TksRoute
   '/cases/$slug': typeof CasesSlugRoute
   '/crm/ab': typeof CrmAbRoute
+  '/crm/dashboard': typeof CrmDashboardRoute
   '/crm/gravador': typeof CrmGravadorRoute
   '/crm/kanban': typeof CrmKanbanRoute
   '/crm/tarefas': typeof CrmTarefasRoute
@@ -367,6 +385,7 @@ export interface FileRoutesById {
   '/api/public/leads/submit': typeof ApiPublicLeadsSubmitRoute
   '/api/public/video/process': typeof ApiPublicVideoProcessRoute
   '/api/public/video/track': typeof ApiPublicVideoTrackRoute
+  '/api/public/whatsapp/followup': typeof ApiPublicWhatsappFollowupRoute
   '/api/public/whatsapp/process': typeof ApiPublicWhatsappProcessRoute
   '/api/public/whatsapp/webhook': typeof ApiPublicWhatsappWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -386,6 +405,7 @@ export interface FileRouteTypes {
     | '/tks'
     | '/cases/$slug'
     | '/crm/ab'
+    | '/crm/dashboard'
     | '/crm/gravador'
     | '/crm/kanban'
     | '/crm/tarefas'
@@ -410,6 +430,7 @@ export interface FileRouteTypes {
     | '/api/public/leads/submit'
     | '/api/public/video/process'
     | '/api/public/video/track'
+    | '/api/public/whatsapp/followup'
     | '/api/public/whatsapp/process'
     | '/api/public/whatsapp/webhook'
     | '/lovable/email/queue/process'
@@ -426,6 +447,7 @@ export interface FileRouteTypes {
     | '/tks'
     | '/cases/$slug'
     | '/crm/ab'
+    | '/crm/dashboard'
     | '/crm/gravador'
     | '/crm/kanban'
     | '/crm/tarefas'
@@ -450,6 +472,7 @@ export interface FileRouteTypes {
     | '/api/public/leads/submit'
     | '/api/public/video/process'
     | '/api/public/video/track'
+    | '/api/public/whatsapp/followup'
     | '/api/public/whatsapp/process'
     | '/api/public/whatsapp/webhook'
     | '/lovable/email/queue/process'
@@ -467,6 +490,7 @@ export interface FileRouteTypes {
     | '/tks'
     | '/cases/$slug'
     | '/crm/ab'
+    | '/crm/dashboard'
     | '/crm/gravador'
     | '/crm/kanban'
     | '/crm/tarefas'
@@ -491,6 +515,7 @@ export interface FileRouteTypes {
     | '/api/public/leads/submit'
     | '/api/public/video/process'
     | '/api/public/video/track'
+    | '/api/public/whatsapp/followup'
     | '/api/public/whatsapp/process'
     | '/api/public/whatsapp/webhook'
     | '/lovable/email/queue/process'
@@ -524,6 +549,7 @@ export interface RootRouteChildren {
   ApiPublicLeadsSubmitRoute: typeof ApiPublicLeadsSubmitRoute
   ApiPublicVideoProcessRoute: typeof ApiPublicVideoProcessRoute
   ApiPublicVideoTrackRoute: typeof ApiPublicVideoTrackRoute
+  ApiPublicWhatsappFollowupRoute: typeof ApiPublicWhatsappFollowupRoute
   ApiPublicWhatsappProcessRoute: typeof ApiPublicWhatsappProcessRoute
   ApiPublicWhatsappWebhookRoute: typeof ApiPublicWhatsappWebhookRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
@@ -659,6 +685,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CrmGravadorRouteImport
       parentRoute: typeof CrmRoute
     }
+    '/crm/dashboard': {
+      id: '/crm/dashboard'
+      path: '/dashboard'
+      fullPath: '/crm/dashboard'
+      preLoaderRoute: typeof CrmDashboardRouteImport
+      parentRoute: typeof CrmRoute
+    }
     '/crm/ab': {
       id: '/crm/ab'
       path: '/ab'
@@ -736,6 +769,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWhatsappProcessRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/whatsapp/followup': {
+      id: '/api/public/whatsapp/followup'
+      path: '/api/public/whatsapp/followup'
+      fullPath: '/api/public/whatsapp/followup'
+      preLoaderRoute: typeof ApiPublicWhatsappFollowupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/video/track': {
       id: '/api/public/video/track'
       path: '/api/public/video/track'
@@ -811,6 +851,7 @@ declare module '@tanstack/react-router' {
 
 interface CrmRouteChildren {
   CrmAbRoute: typeof CrmAbRoute
+  CrmDashboardRoute: typeof CrmDashboardRoute
   CrmGravadorRoute: typeof CrmGravadorRoute
   CrmKanbanRoute: typeof CrmKanbanRoute
   CrmTarefasRoute: typeof CrmTarefasRoute
@@ -823,6 +864,7 @@ interface CrmRouteChildren {
 
 const CrmRouteChildren: CrmRouteChildren = {
   CrmAbRoute: CrmAbRoute,
+  CrmDashboardRoute: CrmDashboardRoute,
   CrmGravadorRoute: CrmGravadorRoute,
   CrmKanbanRoute: CrmKanbanRoute,
   CrmTarefasRoute: CrmTarefasRoute,
@@ -861,6 +903,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicLeadsSubmitRoute: ApiPublicLeadsSubmitRoute,
   ApiPublicVideoProcessRoute: ApiPublicVideoProcessRoute,
   ApiPublicVideoTrackRoute: ApiPublicVideoTrackRoute,
+  ApiPublicWhatsappFollowupRoute: ApiPublicWhatsappFollowupRoute,
   ApiPublicWhatsappProcessRoute: ApiPublicWhatsappProcessRoute,
   ApiPublicWhatsappWebhookRoute: ApiPublicWhatsappWebhookRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
