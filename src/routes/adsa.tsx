@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ContactSection } from "@/components/site/ContactSection";
 import { PrivacyButton } from "@/components/site/PrivacyDialog";
 import { useAbVisit } from "@/lib/ab";
@@ -36,6 +36,15 @@ export const Route = createFileRoute("/adsa")({
       {
         rel: "preload",
         href: "/proposta/fonts/inter-400.woff2",
+        as: "font",
+        type: "font/woff2",
+        crossOrigin: "anonymous",
+      },
+      // 600 é o negrito do título, do formulário e do botão: sem o preload ele só
+      // começava a baixar depois do CSS, e o título era redesenhado na troca.
+      {
+        rel: "preload",
+        href: "/proposta/fonts/inter-600.woff2",
         as: "font",
         type: "font/woff2",
         crossOrigin: "anonymous",
@@ -104,10 +113,24 @@ const FAQ = [
 ];
 
 function AdsSlider() {
+  const ref = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
   const [loaded, setLoaded] = useState(1);
+  const [visivel, setVisivel] = useState(false);
+
+  // Só gira (e só baixa os próximos slides) com o slider perto da tela.
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => setVisivel(e.isIntersecting), {
+      rootMargin: "200px 0px",
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   useEffect(() => {
+    if (!visivel) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const id = window.setInterval(() => {
       setIndex((i) => {
@@ -117,11 +140,14 @@ function AdsSlider() {
       });
     }, 4000);
     return () => window.clearInterval(id);
-  }, []);
+  }, [visivel]);
 
   return (
     <a href="#formulario" className="ads-slider-link" aria-label="Ir para o formulário">
-      <div className="ads-slider">
+      <div className="ads-slider" ref={ref}>
+        {/* O slider fica abaixo do formulário, fora da primeira tela: tudo lazy.
+            Com fetchPriority alta, o React gerava um preload de 100 KB no <head>
+            que disputava banda com o texto e o formulário no celular. */}
         {heroSlides.slice(0, loaded).map((s, i) => (
           <img
             key={s.src}
@@ -130,9 +156,8 @@ function AdsSlider() {
             aria-hidden="true"
             width={1600}
             height={900}
-            loading={i === 0 ? "eager" : "lazy"}
+            loading="lazy"
             decoding="async"
-            {...(i === 0 ? { fetchPriority: "high" as const } : {})}
             style={{ opacity: i === index ? 1 : 0 }}
           />
         ))}
