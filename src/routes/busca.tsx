@@ -1,10 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PaginaAdsA } from "@/components/ads/PaginaAdsA";
+import { PaginaAdsA, isSegmento, type Segmento } from "@/components/ads/PaginaAdsA";
 
 // Destino das campanhas do Google Ads (rede de pesquisa). É a mesma página da
 // /adsa, que já mostra o preço de partida, mas fora do teste A/B da Meta: as
 // visitas daqui não entram no painel /crm/ab, e o lead chega com pagina=/busca.
+// ?seg=saude|arquitetura|advocacia|reposicionar troca o título (ver SEGMENTOS).
 export const Route = createFileRoute("/busca")({
+  // Devolve o resto da query intacto: UTMs e gclid são lidos da URL depois.
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): Record<string, unknown> & { seg?: Segmento } => ({
+    ...search,
+    seg: isSegmento(search.seg) ? search.seg : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Estratégia e identidade visual | Legacy BrandCo." },
@@ -39,5 +47,10 @@ export const Route = createFileRoute("/busca")({
       },
     ],
   }),
-  component: () => <PaginaAdsA variante={null} />,
+  component: BuscaPage,
 });
+
+function BuscaPage() {
+  const { seg } = Route.useSearch();
+  return <PaginaAdsA variante={null} segmento={seg} />;
+}

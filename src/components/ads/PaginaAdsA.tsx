@@ -165,7 +165,41 @@ function FormSlot() {
  * Página da versão A. Na /adsa conta visita do teste A/B ("a"); na /busca
  * (Google Ads) vai com null, para o tráfego de pesquisa não entrar no teste.
  */
-export function PaginaAdsA({ variante }: { variante: Variante | null }) {
+/**
+ * Título por segmento, para a página repetir o que a pessoa buscou no Google
+ * (/busca?seg=saude). Sem seg, ou com um desconhecido, fica o texto da /adsa.
+ */
+const SEGMENTOS = {
+  saude: { label: "SAÚDE E ESTÉTICA", verbo: "Construímos", alvo: "sua clínica ou consultório" },
+  arquitetura: {
+    label: "ARQUITETOS E ESCRITÓRIOS",
+    verbo: "Construímos",
+    alvo: "seu escritório de arquitetura",
+  },
+  advocacia: {
+    label: "ADVOGADOS E ESCRITÓRIOS",
+    verbo: "Construímos",
+    alvo: "seu escritório de advocacia",
+  },
+  reposicionar: { label: "REPOSICIONAMENTO DE MARCA", verbo: "Refazemos", alvo: "sua empresa" },
+} as const;
+
+export type Segmento = keyof typeof SEGMENTOS;
+
+export function isSegmento(v: unknown): v is Segmento {
+  return typeof v === "string" && Object.hasOwn(SEGMENTOS, v);
+}
+
+export function PaginaAdsA({
+  variante,
+  segmento,
+}: {
+  variante: Variante | null;
+  segmento?: Segmento;
+}) {
+  const seg = segmento
+    ? SEGMENTOS[segmento]
+    : { label: "CONSULTORIA DE MARCA", verbo: "Construímos", alvo: "sua empresa" };
   useAbVisit(variante);
   const sticky = useStickyCta(".ads-first, .ads-last, .ads-footer");
   return (
@@ -188,10 +222,10 @@ export function PaginaAdsA({ variante }: { variante: Variante | null }) {
         <section className="ads-section ads-first">
           <div className="ads-container ads-hero-grid">
             <div className="ads-hero-copy">
-              <Label>CONSULTORIA DE MARCA</Label>
+              <Label>{seg.label}</Label>
               <h1 className="ads-h1">
-                Construímos a <strong>estratégia</strong> e a <strong>identidade visual</strong> da
-                sua empresa
+                {seg.verbo} a <strong>estratégia</strong> e a <strong>identidade visual</strong>{" "}
+                {seg.alvo.startsWith("seu") ? "do" : "da"} {seg.alvo}
               </h1>
               <p className="ads-body ads-measure">
                 <strong>Comunicação clara</strong> e uma identidade à altura do seu serviço, para{" "}
