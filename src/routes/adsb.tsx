@@ -31,18 +31,20 @@ import print5 from "@/assets/ads/IMG_1697.webp.asset.json";
 
 // Versão B do teste A/B (a A é /adsa; as campanhas apontam para /ads, que
 // sorteia). Mesmo formulário e mesmo fluxo (CRM, WhatsApp, Pixel); muda a
-// página: visual da proposta (Anton + verde-limão), promessa do diagnóstico,
+// página: visual da proposta (Anton + verde-limão), análise da marca por vídeo,
 // cases em carrossel, processo, entregas e FAQ. Sem links que saiam da página.
+// Desde 2026-10-09 a oferta não fala mais em "diagnóstico gratuito": o grátis
+// em destaque trazia muito lead sem faturamento. A página agora diz para quem é.
 export const Route = createFileRoute("/adsb")({
   head: () => ({
     meta: [
-      { title: "Diagnóstico de marca gratuito | Legacy BrandCo." },
+      { title: "Análise de marca | Legacy BrandCo." },
       {
         name: "description",
         content:
-          "Estratégia de marca e identidade visual. Comece com um diagnóstico gratuito de 25 minutos por vídeo.",
+          "Estratégia de marca e identidade visual para empresas que já faturam. Comece com uma análise da sua marca em 25 minutos por vídeo.",
       },
-      { property: "og:title", content: "Diagnóstico de marca gratuito | Legacy BrandCo." },
+      { property: "og:title", content: "Análise de marca | Legacy BrandCo." },
       {
         property: "og:description",
         content: "Sua empresa é boa. Sua marca precisa mostrar isso.",
@@ -78,8 +80,8 @@ const FORM_PROPS = {
   hideInstagram: true,
   showProfession: true,
   revenueLabel: "Faturamento mensal da empresa",
-  ctaLabel: "Quero meu diagnóstico",
-  ctaNote: "Gratuito · 25 min por vídeo · resposta em até 1 dia útil",
+  ctaLabel: "Quero agendar a análise",
+  ctaNote: "25 min por vídeo · resposta em até 1 dia útil",
   // A política fica só no rodapé.
   hidePrivacy: true,
 } as const;
@@ -89,8 +91,8 @@ const PASSOS = [
   { n: "02", t: "Analisamos seu perfil", d: "Chegamos na conversa sabendo do seu negócio." },
   {
     n: "03",
-    t: "Diagnóstico de 25 min",
-    d: "Por vídeo. Mostramos onde sua marca perde valor e apresentamos como funciona o nosso trabalho de identidade visual.",
+    t: "Análise de 25 min",
+    d: "Por vídeo. Mostramos onde sua marca perde valor e como funciona o projeto: etapas, prazo e investimento.",
   },
 ];
 
@@ -169,12 +171,12 @@ const ENTREGAS = [
 
 const FAQ = [
   {
-    q: "Para que serve o diagnóstico?",
+    q: "Para que serve a análise?",
     a: "Para você conhecer o nosso trabalho de estratégia e identidade visual antes de decidir. Em 25 minutos por vídeo, olhamos a sua marca, mostramos onde ela está perdendo valor e apresentamos como funciona o projeto: etapas, prazo e investimento.",
   },
   {
-    q: "O diagnóstico é pago?",
-    a: "Não. A conversa é sem custo e sem compromisso: você sai com a leitura da sua marca e decide depois se quer seguir com o projeto.",
+    q: "Para quem é a análise?",
+    a: "Para empresas que já faturam e estão avaliando investir na marca. A conversa não tem custo nem compromisso: você conhece o projeto e o investimento e decide depois.",
   },
   {
     q: "Quanto custa um projeto?",
@@ -205,17 +207,17 @@ function Kicker({ children }: { children: React.ReactNode }) {
 function Form({ id }: { id: string }) {
   return (
     <div className="b-form" id={id}>
-      <p className="b-form-title">Diagnóstico gratuito</p>
+      <p className="b-form-title">Análise da sua marca</p>
       <p className="b-form-sub">
-        25 min por vídeo, sem custo: olhamos a sua marca e apresentamos o nosso trabalho de
-        identidade visual.
+        25 min por vídeo: olhamos a sua marca e mostramos como funciona um projeto de identidade
+        visual.
       </p>
       <ContactSection {...FORM_PROPS} />
     </div>
   );
 }
 
-function Cta({ href = "#formulario", children = "Quero meu diagnóstico" }) {
+function Cta({ href = "#formulario", children = "Quero agendar a análise" }) {
   return (
     <a href={href} className="b-cta">
       {children}
@@ -302,13 +304,13 @@ function AdsBPage() {
         <div className="b-wrap b-hero-grid">
           <div className="b-hero-copy">
             <img src={LOGO} alt="Legacy BrandCo." className="b-logo" width={172} height={61} />
-            <Kicker>Diagnóstico de marca gratuito</Kicker>
+            <Kicker>Estratégia e identidade visual</Kicker>
             <h1 className="b-d b-h1">
               <span>Sua empresa é boa.</span> <span>Sua marca precisa mostrar isso.</span>
             </h1>
             <p className="b-lead">
-              <strong>Estratégia</strong> e <strong>identidade visual</strong> para negócios que
-              entregam bem.
+              <strong>Estratégia</strong> e <strong>identidade visual</strong> para empresas que já
+              faturam e querem uma marca à altura do que entregam.
             </p>
           </div>
           <Form id="diagnostico" />
@@ -331,7 +333,7 @@ function AdsBPage() {
       <section className="b-sec tone-paper">
         <div className="b-wrap">
           <Kicker>Como funciona</Kicker>
-          <h2 className="b-d b-h2">Três passos até o seu diagnóstico</h2>
+          <h2 className="b-d b-h2">Três passos até a sua análise</h2>
           <ol className="b-steps">
             {PASSOS.map((p) => (
               <li key={p.n}>
@@ -496,7 +498,7 @@ function AdsBPage() {
         aria-hidden={!sticky}
         tabIndex={sticky ? 0 : -1}
       >
-        Quero meu diagnóstico gratuito
+        Quero agendar a análise
       </a>
 
       <style>{`
