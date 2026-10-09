@@ -3,21 +3,18 @@ import { useEffect } from "react";
 import { captureUtmsFromUrl } from "@/lib/utm";
 import { leadSignal, readLeadFaturamento } from "@/lib/lead-signal";
 
-
 export const Route = createFileRoute("/obrigado")({
   head: () => ({
     meta: [
       { title: "Obrigado — Legacy BrandCo." },
       {
         name: "description",
-        content:
-          "Informações recebidas com sucesso. Em breve entraremos em contato.",
+        content: "Informações recebidas com sucesso. Em breve entraremos em contato.",
       },
       { property: "og:title", content: "Obrigado — Legacy BrandCo." },
       {
         property: "og:description",
-        content:
-          "Informações recebidas com sucesso. Em breve entraremos em contato.",
+        content: "Informações recebidas com sucesso. Em breve entraremos em contato.",
       },
       { name: "robots", content: "noindex, follow" },
     ],
@@ -38,8 +35,26 @@ function ObrigadoPage() {
         eventId ? { eventID: eventId } : undefined,
       );
     }
-  }, []);
 
+    // ChatGPT Ads: uma conversão por cadastro. O "ev" identifica o envio, então
+    // recarregar a página não conta de novo.
+    const oaiq = (window as unknown as { oaiq?: (...args: unknown[]) => void }).oaiq;
+    const chave = `oaiq-registration:${eventId ?? "sem-ev"}`;
+    let jaContou = false;
+    try {
+      jaContou = !!eventId && sessionStorage.getItem(chave) === "1";
+    } catch {
+      // sessionStorage bloqueado: conta mesmo assim
+    }
+    if (typeof oaiq === "function" && !jaContou) {
+      oaiq("measure", "registration_completed", { type: "customer_action" });
+      try {
+        if (eventId) sessionStorage.setItem(chave, "1");
+      } catch {
+        // idem
+      }
+    }
+  }, []);
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background px-6 py-16 text-center">
@@ -49,8 +64,7 @@ function ObrigadoPage() {
         </h1>
 
         <p className="mt-6 text-[16px] leading-[1.6] text-ink/70 md:text-[17px]">
-          Aguarde nosso contato para entender como podemos criar a identidade
-          visual da sua marca.
+          Aguarde nosso contato para entender como podemos criar a identidade visual da sua marca.
         </p>
 
         <div className="mt-10 flex flex-col items-center gap-4">
