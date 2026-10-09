@@ -93,12 +93,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 if(d.readyState==='complete'){setTimeout(go,1500)}else{w.addEventListener('load',function(){setTimeout(go,1500)})}
 })(window,document,'script','dataLayer','GTM-TC7FD6LM');`;
 
-// Pixel do ChatGPT Ads (OpenAI), só nas páginas de anúncio (/ads, /adsa, /adsb)
-// e no /obrigado. A conversão "registration_completed" só sai no /obrigado, ou
-// seja, só para quem fatura, como o Lead da Meta. Quem chega ao /obrigado pela
-// home não conta: lá o pixel nunca foi iniciado.
+// Pixel do ChatGPT Ads (OpenAI). A conversão "registration_completed" só sai
+// no /obrigado, ou seja, só para quem fatura, como o Lead da Meta.
 // debug: true enquanto os anúncios estão em teste.
-const OPENAI_PIXEL_SCRIPT = `!function(w,d,s,u){if(w.oaiq||!/^\\/(ads|adsa|adsb|obrigado)\\/?$/.test(w.location.pathname))return;var q=function(){q.q.push(arguments)};q.q=[];w.oaiq=q;var j=d.createElement(s);j.async=1;j.src=u;var f=d.getElementsByTagName(s)[0];f.parentNode.insertBefore(j,f)}(window,document,"script","https://bzrcdn.openai.com/sdk/oaiq.min.js");window.oaiq&&window.oaiq("init",{pixelId:"MEsGYuAUsMpqVqv29bHnpY",debug:true});`;
+const OPENAI_PIXEL_SCRIPT = `!function(w,d,s,u){if(w.oaiq)return;var q=function(){q.q.push(arguments)};q.q=[];w.oaiq=q;var j=d.createElement(s);j.async=1;j.src=u;var f=d.getElementsByTagName(s)[0];f.parentNode.insertBefore(j,f)}(window,document,"script","https://bzrcdn.openai.com/sdk/oaiq.min.js");oaiq("init",{pixelId:"MEsGYuAUsMpqVqv29bHnpY",debug:true});`;
 
 const CLARITY_SCRIPT = `(function(c,l,a,r,i,t,y){
 c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
