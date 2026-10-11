@@ -80,8 +80,9 @@ const FORM_PROPS = {
   hideInstagram: true,
   showProfession: true,
   revenueLabel: "Faturamento mensal da empresa",
-  ctaLabel: "Quero agendar a análise",
-  ctaNote: "25 min por vídeo · resposta em até 1 dia útil",
+  // CTA igual ao da /adsa (2026-10-10).
+  ctaLabel: "Quero conversar sobre o projeto",
+  ctaNote: "Conversa sem custo · 25 min por vídeo · resposta em até 1 dia útil",
   // A política fica só no rodapé.
   hidePrivacy: true,
 } as const;
@@ -207,7 +208,7 @@ function Kicker({ children }: { children: React.ReactNode }) {
 function Form({ id }: { id: string }) {
   return (
     <div className="b-form" id={id}>
-      <p className="b-form-title">Análise da sua marca</p>
+      <p className="b-form-title">Converse sobre o seu projeto</p>
       <p className="b-form-sub">
         25 min por vídeo: olhamos a sua marca e mostramos como funciona um projeto de identidade
         visual.
@@ -217,7 +218,7 @@ function Form({ id }: { id: string }) {
   );
 }
 
-function Cta({ href = "#formulario", children = "Quero agendar a análise" }) {
+function Cta({ href = "#formulario", children = "Quero conversar sobre o projeto" }) {
   return (
     <a href={href} className="b-cta">
       {children}
@@ -498,7 +499,7 @@ function AdsBPage() {
         aria-hidden={!sticky}
         tabIndex={sticky ? 0 : -1}
       >
-        Quero agendar a análise
+        Quero conversar sobre o projeto
       </a>
 
       <style>{`
