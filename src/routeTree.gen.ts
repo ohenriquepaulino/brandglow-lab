@@ -13,6 +13,7 @@ import { Route as TksRouteImport } from './routes/tks'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as ObrigadoRouteImport } from './routes/obrigado'
 import { Route as CrmRouteImport } from './routes/crm'
+import { Route as BuscaRouteImport } from './routes/busca'
 import { Route as AdsbRouteImport } from './routes/adsb'
 import { Route as AdsaRouteImport } from './routes/adsa'
 import { Route as AdsRouteImport } from './routes/ads'
@@ -69,6 +70,11 @@ const ObrigadoRoute = ObrigadoRouteImport.update({
 const CrmRoute = CrmRouteImport.update({
   id: '/crm',
   path: '/crm',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuscaRoute = BuscaRouteImport.update({
+  id: '/busca',
+  path: '/busca',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdsbRoute = AdsbRouteImport.update({
@@ -268,6 +274,7 @@ export interface FileRoutesByFullPath {
   '/ads': typeof AdsRoute
   '/adsa': typeof AdsaRoute
   '/adsb': typeof AdsbRoute
+  '/busca': typeof BuscaRoute
   '/crm': typeof CrmRouteWithChildren
   '/obrigado': typeof ObrigadoRoute
   '/privacidade': typeof PrivacidadeRoute
@@ -311,6 +318,7 @@ export interface FileRoutesByTo {
   '/ads': typeof AdsRoute
   '/adsa': typeof AdsaRoute
   '/adsb': typeof AdsbRoute
+  '/busca': typeof BuscaRoute
   '/obrigado': typeof ObrigadoRoute
   '/privacidade': typeof PrivacidadeRoute
   '/tks': typeof TksRoute
@@ -354,6 +362,7 @@ export interface FileRoutesById {
   '/ads': typeof AdsRoute
   '/adsa': typeof AdsaRoute
   '/adsb': typeof AdsbRoute
+  '/busca': typeof BuscaRoute
   '/crm': typeof CrmRouteWithChildren
   '/obrigado': typeof ObrigadoRoute
   '/privacidade': typeof PrivacidadeRoute
@@ -399,6 +408,7 @@ export interface FileRouteTypes {
     | '/ads'
     | '/adsa'
     | '/adsb'
+    | '/busca'
     | '/crm'
     | '/obrigado'
     | '/privacidade'
@@ -442,6 +452,7 @@ export interface FileRouteTypes {
     | '/ads'
     | '/adsa'
     | '/adsb'
+    | '/busca'
     | '/obrigado'
     | '/privacidade'
     | '/tks'
@@ -484,6 +495,7 @@ export interface FileRouteTypes {
     | '/ads'
     | '/adsa'
     | '/adsb'
+    | '/busca'
     | '/crm'
     | '/obrigado'
     | '/privacidade'
@@ -528,6 +540,7 @@ export interface RootRouteChildren {
   AdsRoute: typeof AdsRoute
   AdsaRoute: typeof AdsaRoute
   AdsbRoute: typeof AdsbRoute
+  BuscaRoute: typeof BuscaRoute
   CrmRoute: typeof CrmRouteWithChildren
   ObrigadoRoute: typeof ObrigadoRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
@@ -585,6 +598,13 @@ declare module '@tanstack/react-router' {
       path: '/crm'
       fullPath: '/crm'
       preLoaderRoute: typeof CrmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/busca': {
+      id: '/busca'
+      path: '/busca'
+      fullPath: '/busca'
+      preLoaderRoute: typeof BuscaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/adsb': {
@@ -882,6 +902,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdsRoute: AdsRoute,
   AdsaRoute: AdsaRoute,
   AdsbRoute: AdsbRoute,
+  BuscaRoute: BuscaRoute,
   CrmRoute: CrmRouteWithChildren,
   ObrigadoRoute: ObrigadoRoute,
   PrivacidadeRoute: PrivacidadeRoute,

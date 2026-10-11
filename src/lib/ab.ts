@@ -30,9 +30,10 @@ export function visitanteId(): string {
   }
 }
 
-/** Registra a visita da variante uma vez por carregamento. Nunca lança. */
-export function useAbVisit(variante: Variante) {
+/** Registra a visita da variante uma vez por carregamento. Nunca lança. null não registra. */
+export function useAbVisit(variante: Variante | null) {
   useEffect(() => {
+    if (!variante) return;
     try {
       if (localStorage.getItem(AB_IGNORAR_KEY) === "1") return;
     } catch {

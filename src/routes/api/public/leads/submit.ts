@@ -28,6 +28,7 @@ const LeadSchema = z.object({
   utm_campaign: z.string().max(120).nullish(),
   utm_content: z.string().max(120).nullish(),
   utm_term: z.string().max(120).nullish(),
+  gclid: z.string().max(200).nullish(),
   skip_meta: z.boolean().nullish(),
   event_id: z.string().max(80).nullish(),
   page_url: z.string().max(500).nullish(),
@@ -181,6 +182,7 @@ export const Route = createFileRoute("/api/public/leads/submit")({
             utm_campaign: parsed.utm_campaign ?? null,
             utm_content: parsed.utm_content ?? null,
             utm_term: parsed.utm_term ?? null,
+            gclid: parsed.gclid ?? null,
             coluna: "novo-lead",
           })
           .select("id")
