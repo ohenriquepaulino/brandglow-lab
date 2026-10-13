@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      ab_visitas: {
+        Row: {
+          criado_em: string
+          id: string
+          teste: string
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_source: string | null
+          variante: string
+          via_split: boolean
+          visitante: string
+        }
+        Insert: {
+          criado_em?: string
+          id?: string
+          teste?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_source?: string | null
+          variante: string
+          via_split?: boolean
+          visitante: string
+        }
+        Update: {
+          criado_em?: string
+          id?: string
+          teste?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_source?: string | null
+          variante?: string
+          via_split?: boolean
+          visitante?: string
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
@@ -101,6 +137,56 @@ export type Database = {
         }
         Relationships: []
       }
+      followup_leads: {
+        Row: {
+          lead_id: string
+          lido_em: string
+          tipo: string
+          ultima_de: string
+          ultima_msg_em: string
+        }
+        Insert: {
+          lead_id: string
+          lido_em?: string
+          tipo: string
+          ultima_de: string
+          ultima_msg_em: string
+        }
+        Update: {
+          lead_id?: string
+          lido_em?: string
+          tipo?: string
+          ultima_de?: string
+          ultima_msg_em?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "followup_leads_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: true
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      followup_resumos: {
+        Row: {
+          data: string
+          enviado_em: string
+          itens: Json
+        }
+        Insert: {
+          data: string
+          enviado_em?: string
+          itens?: Json
+        }
+        Update: {
+          data?: string
+          enviado_em?: string
+          itens?: Json
+        }
+        Relationships: []
+      }
       historico_movimentacoes: {
         Row: {
           coluna_destino: string
@@ -139,6 +225,7 @@ export type Database = {
           coluna: string
           criado_em: string
           faturamento: string
+          ganho_em: string | null
           gclid: string | null
           id: string
           instagram: string | null
@@ -151,6 +238,7 @@ export type Database = {
           utm_medium: string | null
           utm_source: string | null
           utm_term: string | null
+          valor_fechado: number | null
           verba_marca: string | null
           whatsapp: string
         }
@@ -159,6 +247,7 @@ export type Database = {
           coluna?: string
           criado_em?: string
           faturamento: string
+          ganho_em?: string | null
           gclid?: string | null
           id?: string
           instagram?: string | null
@@ -171,6 +260,7 @@ export type Database = {
           utm_medium?: string | null
           utm_source?: string | null
           utm_term?: string | null
+          valor_fechado?: number | null
           verba_marca?: string | null
           whatsapp: string
         }
@@ -179,6 +269,7 @@ export type Database = {
           coluna?: string
           criado_em?: string
           faturamento?: string
+          ganho_em?: string | null
           gclid?: string | null
           id?: string
           instagram?: string | null
@@ -191,8 +282,78 @@ export type Database = {
           utm_medium?: string | null
           utm_source?: string | null
           utm_term?: string | null
+          valor_fechado?: number | null
           verba_marca?: string | null
           whatsapp?: string
+        }
+        Relationships: []
+      }
+      proposals: {
+        Row: {
+          case_slugs: string[] | null
+          cash_discount_pct: number
+          cash_note: string
+          client_name: string
+          cover_label: string
+          created_at: string
+          deadline_days: number
+          diagnosis_challenge: string | null
+          diagnosis_goal: string | null
+          diagnosis_moment: string | null
+          id: string
+          installments: number
+          installments_note: string
+          price_total: number
+          product: string
+          show_diagnosis: boolean
+          slug: string
+          updated_at: string
+          valid_until: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          case_slugs?: string[] | null
+          cash_discount_pct?: number
+          cash_note?: string
+          client_name?: string
+          cover_label?: string
+          created_at?: string
+          deadline_days?: number
+          diagnosis_challenge?: string | null
+          diagnosis_goal?: string | null
+          diagnosis_moment?: string | null
+          id?: string
+          installments?: number
+          installments_note?: string
+          price_total?: number
+          product?: string
+          show_diagnosis?: boolean
+          slug: string
+          updated_at?: string
+          valid_until?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          case_slugs?: string[] | null
+          cash_discount_pct?: number
+          cash_note?: string
+          client_name?: string
+          cover_label?: string
+          created_at?: string
+          deadline_days?: number
+          diagnosis_challenge?: string | null
+          diagnosis_goal?: string | null
+          diagnosis_moment?: string | null
+          id?: string
+          installments?: number
+          installments_note?: string
+          price_total?: number
+          product?: string
+          show_diagnosis?: boolean
+          slug?: string
+          updated_at?: string
+          valid_until?: string | null
+          whatsapp?: string | null
         }
         Relationships: []
       }
@@ -248,6 +409,7 @@ export type Database = {
           data_conclusao: string | null
           descricao: string | null
           id: string
+          lead_id: string | null
           list_id: string
           ordem: number
           titulo: string
@@ -258,6 +420,7 @@ export type Database = {
           data_conclusao?: string | null
           descricao?: string | null
           id?: string
+          lead_id?: string | null
           list_id: string
           ordem?: number
           titulo: string
@@ -268,11 +431,19 @@ export type Database = {
           data_conclusao?: string | null
           descricao?: string | null
           id?: string
+          lead_id?: string | null
           list_id?: string
           ordem?: number
           titulo?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "tasks_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "tasks_list_id_fkey"
             columns: ["list_id"]
@@ -282,11 +453,278 @@ export type Database = {
           },
         ]
       }
+      video_eventos: {
+        Row: {
+          criado_em: string
+          de_seg: number | null
+          id: string
+          posicao_seg: number
+          sessao_id: string
+          tipo: string
+        }
+        Insert: {
+          criado_em?: string
+          de_seg?: number | null
+          id?: string
+          posicao_seg?: number
+          sessao_id: string
+          tipo: string
+        }
+        Update: {
+          criado_em?: string
+          de_seg?: number | null
+          id?: string
+          posicao_seg?: number
+          sessao_id?: string
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_eventos_sessao_id_fkey"
+            columns: ["sessao_id"]
+            isOneToOne: false
+            referencedRelation: "video_sessoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_links: {
+        Row: {
+          criado_em: string
+          destinatario: string
+          id: string
+          lead_id: string | null
+          slug: string
+          video_id: string
+        }
+        Insert: {
+          criado_em?: string
+          destinatario: string
+          id?: string
+          lead_id?: string | null
+          slug: string
+          video_id: string
+        }
+        Update: {
+          criado_em?: string
+          destinatario?: string
+          id?: string
+          lead_id?: string | null
+          slug?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_links_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_links_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_sessoes: {
+        Row: {
+          assistidos: number[]
+          chegou_ao_fim: boolean
+          deu_play: boolean
+          dispositivo: string
+          id: string
+          iniciado_em: string
+          link_id: string
+          maximo_seg: number
+          posicao_seg: number
+          resumo_pendente: boolean
+          resumos_enviados: number
+          ultimo_evento_em: string
+          visitante: string
+        }
+        Insert: {
+          assistidos?: number[]
+          chegou_ao_fim?: boolean
+          deu_play?: boolean
+          dispositivo?: string
+          id?: string
+          iniciado_em?: string
+          link_id: string
+          maximo_seg?: number
+          posicao_seg?: number
+          resumo_pendente?: boolean
+          resumos_enviados?: number
+          ultimo_evento_em?: string
+          visitante: string
+        }
+        Update: {
+          assistidos?: number[]
+          chegou_ao_fim?: boolean
+          deu_play?: boolean
+          dispositivo?: string
+          id?: string
+          iniciado_em?: string
+          link_id?: string
+          maximo_seg?: number
+          posicao_seg?: number
+          resumo_pendente?: boolean
+          resumos_enviados?: number
+          ultimo_evento_em?: string
+          visitante?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_sessoes_link_id_fkey"
+            columns: ["link_id"]
+            isOneToOne: false
+            referencedRelation: "video_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      videos: {
+        Row: {
+          criado_em: string
+          duracao_seg: number | null
+          id: string
+          titulo: string
+          youtube_id: string
+        }
+        Insert: {
+          criado_em?: string
+          duracao_seg?: number | null
+          id?: string
+          titulo: string
+          youtube_id: string
+        }
+        Update: {
+          criado_em?: string
+          duracao_seg?: number | null
+          id?: string
+          titulo?: string
+          youtube_id?: string
+        }
+        Relationships: []
+      }
+      whatsapp_config: {
+        Row: {
+          ativo: boolean
+          atraso_segundos: number
+          aviso_ativo: boolean
+          aviso_grupo_convite: string | null
+          aviso_grupo_id: string | null
+          aviso_grupo_nome: string | null
+          cron_token: string
+          followup_lido_em: string | null
+          followup_resumo_ativo: boolean
+          id: number
+          mensagem: string
+          updated_at: string
+          webhook_registrado: boolean
+          webhook_token: string
+        }
+        Insert: {
+          ativo?: boolean
+          atraso_segundos?: number
+          aviso_ativo?: boolean
+          aviso_grupo_convite?: string | null
+          aviso_grupo_id?: string | null
+          aviso_grupo_nome?: string | null
+          cron_token?: string
+          followup_lido_em?: string | null
+          followup_resumo_ativo?: boolean
+          id?: number
+          mensagem?: string
+          updated_at?: string
+          webhook_registrado?: boolean
+          webhook_token?: string
+        }
+        Update: {
+          ativo?: boolean
+          atraso_segundos?: number
+          aviso_ativo?: boolean
+          aviso_grupo_convite?: string | null
+          aviso_grupo_id?: string | null
+          aviso_grupo_nome?: string | null
+          cron_token?: string
+          followup_lido_em?: string | null
+          followup_resumo_ativo?: boolean
+          id?: number
+          mensagem?: string
+          updated_at?: string
+          webhook_registrado?: boolean
+          webhook_token?: string
+        }
+        Relationships: []
+      }
+      whatsapp_envios: {
+        Row: {
+          criado_em: string
+          enviar_em: string
+          erro: string | null
+          id: string
+          lead_id: string | null
+          mensagem: string
+          status: string
+          telefone: string
+          tipo: string
+        }
+        Insert: {
+          criado_em?: string
+          enviar_em?: string
+          erro?: string | null
+          id?: string
+          lead_id?: string | null
+          mensagem: string
+          status: string
+          telefone: string
+          tipo?: string
+        }
+        Update: {
+          criado_em?: string
+          enviar_em?: string
+          erro?: string | null
+          id?: string
+          lead_id?: string | null
+          mensagem?: string
+          status?: string
+          telefone?: string
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_envios_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      ab_campanhas: {
+        Args: { p_teste: string }
+        Returns: {
+          campanha: string
+          visitantes: number
+        }[]
+      }
+      ab_resumo: {
+        Args: { p_campanha: string; p_desde: string; p_teste: string }
+        Returns: {
+          variante: string
+          visitantes: number
+          visitas: number
+        }[]
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -312,6 +750,16 @@ export type Database = {
           msg_id: number
           read_ct: number
         }[]
+      }
+      video_registrar: {
+        Args: {
+          p_fim: boolean
+          p_play: boolean
+          p_posicao: number
+          p_segundos: number[]
+          p_sessao: string
+        }
+        Returns: undefined
       }
     }
     Enums: {
