@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WhatsappRouteImport } from './routes/whatsapp'
 import { Route as TksRouteImport } from './routes/tks'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as ObrigadoRouteImport } from './routes/obrigado'
@@ -52,6 +53,11 @@ import { Route as ApiPublicCrmDataRouteImport } from './routes/api/public/crm/da
 import { Route as ApiPublicCrmAbRouteImport } from './routes/api/public/crm/ab'
 import { Route as ApiPublicAbVisitRouteImport } from './routes/api/public/ab/visit'
 
+const WhatsappRoute = WhatsappRouteImport.update({
+  id: '/whatsapp',
+  path: '/whatsapp',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TksRoute = TksRouteImport.update({
   id: '/tks',
   path: '/tks',
@@ -279,6 +285,7 @@ export interface FileRoutesByFullPath {
   '/obrigado': typeof ObrigadoRoute
   '/privacidade': typeof PrivacidadeRoute
   '/tks': typeof TksRoute
+  '/whatsapp': typeof WhatsappRoute
   '/cases/$slug': typeof CasesSlugRoute
   '/crm/ab': typeof CrmAbRoute
   '/crm/dashboard': typeof CrmDashboardRoute
@@ -322,6 +329,7 @@ export interface FileRoutesByTo {
   '/obrigado': typeof ObrigadoRoute
   '/privacidade': typeof PrivacidadeRoute
   '/tks': typeof TksRoute
+  '/whatsapp': typeof WhatsappRoute
   '/cases/$slug': typeof CasesSlugRoute
   '/crm/ab': typeof CrmAbRoute
   '/crm/dashboard': typeof CrmDashboardRoute
@@ -367,6 +375,7 @@ export interface FileRoutesById {
   '/obrigado': typeof ObrigadoRoute
   '/privacidade': typeof PrivacidadeRoute
   '/tks': typeof TksRoute
+  '/whatsapp': typeof WhatsappRoute
   '/cases/$slug': typeof CasesSlugRoute
   '/crm/ab': typeof CrmAbRoute
   '/crm/dashboard': typeof CrmDashboardRoute
@@ -413,6 +422,7 @@ export interface FileRouteTypes {
     | '/obrigado'
     | '/privacidade'
     | '/tks'
+    | '/whatsapp'
     | '/cases/$slug'
     | '/crm/ab'
     | '/crm/dashboard'
@@ -456,6 +466,7 @@ export interface FileRouteTypes {
     | '/obrigado'
     | '/privacidade'
     | '/tks'
+    | '/whatsapp'
     | '/cases/$slug'
     | '/crm/ab'
     | '/crm/dashboard'
@@ -500,6 +511,7 @@ export interface FileRouteTypes {
     | '/obrigado'
     | '/privacidade'
     | '/tks'
+    | '/whatsapp'
     | '/cases/$slug'
     | '/crm/ab'
     | '/crm/dashboard'
@@ -545,6 +557,7 @@ export interface RootRouteChildren {
   ObrigadoRoute: typeof ObrigadoRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   TksRoute: typeof TksRoute
+  WhatsappRoute: typeof WhatsappRoute
   CasesSlugRoute: typeof CasesSlugRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   PSlugRoute: typeof PSlugRoute
@@ -572,6 +585,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/whatsapp': {
+      id: '/whatsapp'
+      path: '/whatsapp'
+      fullPath: '/whatsapp'
+      preLoaderRoute: typeof WhatsappRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tks': {
       id: '/tks'
       path: '/tks'
@@ -907,6 +927,7 @@ const rootRouteChildren: RootRouteChildren = {
   ObrigadoRoute: ObrigadoRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   TksRoute: TksRoute,
+  WhatsappRoute: WhatsappRoute,
   CasesSlugRoute: CasesSlugRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   PSlugRoute: PSlugRoute,
