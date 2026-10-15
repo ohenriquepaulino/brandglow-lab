@@ -65,6 +65,8 @@ export default function ProposalView({
   const showPlaceholders = showPh || !!onEdit;
   const rootRef = useRef<HTMLDivElement>(null);
   const client = p.client_name?.trim() || "Sua empresa";
+  // Proposta genérica (sem nome): a capa não mostra "preparada para", nem no PDF.
+  const hasClient = !!p.client_name?.trim();
   const cases = useMemo(() => resolveCases(p.case_slugs), [p.case_slugs]);
   const deliverables = p.deliverables?.length ? p.deliverables : DEFAULT_DELIVERABLES;
   const price = pricing(p);
@@ -104,7 +106,7 @@ export default function ProposalView({
     { id: "proximos-passos", label: "Próximos passos" },
   ];
 
-  const fileName = `Proposta Legacy BrandCo. - ${client}`;
+  const fileName = hasClient ? `Proposta Legacy BrandCo. - ${client}` : "Proposta Legacy BrandCo.";
   const getRoot = useCallback(() => rootRef.current, []);
   const { print, preparing } = usePrintPdf(getRoot, fileName);
 
@@ -353,10 +355,12 @@ export default function ProposalView({
         <div className="lbc-mark">
           <img src={BRAND.logoDark} alt="Legacy BrandCo." width={1716} height={612} />
         </div>
-        <div className="lbc-for">
-          <small>Proposta preparada para</small>
-          <div className="lbc-client">{txt("client_name", client, "Nome do cliente")}</div>
-        </div>
+        {(hasClient || onEdit) && (
+          <div className={`lbc-for${hasClient ? "" : " lbc-print-hide"}`}>
+            <small>Proposta preparada para</small>
+            <div className="lbc-client">{txt("client_name", client, "Nome do cliente")}</div>
+          </div>
+        )}
       </Slide>
 
       {/* DIAGNÓSTICO */}
