@@ -978,7 +978,26 @@ function Visita({ sessao: s, numero, duracao }: { sessao: VideoSessao; numero: n
             <Icone className="h-4 w-4 text-neutral-500" />
           </span>
           <div>
-            <p className="text-sm font-semibold text-neutral-900">{numero}ª visita</p>
+            <p className="text-sm font-semibold text-neutral-900">
+              {s.nome ? (
+                <>
+                  {s.nome}
+                  {s.whatsapp && (
+                    <a
+                      href={`https://wa.me/${telefoneInternacional(s.whatsapp)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ml-2 text-xs font-medium text-emerald-700 hover:underline"
+                    >
+                      WhatsApp
+                    </a>
+                  )}
+                  {!s.lead_id && <span className="ml-2 text-xs font-normal text-neutral-400">fora do CRM</span>}
+                </>
+              ) : (
+                `${numero}ª visita`
+              )}
+            </p>
             <p className="text-xs text-neutral-500">
               {inicio.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })} às{" "}
               {inicio.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })} ·{" "}

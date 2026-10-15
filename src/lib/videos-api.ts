@@ -43,6 +43,10 @@ export type VideoSessao = {
   maximo_seg: number;
   posicao_seg: number;
   chegou_ao_fim: boolean;
+  /** Link aberto: quem preencheu o formulário antes do play. */
+  nome?: string | null;
+  whatsapp?: string | null;
+  lead_id?: string | null;
   eventos: VideoEvento[];
 };
 

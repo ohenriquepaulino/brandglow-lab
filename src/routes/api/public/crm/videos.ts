@@ -88,7 +88,7 @@ export const Route = createFileRoute("/api/public/crm/videos")({
               supabase.from("videos").select("*").order("criado_em", { ascending: false }),
               supabase
                 .from("video_links")
-                .select("id, video_id, slug, destinatario, lead_id, criado_em")
+                .select("id, video_id, slug, destinatario, lead_id, aberto, criado_em")
                 .order("criado_em", { ascending: false }),
               supabase
                 .from("video_sessoes")
@@ -172,7 +172,7 @@ export const Route = createFileRoute("/api/public/crm/videos")({
                   lead_id: payload.lead_id ?? null,
                   slug: slugDoLink(payload.destinatario),
                 })
-                .select("id, video_id, slug, destinatario, lead_id, criado_em")
+                .select("id, video_id, slug, destinatario, lead_id, aberto, criado_em")
                 .single();
               if (!error) return Response.json({ data });
               if (error.code !== "23505") return fail(error);
@@ -190,7 +190,7 @@ export const Route = createFileRoute("/api/public/crm/videos")({
             const { data: sessoes, error } = await supabase
               .from("video_sessoes")
               .select(
-                "id, dispositivo, iniciado_em, ultimo_evento_em, deu_play, assistidos, maximo_seg, posicao_seg, chegou_ao_fim",
+                "id, dispositivo, iniciado_em, ultimo_evento_em, deu_play, assistidos, maximo_seg, posicao_seg, chegou_ao_fim, nome, whatsapp, lead_id",
               )
               .eq("link_id", payload.link_id)
               .order("iniciado_em", { ascending: false })

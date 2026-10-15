@@ -5,7 +5,8 @@ import { avisarAbertura } from "@/lib/video.server";
 
 // Página /v/:slug. Pública, sem token:
 //   - dados: o vídeo do link (a página chama junto com "abrir", sem esperar);
-//   - abrir: abre (ou retoma) a visita e avisa a equipe;
+//   - abrir: abre (ou retoma) a visita e avisa a equipe. No link aberto (um link
+//     para muitas pessoas), só abre com nome e WhatsApp de quem vai assistir;
 //   - progresso: segundos assistidos + eventos (play, pause, fim, voltou, pulou e
 //     proposta, o clique no botão da proposta).
 // Nunca devolve dados de outros links nem das visitas.
@@ -29,6 +30,17 @@ const ActionSchema = z.discriminatedUnion("action", [
     dispositivo: z.enum(["celular", "computador"]),
     /** Navegador da equipe (abriu o CRM): mostra o vídeo sem registrar. */
     equipe: z.boolean().optional(),
+    /** Link aberto: quem preencheu o formulário antes do play. */
+    quem: z
+      .object({
+        nome: z.string().trim().min(2).max(80),
+        whatsapp: z
+          .string()
+          .trim()
+          .max(30)
+          .refine((v) => v.replace(/\D/g, "").length >= 10, "WhatsApp inválido"),
+      })
+      .optional(),
   }),
   z.object({
     action: z.literal("progresso"),
@@ -74,7 +86,7 @@ export const Route = createFileRoute("/api/public/video/track")({
         if (p.action === "dados") {
           const { data: link, error } = await supabase
             .from("video_links")
-            .select("destinatario, videos(titulo, youtube_id, duracao_seg, proposta_slug)")
+            .select("destinatario, aberto, videos(titulo, youtube_id, duracao_seg, proposta_slug)")
             .eq("slug", p.slug.toLowerCase())
             .maybeSingle();
           if (error) return Response.json({ error: error.message }, { status: 500 });
@@ -88,6 +100,7 @@ export const Route = createFileRoute("/api/public/video/track")({
               duracao_seg: video.duracao_seg,
               destinatario: link.destinatario,
               proposta_slug: video.proposta_slug ?? null,
+              aberto: !!link.aberto,
             },
           });
         }
@@ -95,7 +108,7 @@ export const Route = createFileRoute("/api/public/video/track")({
         if (p.action === "abrir") {
           const { data: link, error } = await supabase
             .from("video_links")
-            .select("id, destinatario, videos(titulo, youtube_id, duracao_seg)")
+            .select("id, destinatario, aberto, videos(titulo, youtube_id, duracao_seg)")
             .eq("slug", p.slug.toLowerCase())
             .maybeSingle();
           if (error) return Response.json({ error: error.message }, { status: 500 });
@@ -114,6 +127,8 @@ export const Route = createFileRoute("/api/public/video/track")({
           if (p.equipe || !ua || ROBO.test(ua)) {
             return Response.json({ data, sessao_id: null });
           }
+          // Link aberto sem identificação: a página ainda está no formulário.
+          if (link.aberto && !p.quem) return Response.json({ data, sessao_id: null });
 
           // Recarregou a página ou voltou em menos de 30 min: é a mesma visita.
           const { data: recente } = await supabase
@@ -127,9 +142,22 @@ export const Route = createFileRoute("/api/public/video/track")({
             .maybeSingle();
           if (recente) return Response.json({ data, sessao_id: recente.id });
 
+          let quem: { nome: string; whatsapp: string; lead_id: string | null } | null = null;
+          if (link.aberto && p.quem) {
+            const { data: leadId } = await supabase.rpc("lead_por_whatsapp", {
+              p_whatsapp: p.quem.whatsapp,
+            });
+            quem = { nome: p.quem.nome, whatsapp: p.quem.whatsapp, lead_id: (leadId as string | null) ?? null };
+          }
+
           const { data: sessao, error: insErr } = await supabase
             .from("video_sessoes")
-            .insert({ link_id: link.id, visitante: p.visitante, dispositivo: p.dispositivo })
+            .insert({
+              link_id: link.id,
+              visitante: p.visitante,
+              dispositivo: p.dispositivo,
+              ...(quem ?? {}),
+            })
             .select("id")
             .single();
           if (insErr) {
@@ -137,7 +165,7 @@ export const Route = createFileRoute("/api/public/video/track")({
             return Response.json({ data, sessao_id: null });
           }
 
-          await avisarAbertura(supabase, new URL(request.url).origin, link.id, p.dispositivo);
+          await avisarAbertura(supabase, new URL(request.url).origin, link.id, p.dispositivo, quem);
           return Response.json({ data, sessao_id: sessao.id });
         }
 

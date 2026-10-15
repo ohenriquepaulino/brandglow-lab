@@ -48,7 +48,21 @@ type Dados = {
   destinatario: string;
   /** Vídeo genérico de proposta: mostra o botão para /p/:slug. */
   proposta_slug?: string | null;
+  /** Link aberto (um link para muitas pessoas): pede nome e WhatsApp antes do play. */
+  aberto?: boolean;
 };
+
+type Quem = { nome: string; whatsapp: string };
+const QUEM_KEY = "lbc_v_quem";
+
+function lerQuem(): Quem | null {
+  try {
+    const q = JSON.parse(localStorage.getItem(QUEM_KEY) ?? "null") as Quem | null;
+    return q?.nome && q?.whatsapp ? q : null;
+  } catch {
+    return null;
+  }
+}
 
 type Evento = {
   tipo: "play" | "pause" | "fim" | "voltou" | "pulou" | "proposta";
@@ -78,7 +92,10 @@ function VideoPage() {
   const [estado, setEstado] = useState<"carregando" | "nao_existe" | "ok">("carregando");
   const [dados, setDados] = useState<Dados | null>(null);
   const [equipe, setEquipe] = useState(false);
+  const [quem, setQuem] = useState<Quem | null>(null);
+  const [pedirQuem, setPedirQuem] = useState(false);
   const rastreio = useRastreio();
+  const abrirCom = useRef<(q: Quem) => void>(() => {});
 
   useEffect(() => {
     let vivo = true;
@@ -96,6 +113,17 @@ function VideoPage() {
         body: JSON.stringify(body),
       }).then((r) => r.json());
 
+    const abrir = (q?: Quem) =>
+      post({ action: "abrir", slug, visitante, dispositivo: dispositivo(), ...(q ? { quem: q } : {}) })
+        .then((j: { sessao_id?: string | null }) => {
+          // O que foi assistido antes da resposta fica guardado e sai no próximo envio.
+          if (vivo && j?.sessao_id) rastreio.iniciar(j.sessao_id, visitante);
+        })
+        .catch(() => {});
+    abrirCom.current = (q) => {
+      if (!eq) void abrir(q);
+    };
+
     post({ action: "dados", slug })
       .then((j: { data: Dados | null }) => {
         if (!vivo) return;
@@ -103,19 +131,23 @@ function VideoPage() {
           setEstado("nao_existe");
           return;
         }
+        // Link aberto: quem já se identificou neste navegador vai direto ao vídeo.
+        if (j.data.aberto && !eq) {
+          const q = lerQuem();
+          if (q) {
+            setQuem(q);
+            void abrir(q);
+          } else {
+            setPedirQuem(true);
+          }
+        }
         setDados(j.data);
         setEstado("ok");
       })
       .catch(() => vivo && setEstado("nao_existe"));
 
-    if (!eq) {
-      post({ action: "abrir", slug, visitante, dispositivo: dispositivo() })
-        .then((j: { sessao_id?: string | null }) => {
-          // O que foi assistido antes da resposta fica guardado e sai no próximo envio.
-          if (vivo && j?.sessao_id) rastreio.iniciar(j.sessao_id, visitante);
-        })
-        .catch(() => {});
-    }
+    // Link por pessoa: a visita abre junto, sem esperar os dados.
+    if (!eq) void abrir();
     return () => {
       vivo = false;
     };
@@ -171,9 +203,13 @@ function VideoPage() {
               {dados ? (
                 <>
                   <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#CFFF87]/80">
-                    {primeiroNome(dados.destinatario)
-                      ? `Para ${primeiroNome(dados.destinatario)}`
-                      : "Apresentação"}
+                    {dados.aberto
+                      ? quem
+                        ? `Para ${primeiroNome(quem.nome)}`
+                        : "Apresentação"
+                      : primeiroNome(dados.destinatario)
+                        ? `Para ${primeiroNome(dados.destinatario)}`
+                        : "Apresentação"}
                   </p>
                   <h1 className="mt-2 text-xl font-semibold leading-tight tracking-tight text-balance md:text-3xl">
                     {dados.titulo}
@@ -187,7 +223,20 @@ function VideoPage() {
               )}
             </div>
 
-            {dados ? (
+            {dados && pedirQuem ? (
+              <Identificacao
+                onPronto={(q) => {
+                  try {
+                    localStorage.setItem(QUEM_KEY, JSON.stringify(q));
+                  } catch {
+                    // sem armazenamento: só pede de novo na próxima vez
+                  }
+                  setQuem(q);
+                  setPedirQuem(false);
+                  abrirCom.current(q);
+                }}
+              />
+            ) : dados ? (
               <CleanPlayer
                 youtubeId={dados.youtube_id}
                 titulo={dados.titulo}
@@ -199,7 +248,8 @@ function VideoPage() {
               <div className="aspect-video w-full animate-pulse rounded-xl bg-white/[0.06] md:rounded-2xl" />
             )}
 
-            {dados?.proposta_slug && (
+            {/* No link aberto, só depois da identificação: o clique precisa saber de quem é. */}
+            {dados?.proposta_slug && !pedirQuem && (
               <div className="lbc-video-extra mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between md:mt-6">
                 <p className="text-sm text-white/60">
                   Os detalhes e as formas de pagamento estão na proposta.
@@ -223,6 +273,61 @@ function VideoPage() {
       <footer className="lbc-video-extra px-5 pb-5 text-center text-[11px] leading-relaxed text-white/30 md:pb-7">
         Legacy BrandCo. · A reprodução deste vídeo é registrada para acompanharmos o seu atendimento.
       </footer>
+    </div>
+  );
+}
+
+/** Link aberto: nome e WhatsApp antes do play, no lugar do vídeo. */
+function Identificacao({ onPronto }: { onPronto: (q: Quem) => void }) {
+  const [nome, setNome] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
+  const [erro, setErro] = useState("");
+
+  function enviar(e: React.FormEvent) {
+    e.preventDefault();
+    const n = nome.trim().replace(/\s+/g, " ");
+    const digitos = whatsapp.replace(/\D/g, "");
+    if (n.length < 2) return setErro("Escreva o seu nome.");
+    if (digitos.length < 10 || digitos.length > 13) return setErro("Confira o WhatsApp, com DDD.");
+    onPronto({ nome: n, whatsapp: digitos.length <= 11 ? `55${digitos}` : digitos });
+  }
+
+  const campo =
+    "w-full rounded-xl border border-white/15 bg-white/[0.06] px-4 py-3 text-base text-white placeholder:text-white/35 outline-none transition-colors focus:border-[#CFFF87]/70";
+
+  return (
+    <div className="flex w-full items-center justify-center rounded-xl bg-white/[0.04] px-5 py-8 md:aspect-video md:rounded-2xl">
+      <form onSubmit={enviar} className="w-full max-w-sm">
+        <p className="text-lg font-semibold leading-snug md:text-xl">Antes de começar, como podemos te chamar?</p>
+        <p className="mt-1.5 text-sm text-white/55">
+          São 5 minutos sobre como funciona o nosso trabalho, o que você recebe e o investimento.
+        </p>
+        <div className="mt-5 flex flex-col gap-3">
+          <input
+            className={campo}
+            placeholder="Seu nome"
+            autoComplete="name"
+            value={nome}
+            onChange={(e) => setNome(e.target.value)}
+          />
+          <input
+            className={campo}
+            placeholder="WhatsApp com DDD"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            value={whatsapp}
+            onChange={(e) => setWhatsapp(e.target.value)}
+          />
+          {erro && <p className="text-sm text-[#FFB4A0]">{erro}</p>}
+          <button
+            type="submit"
+            className="mt-1 inline-flex items-center justify-center gap-2 rounded-full bg-[#CFFF87] px-5 py-3 text-sm font-semibold text-[#0E0D0C] transition-opacity hover:opacity-90"
+          >
+            Assistir o vídeo <span aria-hidden>▶</span>
+          </button>
+        </div>
+      </form>
     </div>
   );
 }

@@ -87,7 +87,18 @@ type LinkComVideo = {
   leads: { whatsapp: string | null } | null;
 };
 
-function contexto(link: LinkComVideo): Contexto {
+/** Quem assistiu num link aberto (preencheu nome e WhatsApp na página). */
+export type Quem = { nome: string; whatsapp: string; lead_id: string | null };
+
+function contexto(link: LinkComVideo, quem?: Quem | null): Contexto {
+  if (quem?.nome) {
+    return {
+      destinatario: quem.lead_id ? quem.nome : `${quem.nome} (não está no CRM)`,
+      video: link.videos?.titulo ?? "Apresentação",
+      leadId: quem.lead_id,
+      leadWhatsapp: quem.whatsapp,
+    };
+  }
   return {
     destinatario: link.destinatario,
     video: link.videos?.titulo ?? "Apresentação",
@@ -102,6 +113,7 @@ export async function avisarAbertura(
   origin: string,
   linkId: string,
   dispositivo: string,
+  quem?: Quem | null,
 ) {
   try {
     const [{ data: link }, { count }] = await Promise.all([
@@ -110,13 +122,20 @@ export async function avisarAbertura(
         .select("destinatario, lead_id, videos(titulo, duracao_seg), leads(whatsapp)")
         .eq("id", linkId)
         .maybeSingle(),
-      supabase
-        .from("video_sessoes")
-        .select("id", { count: "exact", head: true })
-        .eq("link_id", linkId),
+      // Link aberto: conta as visitas da pessoa, não as do link inteiro.
+      quem
+        ? supabase
+            .from("video_sessoes")
+            .select("id", { count: "exact", head: true })
+            .eq("link_id", linkId)
+            .eq("whatsapp", quem.whatsapp)
+        : supabase
+            .from("video_sessoes")
+            .select("id", { count: "exact", head: true })
+            .eq("link_id", linkId),
     ]);
     if (!link) return;
-    await avisar(supabase, origin, contexto(link as unknown as LinkComVideo), {
+    await avisar(supabase, origin, contexto(link as unknown as LinkComVideo, quem), {
       titulo: "👀 *ABRIU A APRESENTAÇÃO*",
       selo: "ABRIU A APRESENTAÇÃO",
       assunto: "Abriu a apresentação",
@@ -138,6 +157,9 @@ type SessaoPendente = {
   posicao_seg: number;
   chegou_ao_fim: boolean;
   resumos_enviados: number;
+  nome: string | null;
+  whatsapp: string | null;
+  lead_id: string | null;
   video_links: LinkComVideo | null;
 };
 
@@ -191,7 +213,7 @@ export async function processarResumos(supabase: SupabaseClient, origin: string)
   const { data: pendentes } = await supabase
     .from("video_sessoes")
     .select(
-      "id, link_id, dispositivo, iniciado_em, deu_play, assistidos, maximo_seg, posicao_seg, chegou_ao_fim, resumos_enviados, video_links(destinatario, lead_id, videos(titulo, duracao_seg), leads(whatsapp))",
+      "id, link_id, dispositivo, iniciado_em, deu_play, assistidos, maximo_seg, posicao_seg, chegou_ao_fim, resumos_enviados, nome, whatsapp, lead_id, video_links(destinatario, lead_id, videos(titulo, duracao_seg), leads(whatsapp))",
     )
     .eq("resumo_pendente", true)
     .lte("ultimo_evento_em", new Date(Date.now() - 2 * 60_000).toISOString())
@@ -216,16 +238,23 @@ export async function processarResumos(supabase: SupabaseClient, origin: string)
         .eq("sessao_id", s.id)
         .order("criado_em", { ascending: true })
         .limit(200),
-      supabase
-        .from("video_sessoes")
-        .select("id", { count: "exact", head: true })
-        .eq("link_id", s.link_id)
-        .lte("iniciado_em", s.iniciado_em),
+      (s.whatsapp
+        ? supabase
+            .from("video_sessoes")
+            .select("id", { count: "exact", head: true })
+            .eq("link_id", s.link_id)
+            .eq("whatsapp", s.whatsapp)
+        : supabase
+            .from("video_sessoes")
+            .select("id", { count: "exact", head: true })
+            .eq("link_id", s.link_id)
+      ).lte("iniciado_em", s.iniciado_em),
     ]);
 
     const { linhas, assunto } = linhasDoResumo(s, eventos ?? [], count ?? 1);
     const continuou = s.resumos_enviados > 0;
-    await avisar(supabase, origin, contexto(s.video_links), {
+    const quem = s.nome && s.whatsapp ? { nome: s.nome, whatsapp: s.whatsapp, lead_id: s.lead_id } : null;
+    await avisar(supabase, origin, contexto(s.video_links, quem), {
       titulo: continuou ? "📊 *RESUMO DO VÍDEO* (continuou assistindo)" : "📊 *RESUMO DO VÍDEO*",
       selo: continuou ? "CONTINUOU ASSISTINDO" : "RESUMO DO VÍDEO",
       assunto,
