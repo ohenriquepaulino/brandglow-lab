@@ -149,6 +149,12 @@ function linhasDoResumo(
   const duracao = s.video_links?.videos?.duracao_seg ?? null;
   const onde = `${noDispositivo(s.dispositivo)} · ${ordinal(visita)}`;
   if (!s.deu_play) {
+    if (eventos.some((e) => e.tipo === "proposta")) {
+      return {
+        linhas: ["Não deu play, mas 🔗 abriu a proposta.", onde],
+        assunto: "Abriu a proposta sem ver o vídeo",
+      };
+    }
     return { linhas: ["Abriu a página, mas não deu play.", onde], assunto: "Abriu e não deu play" };
   }
 
@@ -170,6 +176,8 @@ function linhasDoResumo(
     .filter((e) => e.tipo === "pulou" && e.de_seg !== null)
     .map((e) => `${formatTempo(e.de_seg!)} → ${formatTempo(e.posicao_seg)}`);
   if (pulos.length) linhas.push(`Pulou: ${pulos.slice(0, 5).join(", ")}`);
+  const proposta = eventos.find((e) => e.tipo === "proposta");
+  if (proposta) linhas.push(`🔗 Abriu a proposta (aos ${formatTempo(proposta.posicao_seg)} do vídeo)`);
   linhas.push(onde);
 
   return {

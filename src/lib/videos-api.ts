@@ -20,12 +20,14 @@ export type Video = {
   titulo: string;
   youtube_id: string;
   duracao_seg: number | null;
+  /** Vídeo genérico de proposta: a página mostra um botão para /p/:slug. */
+  proposta_slug?: string | null;
   criado_em: string;
   links: VideoLink[];
 };
 
 export type VideoEvento = {
-  tipo: "play" | "pause" | "fim" | "voltou" | "pulou";
+  tipo: "play" | "pause" | "fim" | "voltou" | "pulou" | "proposta";
   posicao_seg: number;
   de_seg: number | null;
   criado_em: string;

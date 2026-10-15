@@ -6,12 +6,13 @@ import { avisarAbertura } from "@/lib/video.server";
 // Página /v/:slug. Pública, sem token:
 //   - dados: o vídeo do link (a página chama junto com "abrir", sem esperar);
 //   - abrir: abre (ou retoma) a visita e avisa a equipe;
-//   - progresso: segundos assistidos + eventos (play, pause, fim, voltou, pulou).
+//   - progresso: segundos assistidos + eventos (play, pause, fim, voltou, pulou e
+//     proposta, o clique no botão da proposta).
 // Nunca devolve dados de outros links nem das visitas.
 const MAX_SEG = 6 * 60 * 60;
 
 const Evento = z.object({
-  tipo: z.enum(["play", "pause", "fim", "voltou", "pulou"]),
+  tipo: z.enum(["play", "pause", "fim", "voltou", "pulou", "proposta"]),
   posicao: z.number().int().min(0).max(MAX_SEG),
   de: z.number().int().min(0).max(MAX_SEG).nullish(),
 });
@@ -73,7 +74,7 @@ export const Route = createFileRoute("/api/public/video/track")({
         if (p.action === "dados") {
           const { data: link, error } = await supabase
             .from("video_links")
-            .select("destinatario, videos(titulo, youtube_id, duracao_seg)")
+            .select("destinatario, videos(titulo, youtube_id, duracao_seg, proposta_slug)")
             .eq("slug", p.slug.toLowerCase())
             .maybeSingle();
           if (error) return Response.json({ error: error.message }, { status: 500 });
@@ -86,6 +87,7 @@ export const Route = createFileRoute("/api/public/video/track")({
               youtube_id: video.youtube_id,
               duracao_seg: video.duracao_seg,
               destinatario: link.destinatario,
+              proposta_slug: video.proposta_slug ?? null,
             },
           });
         }
@@ -170,6 +172,10 @@ export const Route = createFileRoute("/api/public/video/track")({
               de_seg: e.de ?? null,
             })),
           );
+          // Abriu a proposta depois do último resumo: sai outro com essa informação.
+          if (p.eventos.some((e) => e.tipo === "proposta")) {
+            await supabase.from("video_sessoes").update({ resumo_pendente: true }).eq("id", p.sessao_id);
+          }
         }
 
         // Duração vem do player do YouTube na primeira reprodução.

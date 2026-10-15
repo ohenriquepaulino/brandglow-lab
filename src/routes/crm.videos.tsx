@@ -480,6 +480,7 @@ function VideoCard({
               key={l.id}
               link={l}
               lead={l.lead_id ? (leadsPorId.get(l.lead_id) ?? null) : null}
+              generico={!!video.proposta_slug}
               destaque={l.id === novoId}
               primeira={i === 0}
               ultima={i === visiveis.length - 1 && links.length <= LINKS_VISIVEIS}
@@ -621,18 +622,21 @@ function NovoLink({
 
 // ─── Linha do link ───────────────────────────────────────────────────────────
 
-function whatsappDoLead(lead: Lead | null, url: string) {
+function whatsappDoLead(lead: Lead | null, url: string, generico = false) {
   if (!lead || !lead.whatsapp?.replace(/\D/g, "")) return null;
   const numero = telefoneInternacional(lead.whatsapp);
   const primeiro = lead.nome.trim().split(/\s+/)[0];
-  return `https://wa.me/${numero}?text=${encodeURIComponent(
-    `Oi, ${primeiro}! Gravei um vídeo explicando tudo pra você: ${url}`,
-  )}`;
+  // O vídeo genérico não foi gravado para a pessoa: a mensagem não diz que foi.
+  const texto = generico
+    ? `Oi, ${primeiro}! Separei um vídeo curto explicando como funciona o nosso trabalho, o que você recebe e o investimento. A proposta completa está no mesmo link: ${url}`
+    : `Oi, ${primeiro}! Gravei um vídeo explicando tudo pra você: ${url}`;
+  return `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`;
 }
 
 function LinhaLink({
   link,
   lead,
+  generico,
   destaque,
   primeira,
   ultima,
@@ -641,6 +645,7 @@ function LinhaLink({
 }: {
   link: VideoLink;
   lead: Lead | null;
+  generico: boolean;
   destaque: boolean;
   primeira: boolean;
   ultima: boolean;
@@ -651,7 +656,7 @@ function LinhaLink({
   const url = videoLinkUrl(link.slug);
   const st = STATUS[statusDe(link)];
   const pct = pctDe(link);
-  const wa = whatsappDoLead(lead, url);
+  const wa = whatsappDoLead(lead, url, generico);
 
   async function copiar() {
     try {
@@ -766,6 +771,7 @@ const ROTULO_EVENTO: Record<string, string> = {
   fim: "Chegou ao fim",
   voltou: "Voltou para rever",
   pulou: "Pulou",
+  proposta: "Abriu a proposta",
 };
 
 function DetalheLink({
@@ -785,7 +791,7 @@ function DetalheLink({
   const fechar = useRef(onFechar);
   fechar.current = onFechar;
   const url = videoLinkUrl(link.slug);
-  const wa = whatsappDoLead(lead, url);
+  const wa = whatsappDoLead(lead, url, !!video.proposta_slug);
 
   useEffect(() => {
     apiSessoes(link.id)

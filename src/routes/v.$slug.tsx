@@ -46,9 +46,15 @@ type Dados = {
   youtube_id: string;
   duracao_seg: number | null;
   destinatario: string;
+  /** Vídeo genérico de proposta: mostra o botão para /p/:slug. */
+  proposta_slug?: string | null;
 };
 
-type Evento = { tipo: "play" | "pause" | "fim" | "voltou" | "pulou"; posicao: number; de?: number };
+type Evento = {
+  tipo: "play" | "pause" | "fim" | "voltou" | "pulou" | "proposta";
+  posicao: number;
+  de?: number;
+};
 
 function ehEquipe() {
   try {
@@ -124,7 +130,7 @@ function VideoPage() {
       <HideLovableBadge />
       {/* Celular deitado: some o que não é vídeo, para o vídeo ocupar a tela. */}
       <style>{`
-        .lbc-video-palco { max-width: min(1100px, calc((100dvh - 230px) * 16 / 9)); min-width: min(100%, 320px); }
+        .lbc-video-palco { max-width: min(1100px, calc((100dvh - var(--lbc-reserva, 230px)) * 16 / 9)); min-width: min(100%, 320px); }
         @media (max-height: 520px) and (orientation: landscape) {
           .lbc-video-extra { display: none !important; }
           .lbc-video-palco { max-width: calc((100dvh - 24px) * 16 / 9); }
@@ -157,7 +163,10 @@ function VideoPage() {
             </p>
           </div>
         ) : (
-          <div className="lbc-video-palco w-full">
+          <div
+            className="lbc-video-palco w-full"
+            style={dados?.proposta_slug ? ({ "--lbc-reserva": "310px" } as React.CSSProperties) : undefined}
+          >
             <div className="lbc-video-extra mb-5 md:mb-7">
               {dados ? (
                 <>
@@ -188,6 +197,24 @@ function VideoPage() {
               />
             ) : (
               <div className="aspect-video w-full animate-pulse rounded-xl bg-white/[0.06] md:rounded-2xl" />
+            )}
+
+            {dados?.proposta_slug && (
+              <div className="lbc-video-extra mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between md:mt-6">
+                <p className="text-sm text-white/60">
+                  Os detalhes e as formas de pagamento estão na proposta.
+                </p>
+                <a
+                  href={`/p/${dados.proposta_slug}`}
+                  target="_blank"
+                  rel="noopener"
+                  onClick={() => rastreio.proposta()}
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-[#CFFF87] px-5 py-3 text-sm font-semibold text-[#0E0D0C] transition-opacity hover:opacity-90"
+                >
+                  Ver a proposta completa
+                  <span aria-hidden>→</span>
+                </a>
+              </div>
             )}
           </div>
         )}
@@ -306,6 +333,11 @@ function useRastreio() {
     iniciar(id: string | null, v: string) {
       sessao.current = id;
       visitante.current = v;
+    },
+    /** Clicou em "Ver a proposta completa": registra na hora (a aba nova pode tirar o foco desta). */
+    proposta() {
+      eventos.current.push({ tipo: "proposta", posicao: posicao.current });
+      enviar(true);
     },
   };
 }
