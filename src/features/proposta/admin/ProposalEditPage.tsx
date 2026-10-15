@@ -284,6 +284,16 @@ export default function ProposalEditPage({
             <label className="flex items-center gap-1.5">
               <input
                 type="checkbox"
+                checked={!!draft.show_card}
+                onChange={(e) => edit({ show_card: e.target.checked })}
+              />
+              Cartão em 12x
+            </label>
+          )}
+          {!isDirecao && (
+            <label className="flex items-center gap-1.5">
+              <input
+                type="checkbox"
                 checked={draft.show_diagnosis}
                 onChange={(e) => edit({ show_diagnosis: e.target.checked })}
               />

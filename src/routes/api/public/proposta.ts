@@ -18,6 +18,7 @@ const PUBLIC_COLUMNS = [
   "installments_note",
   "cash_discount_pct",
   "cash_note",
+  "show_card",
   "deadline_days",
   "valid_until",
   "case_slugs",

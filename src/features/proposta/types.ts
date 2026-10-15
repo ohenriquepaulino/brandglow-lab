@@ -26,6 +26,8 @@ export interface Proposal {
   installments_note: string;
   cash_discount_pct: number;
   cash_note: string;
+  /** Mostra a opção de cartão em 12x, com os juros da plataforma (só no modelo em slides). */
+  show_card?: boolean | null;
   deadline_days: number;
   valid_until: string | null; // AAAA-MM-DD
   /** Cases e entregas são os padrões do kit; ficam opcionais aqui. */

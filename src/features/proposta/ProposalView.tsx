@@ -10,9 +10,15 @@ import {
 } from "react";
 import "./proposta.css";
 import type { CaseStudy, Proposal } from "./types";
-import { BRAND, DEFAULT_DELIVERABLES, DIAGNOSIS_PLACEHOLDERS } from "./defaults";
+import {
+  BRAND,
+  DEFAULT_DELIVERABLES,
+  DIAGNOSIS_PLACEHOLDERS,
+  DIRECAO_CARD_INSTALLMENTS,
+  DIRECAO_CARD_RATE_12X,
+} from "./defaults";
 import { LOCAL_BACKUP_IMAGES, resolveCases } from "./cases";
-import { brlNumber, brlShort, fmtDate, parseBrl, pricing, validity } from "./format";
+import { brlNumber, brlShort, fmtDate, parseBrl, pricing, round2, validity } from "./format";
 import { usePrintPdf } from "./usePrintPdf";
 import EditText from "./EditText";
 
@@ -62,6 +68,8 @@ export default function ProposalView({
   const cases = useMemo(() => resolveCases(p.case_slugs), [p.case_slugs]);
   const deliverables = p.deliverables?.length ? p.deliverables : DEFAULT_DELIVERABLES;
   const price = pricing(p);
+  // Mesma taxa da Kiwify (e da Direção): R$ 5.000 → 12x de R$ 517,12, cortando nos centavos.
+  const cardInstallment = Math.floor(round2(price.total * DIRECAO_CARD_RATE_12X * 100)) / 100;
   const valid = validity(p.valid_until);
 
   /** Texto editável no modo de edição; texto puro na apresentação. */
@@ -674,7 +682,9 @@ export default function ProposalView({
           </div>
         </div>
         <div>
-          <div className={`lbc-opts${price.showInstallments ? "" : " single"}`}>
+          <div
+            className={`lbc-opts${price.showInstallments || p.show_card ? "" : " single"}${p.show_card ? " with-card" : ""}`}
+          >
             {price.showInstallments && (
               <div className="lbc-opt">
                 <h3>Em {price.installments} vezes</h3>
@@ -693,6 +703,17 @@ export default function ProposalView({
               </div>
               <p>{txt("cash_note", p.cash_note, "Texto do pagamento à vista")}</p>
             </div>
+            {p.show_card && (
+              <div className="lbc-opt card">
+                <div>
+                  <h3>Cartão de crédito</h3>
+                  <p>Em até {DIRECAO_CARD_INSTALLMENTS}x, com os juros da plataforma.</p>
+                </div>
+                <div className="v">
+                  <small>{DIRECAO_CARD_INSTALLMENTS}x</small>R$ {brlNumber(cardInstallment)}
+                </div>
+              </div>
+            )}
           </div>
           {validText && (
             <p className={`lbc-valid${valid.expired ? " late" : ""}`}>

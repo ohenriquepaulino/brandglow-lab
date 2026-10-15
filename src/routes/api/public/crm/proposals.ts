@@ -17,6 +17,7 @@ const PatchSchema = z
     installments_note: z.string().max(160),
     cash_discount_pct: z.number().min(0).max(100),
     cash_note: z.string().max(160),
+    show_card: z.boolean(),
     deadline_days: z.number().int().min(1).max(365),
     valid_until: z
       .string()
@@ -58,6 +59,7 @@ const COPY_COLUMNS = [
   "installments_note",
   "cash_discount_pct",
   "cash_note",
+  "show_card",
   "deadline_days",
   "valid_until",
   "case_slugs",
