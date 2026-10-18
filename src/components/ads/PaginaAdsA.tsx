@@ -206,14 +206,17 @@ export function PaginaAdsA({
     <div className="ads-page">
       <header className="ads-topbar">
         <div className="ads-container ads-topbar-inner">
-          <img
-            src={LOGO}
-            alt="Legacy BrandCo."
-            className="ads-logo"
-            width={172}
-            height={61}
-            loading="eager"
-          />
+          {/* Muita gente clica no logo: leva ao formulário, nunca para fora. */}
+          <a href="#formulario" className="ads-logo-link" aria-label="Ir para o formulário">
+            <img
+              src={LOGO}
+              alt="Legacy BrandCo."
+              className="ads-logo"
+              width={172}
+              height={61}
+              loading="eager"
+            />
+          </a>
         </div>
       </header>
 
@@ -425,6 +428,7 @@ export function PaginaAdsA({
         .ads-topbar { height: 64px; display: flex; align-items: center; }
         .ads-topbar-inner { width: 100%; display: flex; justify-content: center; }
         .ads-logo { height: 28px; width: auto; }
+        .ads-logo-link { display: flex; }
         .ads-section { padding-block: 80px; }
         .ads-first { padding-top: 24px; }
         .ads-last { padding-bottom: 64px; }
