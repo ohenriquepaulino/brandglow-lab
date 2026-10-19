@@ -7,7 +7,12 @@ export type EstadoWhatsApp =
   | "sem_instancia"
   | "nao_configurado";
 
-export type WhatsAppConfig = { ativo: boolean; mensagem: string; atraso_segundos: number };
+export type WhatsAppConfig = {
+  ativo: boolean;
+  mensagem: string;
+  mensagem_ate_6k: string;
+  atraso_segundos: number;
+};
 
 export type AvisoConfig = { aviso_ativo: boolean; aviso_grupo_nome: string | null };
 

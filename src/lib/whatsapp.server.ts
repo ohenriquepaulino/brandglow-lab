@@ -5,6 +5,7 @@
 // EVOLUTION_INSTANCE se um dia precisar.
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { telefoneInternacional } from "@/lib/telefone";
+import { isAte6k } from "@/lib/crm-auth";
 
 const TIMEOUT_MS = 10_000;
 
@@ -248,7 +249,7 @@ export async function agendarMensagensDoLead(
   try {
     const { data: config } = await supabase
       .from("whatsapp_config")
-      .select("ativo, mensagem, atraso_segundos, aviso_ativo")
+      .select("ativo, mensagem, mensagem_ate_6k, atraso_segundos, aviso_ativo")
       .eq("id", 1)
       .maybeSingle();
     if (!config) return;
@@ -257,12 +258,18 @@ export async function agendarMensagensDoLead(
     const agora = Date.now();
     const envios = [];
 
-    if (config.ativo && config.mensagem?.trim()) {
+    // Até R$ 6 mil (ou sem faturamento) recebe o texto com o investimento;
+    // com esse campo vazio, todo mundo recebe a mensagem padrão.
+    const template =
+      config.mensagem_ate_6k?.trim() && isAte6k({ faturamento: lead.faturamento ?? null })
+        ? config.mensagem_ate_6k
+        : config.mensagem;
+    if (config.ativo && template?.trim()) {
       envios.push({
         lead_id: lead.id,
         tipo: "boas_vindas",
         telefone,
-        mensagem: montarMensagem(config.mensagem, lead.nome),
+        mensagem: montarMensagem(template, lead.nome),
         status: "pendente",
         enviar_em: foraDoSilencio(
           new Date(agora + (config.atraso_segundos ?? 30) * 1000),

@@ -90,6 +90,7 @@ function WhatsAppContent() {
 
   const [ativo, setAtivo] = useState(false);
   const [mensagem, setMensagem] = useState("");
+  const [mensagemAte6k, setMensagemAte6k] = useState("");
   const [atraso, setAtraso] = useState(30);
   const [salvo, setSalvo] = useState<WhatsAppConfig | null>(null);
   const [salvando, setSalvando] = useState(false);
@@ -114,6 +115,7 @@ function WhatsAppContent() {
       if (data.config) {
         setAtivo(data.config.ativo);
         setMensagem(data.config.mensagem);
+        setMensagemAte6k(data.config.mensagem_ate_6k ?? "");
         setAtraso(data.config.atraso_segundos);
         setSalvo(data.config);
       }
@@ -184,7 +186,7 @@ function WhatsAppContent() {
   async function handleSalvar() {
     setSalvando(true);
     try {
-      const config = { ativo, mensagem, atraso_segundos: atraso };
+      const config = { ativo, mensagem, mensagem_ate_6k: mensagemAte6k, atraso_segundos: atraso };
       await apiWhatsAppSaveConfig(config);
       setSalvo(config);
     } catch (err) {
@@ -193,10 +195,10 @@ function WhatsAppContent() {
     setSalvando(false);
   }
 
-  async function handleTeste() {
+  async function handleTeste(texto: string) {
     setTesteMsg("Enviando...");
     try {
-      await apiWhatsAppSendTest(telTeste, mensagem);
+      await apiWhatsAppSendTest(telTeste, texto);
       setTesteMsg("Enviado. Confira o WhatsApp.");
     } catch (err) {
       setTesteMsg(`Falhou: ${err instanceof Error ? err.message : String(err)}`);
@@ -208,6 +210,7 @@ function WhatsAppContent() {
     !salvo ||
     salvo.ativo !== ativo ||
     salvo.mensagem !== mensagem ||
+    (salvo.mensagem_ate_6k ?? "") !== mensagemAte6k ||
     salvo.atraso_segundos !== atraso;
 
   return (
@@ -286,12 +289,27 @@ function WhatsAppContent() {
           Enviada até um minuto depois do prazo abaixo, contado do cadastro no site. Use{" "}
           <code>{"{primeiro-nome}"}</code> ou <code>{"{nome}"}</code>.
         </p>
+        <p className="mt-4 text-xs font-medium text-neutral-700">Fatura acima de R$ 6 mil</p>
         <textarea
           value={mensagem}
           onChange={(e) => setMensagem(e.target.value)}
           rows={6}
           maxLength={2000}
-          className="mt-3 w-full rounded-md border bg-white p-3 text-sm outline-none focus:border-neutral-900"
+          className="mt-2 w-full rounded-md border bg-white p-3 text-sm outline-none focus:border-neutral-900"
+          style={{ borderColor: BORDER }}
+        />
+        <p className="mt-4 text-xs font-medium text-neutral-700">
+          Não fatura ou fatura até R$ 6 mil
+        </p>
+        <p className="mt-1 text-xs text-neutral-500">
+          Vazio: esses leads recebem a mensagem de cima.
+        </p>
+        <textarea
+          value={mensagemAte6k}
+          onChange={(e) => setMensagemAte6k(e.target.value)}
+          rows={6}
+          maxLength={2000}
+          className="mt-2 w-full rounded-md border bg-white p-3 text-sm outline-none focus:border-neutral-900"
           style={{ borderColor: BORDER }}
         />
         <div className="mt-3 flex items-center justify-between gap-3">
@@ -330,12 +348,24 @@ function WhatsAppContent() {
               style={{ borderColor: BORDER }}
             />
             <button
-              onClick={handleTeste}
+              onClick={() => handleTeste(mensagem)}
               disabled={estado !== "conectado" || telTeste.replace(/\D/g, "").length < 10}
               className="rounded-md border px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50 disabled:opacity-40"
               style={{ borderColor: BORDER }}
             >
-              Enviar
+              Acima de 6 mil
+            </button>
+            <button
+              onClick={() => handleTeste(mensagemAte6k)}
+              disabled={
+                estado !== "conectado" ||
+                telTeste.replace(/\D/g, "").length < 10 ||
+                !mensagemAte6k.trim()
+              }
+              className="rounded-md border px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50 disabled:opacity-40"
+              style={{ borderColor: BORDER }}
+            >
+              Até 6 mil
             </button>
           </div>
           {testeMsg && <p className="mt-2 text-xs text-neutral-600">{testeMsg}</p>}
@@ -486,10 +516,10 @@ function ResumoFollowup({ inicial, conectado }: { inicial: boolean; conectado: b
         </label>
       </div>
       <p className="mt-2 text-xs text-neutral-500">
-        De segunda a sexta, às 8h, chega no mesmo grupo do aviso a lista do dia em formato de
-        to-do: <em>🔴 responder</em> (o lead falou por último há 2h ou mais), <em>🟠 cobrar</em>{" "}
-        (nós falamos por último há 2 dias ou mais) e <em>⚪ puxar assunto</em> (ninguém fala há 5
-        dias ou mais). O teste envia a lista de agora e não conta como o resumo do dia.
+        De segunda a sexta, às 8h, chega no mesmo grupo do aviso a lista do dia em formato de to-do:{" "}
+        <em>🔴 responder</em> (o lead falou por último há 2h ou mais), <em>🟠 cobrar</em> (nós
+        falamos por último há 2 dias ou mais) e <em>⚪ puxar assunto</em> (ninguém fala há 5 dias ou
+        mais). O teste envia a lista de agora e não conta como o resumo do dia.
       </p>
       <div className="mt-3 flex items-center gap-3">
         <button

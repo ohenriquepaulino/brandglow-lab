@@ -623,6 +623,7 @@ export type Database = {
           followup_resumo_ativo: boolean
           id: number
           mensagem: string
+          mensagem_ate_6k: string
           updated_at: string
           webhook_registrado: boolean
           webhook_token: string
@@ -639,6 +640,7 @@ export type Database = {
           followup_resumo_ativo?: boolean
           id?: number
           mensagem?: string
+          mensagem_ate_6k?: string
           updated_at?: string
           webhook_registrado?: boolean
           webhook_token?: string
@@ -655,6 +657,7 @@ export type Database = {
           followup_resumo_ativo?: boolean
           id?: number
           mensagem?: string
+          mensagem_ate_6k?: string
           updated_at?: string
           webhook_registrado?: boolean
           webhook_token?: string

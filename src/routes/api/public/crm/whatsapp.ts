@@ -24,6 +24,7 @@ const ActionSchema = z.discriminatedUnion("action", [
     action: z.literal("save_config"),
     ativo: z.boolean(),
     mensagem: z.string().trim().min(1).max(2000),
+    mensagem_ate_6k: z.string().trim().max(2000),
     atraso_segundos: z.number().int().min(0).max(3600),
   }),
   z.object({
@@ -78,7 +79,7 @@ export const Route = createFileRoute("/api/public/crm/whatsapp")({
               supabase
                 .from("whatsapp_config")
                 .select(
-                  "ativo, mensagem, atraso_segundos, aviso_ativo, aviso_grupo_nome, followup_resumo_ativo",
+                  "ativo, mensagem, mensagem_ate_6k, atraso_segundos, aviso_ativo, aviso_grupo_nome, followup_resumo_ativo",
                 )
                 .eq("id", 1)
                 .maybeSingle(),
@@ -137,6 +138,7 @@ export const Route = createFileRoute("/api/public/crm/whatsapp")({
               id: 1,
               ativo: payload.ativo,
               mensagem: payload.mensagem,
+              mensagem_ate_6k: payload.mensagem_ate_6k,
               atraso_segundos: payload.atraso_segundos,
               updated_at: new Date().toISOString(),
             });
@@ -192,14 +194,19 @@ export const Route = createFileRoute("/api/public/crm/whatsapp")({
           case "followup_save_resumo": {
             const { error } = await supabase
               .from("whatsapp_config")
-              .update({ followup_resumo_ativo: payload.ativo, updated_at: new Date().toISOString() })
+              .update({
+                followup_resumo_ativo: payload.ativo,
+                updated_at: new Date().toISOString(),
+              })
               .eq("id", 1);
             if (error) return Response.json({ error: error.message }, { status: 500 });
             return Response.json({ success: true });
           }
           case "followup_test_resumo": {
             try {
-              return Response.json({ data: await enviarResumoFollowup(supabase, { forcar: true }) });
+              return Response.json({
+                data: await enviarResumoFollowup(supabase, { forcar: true }),
+              });
             } catch (e) {
               return erro(e);
             }

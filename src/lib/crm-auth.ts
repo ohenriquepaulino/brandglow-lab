@@ -26,7 +26,6 @@ export function crmLogin(user: string, pass: string): boolean {
   return false;
 }
 
-
 export function crmLogout() {
   sessionStorage.removeItem(KEY);
 }
@@ -58,7 +57,6 @@ export function normalizeColuna(id: string): string {
 }
 
 export type ColunaId = string;
-
 
 export type Lead = {
   id: string;
@@ -98,6 +96,13 @@ export const SEM_FATURAMENTO = "Ainda não estou faturando";
 
 export function isSemFaturamento(lead: { faturamento: string | null }): boolean {
   return (lead.faturamento ?? "").trim().toLowerCase() === SEM_FATURAMENTO.toLowerCase();
+}
+
+export const ATE_6K = "Até R$ 6.000";
+
+/** Não fatura ou fatura até R$ 6 mil: recebe a boas-vindas com o investimento. */
+export function isAte6k(lead: { faturamento: string | null }): boolean {
+  return isSemFaturamento(lead) || (lead.faturamento ?? "").trim() === ATE_6K;
 }
 
 export function whatsappDigits(value: string): string {
