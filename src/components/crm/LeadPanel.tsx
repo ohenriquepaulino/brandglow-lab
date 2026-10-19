@@ -149,7 +149,8 @@ export function LeadPanel({
                 className={`mt-1 text-[11px] ${ENVIO_LABEL[e.status].cor}`}
                 title={e.erro ?? undefined}
               >
-                {ENVIO_LABEL[e.status].texto} · {formatDateTime(e.enviar_em)}
+                {ENVIO_LABEL[e.status].texto}
+                {e.tipo === "cadencia" && " (cadência)"} · {formatDateTime(e.enviar_em)}
               </p>
             ))}
           </Row>
@@ -247,6 +248,7 @@ const ENVIO_LABEL: Record<WhatsAppEnvio["status"], { texto: string; cor: string 
   enviando: { texto: "⏱ Mensagem automática enviando", cor: "text-amber-600" },
   enviado: { texto: "✓ Mensagem automática enviada", cor: "text-green-700" },
   erro: { texto: "✕ Mensagem automática falhou", cor: "text-red-600" },
+  cancelado: { texto: "– Mensagem automática cancelada", cor: "text-neutral-400" },
 };
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {

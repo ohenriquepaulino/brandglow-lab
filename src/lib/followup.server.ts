@@ -46,7 +46,11 @@ function numerosDaConversa(chat: EvoJson): string[] {
 
 /** Última mensagem de cada conversa, indexada por DDD + 8 últimos dígitos. */
 async function ultimasMensagens(): Promise<Map<string, UltimaMensagem>> {
-  const r = await evo("/chat/findChats/{instance}", { method: "POST", body: {}, timeoutMs: 30_000 });
+  const r = await evo("/chat/findChats/{instance}", {
+    method: "POST",
+    body: {},
+    timeoutMs: 30_000,
+  });
   if (!r.ok || !Array.isArray(r.data)) {
     throw new Error(`Não consegui ler as conversas do WhatsApp (Evolution ${r.status})`);
   }
@@ -85,11 +89,18 @@ export type Leitura = {
 
 /** Lê o WhatsApp e regrava as tags (substitui a leitura anterior inteira). */
 export async function lerFollowups(supabase: SupabaseClient): Promise<Leitura> {
-  const [mensagens, { data: leads, error }] = await Promise.all([
+  const [mensagens, { data: leads, error }, { data: naCadencia }] = await Promise.all([
     ultimasMensagens(),
     supabase.from("leads").select("id, nome, whatsapp, coluna"),
+    supabase
+      .from("whatsapp_envios")
+      .select("lead_id")
+      .eq("tipo", "cadencia")
+      .eq("status", "pendente"),
   ]);
   if (error) throw new Error(error.message);
+  // Quem está na cadência automática já está sendo cobrado: não vira tag.
+  const emCadencia = new Set((naCadencia ?? []).map((e) => e.lead_id));
 
   const agora = Date.now();
   const itens: ItemFollowup[] = [];
@@ -109,7 +120,7 @@ export async function lerFollowups(supabase: SupabaseClient): Promise<Leitura> {
     }
     ultimas.set(lead.id, ultima);
     const tipo = classificar(ultima.de, agora - ultima.em);
-    if (!tipo) continue;
+    if (!tipo || emCadencia.has(lead.id)) continue;
     itens.push({
       lead_id: lead.id,
       nome: lead.nome,

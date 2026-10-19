@@ -7,6 +7,8 @@ import {
   apiWhatsAppDisconnect,
   apiWhatsAppGet,
   apiWhatsAppSaveConfig,
+  apiWhatsAppSaveCadencia,
+  apiWhatsAppTestPasso,
   apiWhatsAppSendTest,
   apiWhatsAppStatus,
   apiWhatsAppSaveAviso,
@@ -16,6 +18,7 @@ import {
   type AvisoConfig,
   type EstadoWhatsApp,
   type WhatsAppConfig,
+  type CadenciaPasso,
   type WhatsAppEnvio,
 } from "@/lib/whatsapp-api";
 
@@ -101,6 +104,9 @@ function WhatsAppContent() {
   const [envios, setEnvios] = useState<WhatsAppEnvio[]>([]);
   const [aviso, setAviso] = useState<AvisoConfig | null>(null);
   const [resumoAtivo, setResumoAtivo] = useState<boolean | null>(null);
+  const [cadencia, setCadencia] = useState<{ ativa: boolean; passos: CadenciaPasso[] } | null>(
+    null,
+  );
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -120,6 +126,9 @@ function WhatsAppContent() {
         setSalvo(data.config);
       }
       setEnvios(data.envios);
+      if (data.config) {
+        setCadencia({ ativa: data.config.cadencia_ativa, passos: data.passos ?? [] });
+      }
       if (data.config) {
         setAviso({
           aviso_ativo: data.config.aviso_ativo,
@@ -372,6 +381,10 @@ function WhatsAppContent() {
         </div>
       </section>
 
+      {cadencia && (
+        <Cadencia inicial={cadencia} conectado={estado === "conectado"} boasVindasAtiva={ativo} />
+      )}
+
       {aviso && <AvisoGrupo inicial={aviso} conectado={estado === "conectado"} />}
 
       {resumoAtivo !== null && (
@@ -400,8 +413,17 @@ function WhatsAppContent() {
                     {e.tipo === "aviso" && (
                       <span className="ml-1 text-xs text-neutral-500">· aviso no grupo</span>
                     )}
+                    {e.tipo === "cadencia" && (
+                      <span className="ml-1 text-xs text-neutral-500">· cadência</span>
+                    )}
                   </p>
-                  {e.erro && <p className="truncate text-xs text-red-600">{e.erro}</p>}
+                  {e.erro && (
+                    <p
+                      className={`truncate text-xs ${e.status === "cancelado" ? "text-neutral-500" : "text-red-600"}`}
+                    >
+                      {e.erro}
+                    </p>
+                  )}
                   <p className="text-[11px] text-neutral-500">{formatDateTime(e.enviar_em)}</p>
                 </div>
                 <StatusPill status={e.status} />
@@ -411,6 +433,164 @@ function WhatsAppContent() {
         )}
       </section>
     </>
+  );
+}
+
+function Cadencia({
+  inicial,
+  conectado,
+  boasVindasAtiva,
+}: {
+  inicial: { ativa: boolean; passos: CadenciaPasso[] };
+  conectado: boolean;
+  boasVindasAtiva: boolean;
+}) {
+  const [ativa, setAtiva] = useState(inicial.ativa);
+  const [passos, setPassos] = useState(inicial.passos);
+  const [salvo, setSalvo] = useState(JSON.stringify(inicial));
+  const [salvando, setSalvando] = useState(false);
+  const [tel, setTel] = useState("");
+  const [msg, setMsg] = useState<string | null>(null);
+
+  const alterado = JSON.stringify({ ativa, passos }) !== salvo;
+
+  function editar(id: string, campos: Partial<CadenciaPasso>) {
+    setPassos((ps) => ps.map((p) => (p.id === id ? { ...p, ...campos } : p)));
+  }
+
+  async function salvar() {
+    setSalvando(true);
+    try {
+      await apiWhatsAppSaveCadencia(ativa, passos);
+      setSalvo(JSON.stringify({ ativa, passos }));
+    } catch (err) {
+      alert(err instanceof Error ? err.message : String(err));
+    }
+    setSalvando(false);
+  }
+
+  async function testar(p: CadenciaPasso) {
+    setMsg(`Enviando D${p.dia}...`);
+    try {
+      await apiWhatsAppTestPasso(tel, p.mensagem, p.video_url);
+      setMsg(`D${p.dia} enviado. Confira o WhatsApp.`);
+    } catch (err) {
+      setMsg(`Falhou: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  const podeTestar = conectado && tel.replace(/\D/g, "").length >= 10;
+
+  return (
+    <section className="rounded-lg border bg-white p-5" style={{ borderColor: BORDER }}>
+      <div className="flex items-center justify-between">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-neutral-500">
+          Cadência · até R$ 6 mil
+        </p>
+        <label className="flex cursor-pointer items-center gap-2 text-sm text-neutral-800">
+          <input
+            type="checkbox"
+            checked={ativa}
+            onChange={(e) => setAtiva(e.target.checked)}
+            className="h-4 w-4 accent-neutral-900"
+          />
+          Ativa
+        </label>
+      </div>
+      <p className="mt-2 text-xs text-neutral-500">
+        Para quem não fatura ou fatura até R$ 6 mil, depois da boas-vindas. Cada passo sai no dia
+        indicado, contado do cadastro, de segunda a sábado entre 9h e 20h. A cadência para quando o
+        lead responde ou quando o card sai de Novo lead / Aguardando resposta / Contato feito.
+        Mudanças valem também para quem já está na cadência; só entra quem se cadastrar com ela
+        ativa.
+      </p>
+      {ativa && !boasVindasAtiva && (
+        <p className="mt-2 text-xs text-amber-700">
+          A mensagem para lead novo está desligada: sem ela, ninguém entra na cadência.
+        </p>
+      )}
+
+      <ul className="mt-4 space-y-4">
+        {passos.map((p) => (
+          <li
+            key={p.id}
+            className="rounded-md border p-3"
+            style={{ borderColor: BORDER, opacity: p.ativo ? 1 : 0.6 }}
+          >
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <label className="flex items-center gap-2 text-xs font-medium text-neutral-800">
+                Dia
+                <input
+                  type="number"
+                  min={1}
+                  max={60}
+                  value={p.dia}
+                  onChange={(e) =>
+                    editar(p.id, {
+                      dia: Math.max(1, Math.min(60, Math.round(Number(e.target.value) || 1))),
+                    })
+                  }
+                  className="w-14 rounded-md border px-2 py-1 text-sm outline-none focus:border-neutral-900"
+                  style={{ borderColor: BORDER }}
+                />
+              </label>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => testar(p)}
+                  disabled={!podeTestar || !p.mensagem.trim()}
+                  className="text-xs text-neutral-600 hover:text-neutral-900 disabled:opacity-40"
+                >
+                  Testar
+                </button>
+                <label className="flex cursor-pointer items-center gap-1.5 text-xs text-neutral-700">
+                  <input
+                    type="checkbox"
+                    checked={p.ativo}
+                    onChange={(e) => editar(p.id, { ativo: e.target.checked })}
+                    className="h-3.5 w-3.5 accent-neutral-900"
+                  />
+                  Ligado
+                </label>
+              </div>
+            </div>
+            <textarea
+              value={p.mensagem}
+              onChange={(e) => editar(p.id, { mensagem: e.target.value })}
+              rows={4}
+              maxLength={2000}
+              placeholder="Mensagem deste passo"
+              className="mt-2 w-full rounded-md border bg-white p-2.5 text-sm outline-none focus:border-neutral-900"
+              style={{ borderColor: BORDER }}
+            />
+            <input
+              value={p.video_url ?? ""}
+              onChange={(e) => editar(p.id, { video_url: e.target.value || null })}
+              placeholder="Vídeo (link .mp4, opcional): vai com a mensagem como legenda"
+              className="mt-2 w-full rounded-md border px-2.5 py-1.5 text-xs outline-none focus:border-neutral-900"
+              style={{ borderColor: BORDER }}
+            />
+          </li>
+        ))}
+      </ul>
+
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+        <input
+          value={tel}
+          onChange={(e) => setTel(e.target.value)}
+          placeholder="Número para testar: (11) 98888-7777"
+          className="min-w-0 flex-1 rounded-md border px-3 py-1.5 text-sm outline-none focus:border-neutral-900"
+          style={{ borderColor: BORDER }}
+        />
+        <button
+          onClick={salvar}
+          disabled={!alterado || salvando}
+          className="rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-40"
+        >
+          {salvando ? "Salvando..." : alterado ? "Salvar" : "Salvo"}
+        </button>
+      </div>
+      {msg && <p className="mt-2 text-xs text-neutral-600">{msg}</p>}
+    </section>
   );
 }
 
@@ -541,6 +721,7 @@ const STATUS_PILL: Record<WhatsAppEnvio["status"], { label: string; cor: string 
   enviando: { label: "Enviando", cor: "#CA8A04" },
   enviado: { label: "Enviado", cor: "#16A34A" },
   erro: { label: "Erro", cor: "#DC2626" },
+  cancelado: { label: "Cancelado", cor: "#A3A3A3" },
 };
 
 function StatusPill({ status }: { status: WhatsAppEnvio["status"] }) {

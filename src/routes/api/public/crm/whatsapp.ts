@@ -5,6 +5,7 @@ import {
   conectar,
   desconectar,
   enviarTexto,
+  enviarVideo,
   estadoDaConexao,
   evolutionConfigurada,
   garantirWebhook,
@@ -33,6 +34,27 @@ const ActionSchema = z.discriminatedUnion("action", [
     mensagem: z.string().trim().min(1).max(2000),
   }),
   z.object({ action: z.literal("list_envios_lead"), lead_id: z.string().uuid() }),
+  z.object({
+    action: z.literal("save_cadencia"),
+    ativa: z.boolean(),
+    passos: z
+      .array(
+        z.object({
+          id: z.string().uuid(),
+          dia: z.number().int().min(1).max(60),
+          mensagem: z.string().max(2000),
+          video_url: z.string().trim().url().nullable(),
+          ativo: z.boolean(),
+        }),
+      )
+      .max(20),
+  }),
+  z.object({
+    action: z.literal("test_passo"),
+    telefone: z.string().trim().min(10).max(20),
+    mensagem: z.string().trim().min(1).max(2000),
+    video_url: z.string().trim().url().nullable(),
+  }),
   z.object({ action: z.literal("save_aviso"), aviso_ativo: z.boolean() }),
   z.object({ action: z.literal("test_aviso") }),
   z.object({ action: z.literal("followup_ler") }),
@@ -75,25 +97,36 @@ export const Route = createFileRoute("/api/public/crm/whatsapp")({
 
         switch (payload.action) {
           case "get": {
-            const [{ data: config, error }, { data: envios }] = await Promise.all([
-              supabase
-                .from("whatsapp_config")
-                .select(
-                  "ativo, mensagem, mensagem_ate_6k, atraso_segundos, aviso_ativo, aviso_grupo_nome, followup_resumo_ativo",
-                )
-                .eq("id", 1)
-                .maybeSingle(),
-              supabase
-                .from("whatsapp_envios")
-                .select(
-                  "id, lead_id, tipo, telefone, status, erro, criado_em, enviar_em, leads(nome)",
-                )
-                .order("criado_em", { ascending: false })
-                .limit(20),
-            ]);
+            const [{ data: config, error }, { data: envios }, { data: passos }] = await Promise.all(
+              [
+                supabase
+                  .from("whatsapp_config")
+                  .select(
+                    "ativo, mensagem, mensagem_ate_6k, atraso_segundos, aviso_ativo, aviso_grupo_nome, followup_resumo_ativo, cadencia_ativa",
+                  )
+                  .eq("id", 1)
+                  .maybeSingle(),
+                supabase
+                  .from("whatsapp_envios")
+                  .select(
+                    "id, lead_id, tipo, telefone, status, erro, criado_em, enviar_em, leads(nome)",
+                  )
+                  .order("criado_em", { ascending: false })
+                  .limit(20),
+                supabase
+                  .from("cadencia_passos")
+                  .select("id, ordem, dia, mensagem, video_url, ativo")
+                  .order("ordem", { ascending: true }),
+              ],
+            );
             if (error) return Response.json({ error: error.message }, { status: 500 });
             return Response.json({
-              data: { config, envios: envios ?? [], evolution_configurada: evolutionConfigurada() },
+              data: {
+                config,
+                envios: envios ?? [],
+                passos: passos ?? [],
+                evolution_configurada: evolutionConfigurada(),
+              },
             });
           }
           case "status": {
@@ -144,6 +177,38 @@ export const Route = createFileRoute("/api/public/crm/whatsapp")({
             });
             if (error) return Response.json({ error: error.message }, { status: 500 });
             return Response.json({ success: true });
+          }
+          case "save_cadencia": {
+            const { error } = await supabase
+              .from("whatsapp_config")
+              .update({ cadencia_ativa: payload.ativa, updated_at: new Date().toISOString() })
+              .eq("id", 1);
+            if (error) return Response.json({ error: error.message }, { status: 500 });
+            for (const p of payload.passos) {
+              const { error: errPasso } = await supabase
+                .from("cadencia_passos")
+                .update({
+                  dia: p.dia,
+                  mensagem: p.mensagem,
+                  video_url: p.video_url,
+                  ativo: p.ativo,
+                  updated_at: new Date().toISOString(),
+                })
+                .eq("id", p.id);
+              if (errPasso) return Response.json({ error: errPasso.message }, { status: 500 });
+            }
+            return Response.json({ success: true });
+          }
+          case "test_passo": {
+            try {
+              const telefone = normalizarTelefone(payload.telefone);
+              const texto = montarMensagem(payload.mensagem, "Teste");
+              if (payload.video_url) await enviarVideo(telefone, payload.video_url, texto);
+              else await enviarTexto(telefone, texto);
+              return Response.json({ success: true });
+            } catch (e) {
+              return erro(e);
+            }
           }
           case "send_test": {
             try {

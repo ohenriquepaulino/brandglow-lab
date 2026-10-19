@@ -139,6 +139,29 @@ export async function enviarImagem(telefone: string, url: string, legenda: strin
   }
 }
 
+/** Vídeo por URL pública (toca dentro do WhatsApp), com legenda. */
+export async function enviarVideo(telefone: string, url: string, legenda: string) {
+  const r = await evo("/message/sendMedia/{instance}", {
+    method: "POST",
+    body: {
+      number: telefone,
+      mediatype: "video",
+      mimetype: "video/mp4",
+      media: url,
+      fileName: url.split("/").pop(),
+      caption: legenda,
+    },
+    timeoutMs: 60_000,
+  });
+  if (!r.ok) {
+    const detalhe = JSON.stringify(r.data?.response?.message ?? r.data?.message ?? r.data).slice(
+      0,
+      300,
+    );
+    throw new Error(`Evolution ${r.status}: ${detalhe}`);
+  }
+}
+
 export async function enviarTexto(telefone: string, texto: string) {
   const r = await evo("/message/sendText/{instance}", {
     method: "POST",
@@ -206,6 +229,35 @@ export function foraDoSilencio(quando: Date): Date {
   return new Date(seisHoras.getTime() - BRASILIA_OFFSET_MS);
 }
 
+// Cadência: só de segunda a sábado, das 9h às 20h (Brasília). Fora disso,
+// vai para as 9h do próximo dia útil, com até 30 min de folga aleatória para
+// as mensagens não saírem todas no mesmo minuto.
+const CADENCIA_INICIO = 9;
+const CADENCIA_FIM = 20;
+
+export function emHorarioComercial(quando: Date): Date {
+  const local = new Date(quando.getTime() + BRASILIA_OFFSET_MS);
+  const hora = local.getUTCHours();
+  const domingo = local.getUTCDay() === 0;
+  if (!domingo && hora >= CADENCIA_INICIO && hora < CADENCIA_FIM) return quando;
+
+  const alvo = new Date(local);
+  alvo.setUTCHours(CADENCIA_INICIO, Math.floor(Math.random() * 30), 0, 0);
+  if (hora >= CADENCIA_FIM) alvo.setUTCDate(alvo.getUTCDate() + 1);
+  if (alvo.getUTCDay() === 0) alvo.setUTCDate(alvo.getUTCDate() + 1);
+  return new Date(alvo.getTime() - BRASILIA_OFFSET_MS);
+}
+
+/** Cancela o que ainda falta da cadência do lead (respondeu ou saiu das colunas iniciais). */
+export async function pararCadencia(supabase: SupabaseClient, leadId: string, motivo: string) {
+  await supabase
+    .from("whatsapp_envios")
+    .update({ status: "cancelado", erro: motivo })
+    .eq("lead_id", leadId)
+    .eq("tipo", "cadencia")
+    .eq("status", "pendente");
+}
+
 export function montarAviso(lead: {
   nome: string;
   telefone: string;
@@ -249,7 +301,7 @@ export async function agendarMensagensDoLead(
   try {
     const { data: config } = await supabase
       .from("whatsapp_config")
-      .select("ativo, mensagem, mensagem_ate_6k, atraso_segundos, aviso_ativo")
+      .select("ativo, mensagem, mensagem_ate_6k, atraso_segundos, aviso_ativo, cadencia_ativa")
       .eq("id", 1)
       .maybeSingle();
     if (!config) return;
@@ -260,10 +312,9 @@ export async function agendarMensagensDoLead(
 
     // Até R$ 6 mil (ou sem faturamento) recebe o texto com o investimento;
     // com esse campo vazio, todo mundo recebe a mensagem padrão.
+    const ate6k = isAte6k({ faturamento: lead.faturamento ?? null });
     const template =
-      config.mensagem_ate_6k?.trim() && isAte6k({ faturamento: lead.faturamento ?? null })
-        ? config.mensagem_ate_6k
-        : config.mensagem;
+      config.mensagem_ate_6k?.trim() && ate6k ? config.mensagem_ate_6k : config.mensagem;
     if (config.ativo && template?.trim()) {
       envios.push({
         lead_id: lead.id,
@@ -297,6 +348,27 @@ export async function agendarMensagensDoLead(
         enviar_em: new Date(agora).toISOString(),
       });
     }
+    // Cadência: agenda todos os passos, até os desligados (o passo é relido
+    // na hora do envio; ligar o D5 depois vale para quem já está na régua).
+    if (config.ativo && config.cadencia_ativa && ate6k && lead.id) {
+      const { data: passos } = await supabase
+        .from("cadencia_passos")
+        .select("id, dia, mensagem")
+        .order("ordem", { ascending: true });
+      for (const passo of passos ?? []) {
+        envios.push({
+          lead_id: lead.id,
+          tipo: "cadencia",
+          passo_id: passo.id,
+          telefone,
+          mensagem: montarMensagem(passo.mensagem, lead.nome),
+          status: "pendente",
+          enviar_em: emHorarioComercial(
+            new Date(agora + passo.dia * 24 * 60 * 60_000),
+          ).toISOString(),
+        });
+      }
+    }
     // Sem grupo resolvido o aviso não tem para onde ir: fica de fora.
     const validos = envios.filter((e) => e.telefone);
     if (validos.length === 0) return;
@@ -318,16 +390,45 @@ export async function processarFila(supabase: SupabaseClient) {
     .eq("status", "enviando")
     .lt("enviar_em", new Date(Date.now() - 2 * 60_000).toISOString());
 
-  const { data: vencidos } = await supabase
-    .from("whatsapp_envios")
-    .select("id, telefone, mensagem")
-    .eq("status", "pendente")
-    .lte("enviar_em", new Date().toISOString())
-    .order("enviar_em", { ascending: true })
-    .limit(10);
+  const [{ data: vencidos }, { data: config }] = await Promise.all([
+    supabase
+      .from("whatsapp_envios")
+      .select(
+        "id, tipo, lead_id, telefone, mensagem, leads(nome, coluna), cadencia_passos(mensagem, video_url, ativo)",
+      )
+      .eq("status", "pendente")
+      .lte("enviar_em", new Date().toISOString())
+      .order("enviar_em", { ascending: true })
+      .limit(10),
+    supabase.from("whatsapp_config").select("cadencia_ativa").eq("id", 1).maybeSingle(),
+  ]);
 
   let enviados = 0;
   for (const envio of vencidos ?? []) {
+    let video: string | null = null;
+    if (envio.tipo === "cadencia") {
+      const lead = envio.leads as unknown as { nome: string; coluna: string } | null;
+      const passo = envio.cadencia_passos as unknown as {
+        mensagem: string;
+        video_url: string | null;
+        ativo: boolean;
+      } | null;
+      if (!config?.cadencia_ativa) {
+        await cancelarEnvio(supabase, envio.id, "Cadência desligada");
+        continue;
+      }
+      if (!lead || !envio.lead_id || !COLUNAS_ANTES_DE_CONVERSAR.includes(lead.coluna)) {
+        if (envio.lead_id) await pararCadencia(supabase, envio.lead_id, "Lead saiu da cadência");
+        continue;
+      }
+      if (!passo?.ativo || !passo.mensagem.trim()) {
+        await cancelarEnvio(supabase, envio.id, "Passo desligado");
+        continue;
+      }
+      envio.mensagem = montarMensagem(passo.mensagem, lead.nome);
+      video = passo.video_url?.trim() || null;
+    }
+
     // Trava otimista: se duas chamadas do cron se sobrepõem, só uma pega o envio.
     const { data: travado } = await supabase
       .from("whatsapp_envios")
@@ -340,7 +441,8 @@ export async function processarFila(supabase: SupabaseClient) {
 
     let erro: string | null = null;
     try {
-      await enviarTexto(envio.telefone, envio.mensagem);
+      if (video) await enviarVideo(envio.telefone, video, envio.mensagem);
+      else await enviarTexto(envio.telefone, envio.mensagem);
       enviados++;
     } catch (e) {
       erro = e instanceof Error ? e.message : String(e);
@@ -352,6 +454,14 @@ export async function processarFila(supabase: SupabaseClient) {
       .eq("id", envio.id);
   }
   return { vencidos: vencidos?.length ?? 0, enviados };
+}
+
+async function cancelarEnvio(supabase: SupabaseClient, id: string, motivo: string) {
+  await supabase
+    .from("whatsapp_envios")
+    .update({ status: "cancelado", erro: motivo })
+    .eq("id", id)
+    .eq("status", "pendente");
 }
 
 // ─── Lead respondeu -> "Conversando" ─────────────────────────────────────────
@@ -434,6 +544,20 @@ export async function moverLeadsQueResponderam(supabase: SupabaseClient, payload
       .filter((c): c is string => !!c),
   );
   if (chaves.size === 0) return 0;
+
+  // Lead que respondeu sai da cadência, esteja na coluna que estiver.
+  const { data: naCadencia } = await supabase
+    .from("whatsapp_envios")
+    .select("lead_id, telefone")
+    .eq("tipo", "cadencia")
+    .eq("status", "pendente");
+  const pararam = new Set<string>();
+  for (const e of naCadencia ?? []) {
+    const chave = chaveTelefone(e.telefone ?? "");
+    if (!e.lead_id || !chave || !chaves.has(chave) || pararam.has(e.lead_id)) continue;
+    pararam.add(e.lead_id);
+    await pararCadencia(supabase, e.lead_id, "Lead respondeu");
+  }
 
   const { data: leads } = await supabase
     .from("leads")

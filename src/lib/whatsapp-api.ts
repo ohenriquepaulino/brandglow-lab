@@ -24,12 +24,21 @@ export type FollowupLeitura = {
   puxar: number;
 };
 
+export type CadenciaPasso = {
+  id: string;
+  ordem: number;
+  dia: number;
+  mensagem: string;
+  video_url: string | null;
+  ativo: boolean;
+};
+
 export type WhatsAppEnvio = {
   id: string;
   lead_id: string | null;
-  tipo: "boas_vindas" | "aviso";
+  tipo: "boas_vindas" | "aviso" | "cadencia";
   telefone: string;
-  status: "pendente" | "enviando" | "enviado" | "erro";
+  status: "pendente" | "enviando" | "enviado" | "erro" | "cancelado";
   erro: string | null;
   criado_em: string;
   enviar_em: string;
@@ -53,8 +62,12 @@ async function call<T = unknown>(body: Record<string, unknown>): Promise<T> {
 export async function apiWhatsAppGet() {
   const { data } = await call<{
     data: {
-      config: (WhatsAppConfig & AvisoConfig & { followup_resumo_ativo: boolean }) | null;
+      config:
+        | (WhatsAppConfig &
+            AvisoConfig & { followup_resumo_ativo: boolean; cadencia_ativa: boolean })
+        | null;
       envios: WhatsAppEnvio[];
+      passos: CadenciaPasso[];
       evolution_configurada: boolean;
     };
   }>({ action: "get" });
@@ -81,6 +94,28 @@ export async function apiWhatsAppDisconnect() {
 
 export async function apiWhatsAppSaveConfig(config: WhatsAppConfig) {
   await call({ action: "save_config", ...config });
+}
+
+export async function apiWhatsAppSaveCadencia(ativa: boolean, passos: CadenciaPasso[]) {
+  await call({
+    action: "save_cadencia",
+    ativa,
+    passos: passos.map((p) => ({
+      id: p.id,
+      dia: p.dia,
+      mensagem: p.mensagem,
+      video_url: p.video_url?.trim() || null,
+      ativo: p.ativo,
+    })),
+  });
+}
+
+export async function apiWhatsAppTestPasso(
+  telefone: string,
+  mensagem: string,
+  video_url: string | null,
+) {
+  await call({ action: "test_passo", telefone, mensagem, video_url: video_url?.trim() || null });
 }
 
 export async function apiWhatsAppSendTest(telefone: string, mensagem: string) {
