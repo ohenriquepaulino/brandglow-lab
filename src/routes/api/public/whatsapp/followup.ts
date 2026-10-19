@@ -2,7 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 import { enviarResumoFollowup } from "@/lib/followup.server";
 
-// Chamada pelo pg_cron 'followup-resumo' (8h de Brasília, segunda a sexta).
+// Chamada pelo pg_cron 'followup-resumo' (8h de Brasília, segunda a sexta, com
+// novas tentativas às 8h15 e 8h30; o resumo sai uma vez só por dia).
 // Autentica pelo cron_token guardado em whatsapp_config.
 export const Route = createFileRoute("/api/public/whatsapp/followup")({
   server: {
