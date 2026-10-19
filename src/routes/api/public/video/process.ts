@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 import { processarResumos } from "@/lib/video.server";
 
-// Chamada pelo pg_cron 'video-resumo' (a cada 30s, só quando há visita parada
+// Chamada pelo pg_cron 'video-resumo' (a cada minuto, só quando há visita parada
 // há 2 min sem resumo). Autentica pelo cron_token de whatsapp_config.
 export const Route = createFileRoute("/api/public/video/process")({
   server: {

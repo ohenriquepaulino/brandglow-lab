@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 import { processarFila } from "@/lib/whatsapp.server";
 
-// Chamada pelo pg_cron 'whatsapp-boas-vindas' (a cada 10s, só quando há envio
+// Chamada pelo pg_cron 'whatsapp-boas-vindas' (a cada minuto, só quando há envio
 // vencido). Autentica pelo cron_token guardado em whatsapp_config.
 export const Route = createFileRoute("/api/public/whatsapp/process")({
   server: {

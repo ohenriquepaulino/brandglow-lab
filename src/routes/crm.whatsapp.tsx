@@ -283,7 +283,7 @@ function WhatsAppContent() {
           </label>
         </div>
         <p className="mt-2 text-xs text-neutral-500">
-          Enviada alguns segundos depois que o lead se cadastra no site. Use{" "}
+          Enviada até um minuto depois do prazo abaixo, contado do cadastro no site. Use{" "}
           <code>{"{primeiro-nome}"}</code> ou <code>{"{nome}"}</code>.
         </p>
         <textarea

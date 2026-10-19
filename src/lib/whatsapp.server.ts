@@ -301,7 +301,7 @@ export async function agendarMensagensDoLead(
   }
 }
 
-/** Envia os pendentes vencidos. Chamada pelo cron a cada ~10s. */
+/** Envia os pendentes vencidos. Chamada pelo cron a cada minuto. */
 export async function processarFila(supabase: SupabaseClient) {
   // Envio que ficou "enviando" por mais de 2 min: a chamada morreu no meio.
   // Marca como erro em vez de reenviar — melhor não chegar do que chegar duas vezes.
