@@ -44,6 +44,8 @@ export type EnvioDoLink = {
   coluna: string | null;
   faturamento: string | null;
   abriu: boolean;
+  /** O lead mandou alguma mensagem depois do link. null = não deu para ler. */
+  respondeu: boolean | null;
   deu_play: boolean;
   maximo_seg: number;
 };
@@ -98,6 +100,7 @@ export async function quemRecebeuOLink(
 
   const envios: EnvioDoLink[] = [];
   for (const e of porConversa.values()) {
+    const respondeu = await respondeuDepois(e.jid, e.em);
     const chave = e.numero ? chaveTelefone(e.numero) : null;
     const lead = chave ? (leadPorChave.get(chave) ?? null) : null;
     const minhas = (sessoes ?? []).filter(
@@ -114,10 +117,28 @@ export async function quemRecebeuOLink(
       coluna: lead?.coluna ?? null,
       faturamento: lead?.faturamento ?? null,
       abriu: minhas.length > 0,
+      respondeu,
       deu_play: minhas.some((s) => s.deu_play),
       maximo_seg: Math.max(0, ...minhas.map((s) => Number(s.maximo_seg ?? 0))),
     });
   }
   envios.sort((a, b) => a.enviado_em.localeCompare(b.enviado_em));
   return { paginas, lidas, envios };
+}
+
+/** Alguma mensagem do lead (fromMe = false) nessa conversa depois de `desde`. */
+async function respondeuDepois(jid: string, desde: number): Promise<boolean | null> {
+  const r = await evo("/chat/findMessages/{instance}", {
+    method: "POST",
+    body: { where: { key: { remoteJid: jid, fromMe: false } }, page: 1, offset: 50 },
+    timeoutMs: 20_000,
+  }).catch(() => null);
+  if (!r?.ok) return null;
+  const registros: EvoJson[] = r.data?.messages?.records ?? [];
+  return registros.some(
+    (m) =>
+      !m?.key?.fromMe &&
+      m?.key?.remoteJid === jid &&
+      (timestampMs(m?.messageTimestamp) ?? 0) > desde,
+  );
 }
