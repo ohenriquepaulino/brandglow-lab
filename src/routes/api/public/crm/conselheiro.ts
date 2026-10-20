@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
-import { GeminiOcupado, conversar, listarModelos } from "@/lib/conselheiro.server";
+import { GeminiOcupado, conversar, listarModelos, textoDoStream } from "@/lib/conselheiro.server";
 
 const Imagem = z.object({
   mime: z.enum(["image/jpeg", "image/png", "image/webp"]),
@@ -11,6 +11,7 @@ const Imagem = z.object({
 const ActionSchema = z.discriminatedUnion("action", [
   z.object({
     action: z.literal("chat"),
+    stream: z.boolean().optional(),
     mensagens: z
       .array(
         z.object({
@@ -72,8 +73,13 @@ export const Route = createFileRoute("/api/public/crm/conselheiro")({
           if (!config?.instrucoes?.trim()) {
             return Response.json({ error: "Base do conselheiro vazia" }, { status: 500 });
           }
-          const resposta = await conversar(config.instrucoes, config.modelo, payload.mensagens);
-          return Response.json({ resposta });
+          const stream = await conversar(config.instrucoes, config.modelo, payload.mensagens);
+          if (payload.stream) {
+            return new Response(stream, {
+              headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" },
+            });
+          }
+          return Response.json({ resposta: await textoDoStream(stream) });
         } catch (e) {
           console.error("[conselheiro]", e);
           return Response.json(

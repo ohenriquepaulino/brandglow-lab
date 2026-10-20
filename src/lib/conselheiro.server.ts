@@ -31,11 +31,15 @@ const TEMPORARIO = /Gemini (404|429|500|503)|aborted|timeout/i;
 
 export class GeminiOcupado extends Error {}
 
+/**
+ * Abre a resposta em streaming: devolve o texto aos pedaços, conforme o Gemini
+ * escreve. A troca de modelo (reserva) só acontece antes do primeiro pedaço.
+ */
 export async function conversar(
   instrucoes: string,
   modelo: string,
   mensagens: MensagemChat[],
-): Promise<string> {
+): Promise<ReadableStream<Uint8Array>> {
   const inicio = Date.now();
   const modelos = [modelo, ...RESERVAS.filter((m) => m !== modelo)];
   for (let rodada = 0; rodada < 2; rodada++) {
@@ -44,7 +48,7 @@ export async function conversar(
       const resta = TETO_MS - (Date.now() - inicio);
       if (resta < 5_000) break;
       try {
-        return await conversarCom(instrucoes, m, mensagens, Math.min(45_000, resta));
+        return await abrirStream(instrucoes, m, mensagens, resta);
       } catch (e) {
         const erro = e instanceof Error ? e : new Error(String(e));
         if (!TEMPORARIO.test(erro.message)) throw erro;
@@ -57,42 +61,99 @@ export async function conversar(
   );
 }
 
-async function conversarCom(
+/** Lê o stream inteiro (para quem não quer a resposta aos pedaços). */
+export async function textoDoStream(stream: ReadableStream<Uint8Array>): Promise<string> {
+  return (await new Response(stream).text()).trim();
+}
+
+async function abrirStream(
   instrucoes: string,
   modelo: string,
   mensagens: MensagemChat[],
   timeoutMs: number,
-): Promise<string> {
+): Promise<ReadableStream<Uint8Array>> {
   const chave = process.env.GEMINI_API_KEY;
   if (!chave) throw new Error("GEMINI_API_KEY não configurada no projeto");
 
-  const res = await fetch(`${GEMINI_URL}/models/${encodeURIComponent(modelo)}:generateContent`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-goog-api-key": chave },
-    body: JSON.stringify({
-      systemInstruction: { parts: [{ text: `${instrucoes}\n${REGRAS_DO_CHAT}` }] },
-      contents: mensagens.map((m) => ({
-        role: m.papel,
-        parts: [
-          ...(m.imagens ?? []).map((i) => ({ inlineData: { mimeType: i.mime, data: i.base64 } })),
-          ...(m.texto.trim() ? [{ text: m.texto }] : []),
-        ],
-      })),
-      generationConfig: { temperature: 0.7 },
-    }),
-    signal: AbortSignal.timeout(timeoutMs),
-  });
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const data: any = await res.json().catch(() => ({}));
-  if (!res.ok) {
+  const pedir = (pensarPouco: boolean) =>
+    fetch(`${GEMINI_URL}/models/${encodeURIComponent(modelo)}:streamGenerateContent?alt=sse`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-goog-api-key": chave },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: `${instrucoes}\n${REGRAS_DO_CHAT}` }] },
+        contents: mensagens.map((m) => ({
+          role: m.papel,
+          parts: [
+            ...(m.imagens ?? []).map((i) => ({
+              inlineData: { mimeType: i.mime, data: i.base64 },
+            })),
+            ...(m.texto.trim() ? [{ text: m.texto }] : []),
+          ],
+        })),
+        generationConfig: {
+          temperature: 0.7,
+          // Raciocínio curto: o pedido é simples e a demora vinha daqui.
+          ...(pensarPouco ? { thinkingConfig: { thinkingLevel: "low" } } : {}),
+        },
+      }),
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+
+  let res = await pedir(true);
+  if (res.status === 400) {
+    // Modelo que não aceita thinkingLevel: pede de novo sem ele.
+    const corpo = await res.text();
+    if (!/thinking/i.test(corpo)) throw new Error(`Gemini 400: ${corpo.slice(0, 300)}`);
+    res = await pedir(false);
+  }
+  if (!res.ok || !res.body) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const data: any = await res.json().catch(() => ({}));
     throw new Error(`Gemini ${res.status}: ${String(data?.error?.message ?? "").slice(0, 300)}`);
   }
-  const texto = (data?.candidates?.[0]?.content?.parts ?? [])
-    .map((p: { text?: string }) => p.text ?? "")
-    .join("")
-    .trim();
-  if (!texto) throw new Error("O Gemini não devolveu resposta. Tente reformular.");
-  return texto;
+
+  // SSE do Gemini ("data: {json}") -> só o texto, sem as partes de raciocínio.
+  const leitor = res.body.pipeThrough(new TextDecoderStream()).getReader();
+  const codificador = new TextEncoder();
+  let resto = "";
+  let algum = false;
+  return new ReadableStream<Uint8Array>({
+    async pull(controle) {
+      for (;;) {
+        const { value, done } = await leitor.read();
+        if (done) {
+          if (!algum)
+            controle.enqueue(codificador.encode("O Gemini não devolveu resposta. Tente de novo."));
+          controle.close();
+          return;
+        }
+        resto += value;
+        const linhas = resto.split("\n");
+        resto = linhas.pop() ?? "";
+        let saiu = "";
+        for (const linha of linhas) {
+          if (!linha.startsWith("data:")) continue;
+          try {
+            const json = JSON.parse(linha.slice(5));
+            for (const parte of json?.candidates?.[0]?.content?.parts ?? []) {
+              if (parte?.thought || typeof parte?.text !== "string") continue;
+              saiu += parte.text;
+            }
+          } catch {
+            /* linha incompleta: ignora */
+          }
+        }
+        if (saiu) {
+          algum = true;
+          controle.enqueue(codificador.encode(saiu));
+          return;
+        }
+      }
+    },
+    cancel() {
+      void leitor.cancel();
+    },
+  });
 }
 
 /** Modelos disponíveis para a chave (para escolher o melhor no banco). */

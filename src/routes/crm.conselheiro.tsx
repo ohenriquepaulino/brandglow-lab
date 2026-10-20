@@ -61,12 +61,14 @@ async function prepararImagem(arquivo: File): Promise<Imagem> {
   }
 }
 
-async function perguntar(msgs: Msg[]): Promise<string> {
+/** Pede a resposta em streaming; aoReceber recebe o texto acumulado a cada pedaço. */
+async function perguntar(msgs: Msg[], aoReceber: (parcial: string) => void): Promise<string> {
   const res = await fetch("/api/public/crm/conselheiro", {
     method: "POST",
     headers: { "Content-Type": "application/json", "x-crm-token": CRM_PASS },
     body: JSON.stringify({
       action: "chat",
+      stream: true,
       mensagens: msgs.slice(-CONTEXTO).map((m) => ({
         papel: m.papel,
         texto:
@@ -80,9 +82,20 @@ async function perguntar(msgs: Msg[]): Promise<string> {
       })),
     }),
   });
-  const json = (await res.json().catch(() => ({}))) as { resposta?: string; error?: string };
-  if (!res.ok || !json.resposta) throw new Error(json.error || `Erro ${res.status}`);
-  return json.resposta;
+  if (!res.ok || !res.body) {
+    const json = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(json.error || `Erro ${res.status}`);
+  }
+  const leitor = res.body.pipeThrough(new TextDecoderStream()).getReader();
+  let texto = "";
+  for (;;) {
+    const { value, done } = await leitor.read();
+    if (done) break;
+    texto += value;
+    aoReceber(texto);
+  }
+  if (!texto.trim()) throw new Error("O Gemini não devolveu resposta. Tente de novo.");
+  return texto.trim();
 }
 
 function ConselheiroPage() {
@@ -414,13 +427,20 @@ function Chat() {
   async function responder(lista: Msg[]) {
     setErro(null);
     setPensando(true);
+    // A resposta entra como mensagem assim que chega o primeiro pedaço e vai
+    // crescendo; a lista enviada (com os prints) fica intacta até lá.
+    const comResposta = (parcial: string) => [
+      ...lista.map(({ imagens: i, ...m }) => ({ ...m, qtdImagens: m.qtdImagens ?? i?.length })),
+      { papel: "model" as const, texto: parcial },
+    ];
     try {
-      const resposta = await perguntar(lista);
-      setMsgs((atual) => [
-        ...atual.map(({ imagens: i, ...m }) => ({ ...m, qtdImagens: m.qtdImagens ?? i?.length })),
-        { papel: "model", texto: resposta },
-      ]);
+      const resposta = await perguntar(lista, (parcial) => {
+        setPensando(false);
+        setMsgs(comResposta(parcial));
+      });
+      setMsgs(comResposta(resposta));
     } catch (e) {
+      setMsgs(lista);
       setErro(e instanceof Error ? e.message : String(e));
     }
     setPensando(false);
@@ -655,7 +675,10 @@ function Bolha({ msg }: { msg: Msg }) {
     );
   }
   // Blocos ``` são as mensagens prontas para o lead: viram cartões com "Copiar".
-  const partes = msg.texto.split(/```(?:[a-z]*)\n?([\s\S]*?)```/g);
+  // Enquanto a resposta chega, um bloco ``` pode estar aberto: fecha para exibir.
+  const abertos = (msg.texto.match(/```/g) ?? []).length;
+  const textoExibido = abertos % 2 === 1 ? msg.texto + "\n```" : msg.texto;
+  const partes = textoExibido.split(/```(?:[a-z]*)\n?([\s\S]*?)```/g);
   return (
     <div className="max-w-[92%] space-y-3 text-sm text-neutral-800">
       {partes.map((p, i) =>
