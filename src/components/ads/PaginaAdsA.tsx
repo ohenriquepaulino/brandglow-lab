@@ -103,7 +103,7 @@ function AdsSlider() {
   useEffect(() => {
     if (!visivel) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const id = window.setTimeout(() => irPara(index + 1), 4000);
+    const id = window.setTimeout(() => irPara(index + 1), 2000);
     return () => window.clearTimeout(id);
   }, [visivel, index]);
 

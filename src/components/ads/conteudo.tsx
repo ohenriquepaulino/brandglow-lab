@@ -93,7 +93,7 @@ export const ENTREGAS = [
   "Todos os arquivos",
 ];
 
-const INTERVALO_MS = 1800;
+const INTERVALO_MS = 2000;
 
 /**
  * Imagens do case trocando sozinhas a cada 1,8 s. Para carregar rápido: só a
