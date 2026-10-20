@@ -4,6 +4,7 @@ import { ContactSection } from "@/components/site/ContactSection";
 import { PrivacyButton } from "@/components/site/PrivacyDialog";
 import { useAbVisit, type Variante } from "@/lib/ab";
 import { useStickyCta } from "@/lib/useStickyCta";
+import { CASES, CaseCarousel, ENTREGAS, ETAPAS, FLUXO } from "@/components/ads/conteudo";
 import img308OutBanner from "@/assets/308-network/308-network-out-banner.webp.asset.json";
 import imgMoewaPosterManifesto from "@/assets/ads/moewa-poster-manifesto.webp.asset.json";
 import imgGeri from "@/assets/geriacademy/geriacademy-page-0060.webp.asset.json";
@@ -275,6 +276,62 @@ export function PaginaAdsA({
           </div>
         </section>
 
+        {/* O que fazemos (vindo da /adsb, no visual da A) */}
+        <section className="ads-section ads-section-dark">
+          <div className="ads-container">
+            <Label>O QUE FAZEMOS</Label>
+            <h2 className="ads-h2">
+              Estratégia de marca e <strong>identidade visual</strong>
+            </h2>
+            <p className="ads-body ads-measure ads-promise">
+              Primeiro definimos <strong>como sua marca se posiciona</strong>, o que ela fala e o
+              que a diferencia. Só depois isso vira logo, cor e tipografia.
+            </p>
+            <div className="ads-flow">
+              {FLUXO.map(([k, v]) => (
+                <div key={v}>
+                  <small>{k}</small>
+                  <b>{v}</b>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Portfólio */}
+        <section className="ads-section">
+          <div className="ads-container">
+            <Label>PORTFÓLIO</Label>
+            <h2 className="ads-h2">
+              Marcas que <strong>construímos</strong>
+            </h2>
+            <div className="ads-cases">
+              {CASES.map((c) => (
+                <article key={c.nome} className="ads-case">
+                  <CaseCarousel
+                    imgs={c.imgs}
+                    nome={c.nome}
+                    eager={false}
+                    className="ads-carousel"
+                    dotsClassName="ads-slider-dots ads-carousel-dots"
+                  />
+                  <div className="ads-case-txt">
+                    <p className="ads-label ads-case-seg">{c.seg}</p>
+                    <p className="ads-h3 ads-case-nome">{c.nome}</p>
+                    <p className="ads-case-antes">Antes: {c.antes}</p>
+                    <p className="ads-body">{c.depois}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+            <div className="ads-cta-row">
+              <a href="#formulario" className="ads-cta">
+                Quero conversar sobre o projeto
+              </a>
+            </div>
+          </div>
+        </section>
+
         {/* Sobre */}
         <section className="ads-section">
           <div className="ads-container ads-about">
@@ -326,6 +383,43 @@ export function PaginaAdsA({
                 Quero conversar sobre o projeto
               </a>
             </div>
+          </div>
+        </section>
+
+        {/* Como trabalhamos */}
+        <section className="ads-section">
+          <div className="ads-container">
+            <Label>COMO TRABALHAMOS</Label>
+            <h2 className="ads-h2">
+              Da pesquisa à <strong>entrega final</strong>
+            </h2>
+            <ol className="ads-timeline">
+              {ETAPAS.map((e, i) => (
+                <li key={e.t} className={i === 2 ? "hot" : ""}>
+                  <span className="ads-timeline-sem">{e.sem}</span>
+                  <p className="ads-h3">{e.t}</p>
+                  <p className="ads-body ads-secondary">{e.d}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        {/* O que você recebe */}
+        <section className="ads-section ads-section-white">
+          <div className="ads-container">
+            <Label>O QUE VOCÊ RECEBE</Label>
+            <h2 className="ads-h2">
+              Oito entregas que formam a <strong>sua marca</strong>
+            </h2>
+            <ol className="ads-dl">
+              {ENTREGAS.map((t, i) => (
+                <li key={t}>
+                  <span>{String(i + 1).padStart(2, "0")}</span>
+                  <b>{t}</b>
+                </li>
+              ))}
+            </ol>
           </div>
         </section>
 
@@ -485,6 +579,66 @@ export function PaginaAdsA({
         .ads-step-num { display: block; color: #D75631; font-size: 28px; font-weight: 600; letter-spacing: -0.03em; margin-bottom: 8px; }
         .ads-steps .ads-h3 { font-weight: 600; margin-bottom: 4px; }
 
+        /* o que fazemos */
+        .ads-section-dark .ads-promise { color: rgba(244,242,239,0.75); }
+        .ads-section-dark .ads-promise strong { color: #F4F2EF; }
+        .ads-flow {
+          display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 40px;
+          border-top: 1px solid rgba(244,242,239,0.14);
+        }
+        .ads-flow div { padding: 18px 12px; border-bottom: 1px solid rgba(244,242,239,0.14); }
+        .ads-flow div:nth-child(even) { border-left: 1px solid rgba(244,242,239,0.14); }
+        .ads-flow small {
+          display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
+          color: rgba(244,242,239,0.5); margin-bottom: 6px;
+        }
+        .ads-flow b { font-size: 20px; font-weight: 600; line-height: 1.15; letter-spacing: -0.03em; }
+        .ads-flow div:last-child b { color: #D75631; }
+
+        /* portfólio */
+        .ads-cases { display: grid; gap: 16px; }
+        .ads-case {
+          background: #FFFFFF; border: 1px solid rgba(18,17,16,0.08); border-radius: 12px;
+          overflow: hidden;
+        }
+        .ads-carousel { position: relative; aspect-ratio: 16/10; background: #E8E5E0; overflow: hidden; }
+        .ads-carousel img {
+          position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block;
+          transition: opacity 350ms ease;
+        }
+        .ads-carousel-dots { position: absolute; left: 12px; bottom: 10px; margin: 0; }
+        .ads-carousel-dots i { box-shadow: 0 0 0 1px rgba(18,17,16,0.12); }
+        .ads-case-txt { padding: 20px; }
+        .ads-case-seg { margin-bottom: 6px; }
+        .ads-case-nome { font-weight: 600; font-size: 24px; margin-bottom: 10px; }
+        .ads-case-antes {
+          font-size: 14px; color: rgba(18,17,16,0.5); margin: 0 0 4px;
+          text-decoration: line-through; text-decoration-color: rgba(18,17,16,0.3);
+        }
+
+        /* como trabalhamos */
+        .ads-timeline { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+        .ads-timeline li {
+          background: #FFFFFF; border: 1px solid rgba(18,17,16,0.08); border-radius: 12px;
+          border-top: 4px solid rgba(18,17,16,0.12); padding: 20px;
+        }
+        .ads-timeline li.hot { border-top-color: #D75631; }
+        .ads-timeline-sem {
+          display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
+          color: #D75631; margin-bottom: 6px;
+        }
+        .ads-timeline .ads-h3 { font-weight: 600; margin-bottom: 4px; }
+
+        /* o que você recebe */
+        .ads-section-white { background: #FFFFFF; }
+        .ads-dl {
+          list-style: none; padding: 0; margin: 0; display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid rgba(18,17,16,0.15);
+        }
+        .ads-dl li { padding: 16px 12px; border-bottom: 1px solid rgba(18,17,16,0.1); }
+        .ads-dl span { display: block; font-size: 13px; font-weight: 600; color: #D75631; margin-bottom: 4px; }
+        .ads-dl b { font-size: 16px; font-weight: 600; line-height: 1.25; letter-spacing: -0.02em; }
+
         .ads-slider-cap {
           position: absolute; left: 0; right: 0; bottom: 0; padding: 48px 24px 18px;
           background: linear-gradient(to top, rgba(18,17,16,0.75), rgba(18,17,16,0));
@@ -530,7 +684,7 @@ export function PaginaAdsA({
         }
         .ads-sticky.on { transform: none; }
         @media (prefers-reduced-motion: reduce) {
-          .ads-sticky, .ads-slider img, .ads-slider-dots i { transition: none; }
+          .ads-sticky, .ads-slider img, .ads-slider-dots i, .ads-carousel img { transition: none; }
         }
         .ads-fullbleed { width: 100%; }
         .ads-slider { position: relative; width: 100%; height: 320px; background: #121110; overflow: hidden; }
@@ -639,6 +793,15 @@ export function PaginaAdsA({
           .ads-shot { margin-bottom: 0; }
           .ads-shot-link { margin-bottom: 24px; display: inline-block; width: 100%; }
           .ads-steps { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+          .ads-flow { grid-template-columns: repeat(4, 1fr); }
+          .ads-flow div, .ads-flow div:nth-child(even) {
+            padding: 22px 24px; border-bottom: 0; border-left: 1px solid rgba(244,242,239,0.14);
+          }
+          .ads-flow div:first-child { border-left: 0; padding-left: 0; }
+          .ads-cases { grid-template-columns: 1fr 1fr; gap: 24px; }
+          .ads-timeline { grid-template-columns: 1fr 1fr 1.6fr 1fr; gap: 16px; }
+          .ads-dl { grid-template-columns: repeat(4, 1fr); column-gap: 24px; }
+          .ads-dl li { padding-left: 0; }
           .ads-cta { width: auto; }
           .ads-footer { padding-bottom: 24px; }
           .ads-footer-row { flex-direction: row; justify-content: space-between; }
@@ -679,6 +842,9 @@ export function PaginaAdsA({
           }
           .ads-slider-cap { padding-inline: 80px; }
           .ads-steps li { padding: 28px; }
+          .ads-flow b { font-size: 28px; }
+          .ads-case-txt { padding: 28px; }
+          .ads-timeline li { padding: 28px; }
         }
       `}</style>
     </div>

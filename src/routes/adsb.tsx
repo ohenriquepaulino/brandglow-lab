@@ -1,28 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
 import { ContactSection } from "@/components/site/ContactSection";
 import { PrivacyButton } from "@/components/site/PrivacyDialog";
 import { useAbVisit } from "@/lib/ab";
 import { useStickyCta } from "@/lib/useStickyCta";
-import n308Banner from "@/assets/308-network/308-network-out-banner.webp.asset.json";
-import n308Correndo from "@/assets/308-network/308-network-308-foto-correndo.webp.asset.json";
-import n308Metro from "@/assets/308-network/308-network-banner-metro-moema.webp.asset.json";
-import n308Bone from "@/assets/308-network/308-network-bone-e-moletom-juntos.webp.asset.json";
-import n308Cartao from "@/assets/308-network/308-network-cartao-de-visitas.webp.asset.json";
-import n308Site from "@/assets/308-network/308-network-site-tela-pc.webp.asset.json";
-import moewaPoster from "@/assets/ads/moewa-poster-manifesto.webp.asset.json";
-import geri60 from "@/assets/geriacademy/geriacademy-page-0060.webp.asset.json";
-import geri44 from "@/assets/geriacademy/geriacademy-page-0044.webp.asset.json";
-import geri49 from "@/assets/geriacademy/geriacademy-page-0049.webp.asset.json";
-import geri53 from "@/assets/geriacademy/geriacademy-page-0053.webp.asset.json";
-import geri54 from "@/assets/geriacademy/geriacademy-page-0054.webp.asset.json";
-import geri57 from "@/assets/geriacademy/geriacademy-page-0057.webp.asset.json";
-import joanaQuote from "@/assets/joana-ulmer/joana-ulmer-billboard-quote.webp.asset.json";
-import joanaBag from "@/assets/joana-ulmer/joana-ulmer-bag.webp.asset.json";
-import joanaEvent from "@/assets/joana-ulmer/joana-ulmer-billboard-event.webp.asset.json";
-import joanaHoodies from "@/assets/joana-ulmer/joana-ulmer-hoodies.webp.asset.json";
-import joanaLaptop from "@/assets/joana-ulmer/joana-ulmer-laptop.webp.asset.json";
-import joanaPhone from "@/assets/joana-ulmer/joana-ulmer-phone.webp.asset.json";
+import { CASES, CaseCarousel, ENTREGAS, ETAPAS, FLUXO } from "@/components/ads/conteudo";
 import print1 from "@/assets/ads/IMG_1693.webp.asset.json";
 import print2 from "@/assets/ads/IMG_1694.webp.asset.json";
 import print3 from "@/assets/ads/IMG_1695.webp.asset.json";
@@ -97,77 +78,12 @@ const PASSOS = [
   },
 ];
 
-// MOEWA: os assets originais têm 2 MB cada; as versões da proposta são leves.
-const MOEWA = (f: string) => `/proposta/cases/moewa/moewa-${f}.jpg`;
-
-const CASES = [
-  {
-    imgs: [n308Banner, n308Correndo, n308Metro, n308Bone, n308Cartao, n308Site].map((a) => a.url),
-    nome: "308NETWORK",
-    seg: "Decisões patrimoniais",
-    antes: "Imobiliária tradicional",
-    depois: "Referência em decisões patrimoniais inteligentes, pronta para expandir.",
-  },
-  {
-    imgs: [
-      moewaPoster.url,
-      MOEWA("clube-card"),
-      MOEWA("uniform"),
-      MOEWA("wellness-shot"),
-      MOEWA("sacola"),
-      MOEWA("cartao"),
-    ],
-    nome: "MOEWA",
-    seg: "Estética e longevidade",
-    antes: "Mais uma clínica de estética",
-    depois: "Um ecossistema de alto valor: a única rosa branca num mar de rosas vermelhas.",
-  },
-  {
-    imgs: [geri60, geri44, geri49, geri53, geri54, geri57].map((a) => a.url),
-    nome: "Geriacademy",
-    seg: "Educação médica",
-    antes: "Cursos de geriatria",
-    depois: "Uma instituição que lidera um movimento de valorização da saúde do idoso.",
-  },
-  {
-    imgs: [joanaQuote, joanaBag, joanaEvent, joanaHoodies, joanaLaptop, joanaPhone].map(
-      (a) => a.url,
-    ),
-    nome: "Joana co*",
-    seg: "Educação financeira",
-    antes: "Marca pessoal sem direção",
-    depois: "Um posicionamento que cabe numa pergunta: quanto você investiria na sua paz?",
-  },
-];
-
 const DEPOIMENTOS = [
   { src: print1.url, w: 900, h: 1314, alt: "Mensagem de cliente elogiando o projeto" },
   { src: print4.url, w: 900, h: 495, alt: "Mensagem de cliente sobre identidade visual" },
   { src: print2.url, w: 900, h: 1035, alt: "Mensagem de cliente sobre o resultado" },
   { src: print5.url, w: 900, h: 722, alt: "Mensagem de cliente elogiando o trabalho" },
   { src: print3.url, w: 900, h: 329, alt: "Mensagem de cliente sobre expectativas superadas" },
-];
-
-const ETAPAS = [
-  {
-    sem: "Semana 1",
-    t: "Pesquisa",
-    d: "Você responde o Legacy Brand Canvas e fazemos as calls de alinhamento.",
-  },
-  { sem: "Semana 2", t: "Moodboard", d: "A direção visual da sua marca." },
-  { sem: "Semanas 3 a 5", t: "Criação", d: "Testes, validação e apresentação da identidade." },
-  { sem: "Semana 6", t: "Entrega", d: "Todos os arquivos organizados no Google Drive." },
-];
-
-const ENTREGAS = [
-  "Narrativa da marca",
-  "Logotipo e suas versões",
-  "Elementos visuais",
-  "Paleta de cores",
-  "Tipografia da marca",
-  "Aplicações no dia a dia",
-  "Identidade do Instagram",
-  "Todos os arquivos",
 ];
 
 const FAQ = [
@@ -223,74 +139,6 @@ function Cta({ href = "#formulario", children = "Quero conversar sobre o projeto
     <a href={href} className="b-cta">
       {children}
     </a>
-  );
-}
-
-const INTERVALO_MS = 1800;
-
-/**
- * Imagens do case trocando sozinhas a cada 1,8 s. Para carregar rápido: só a
- * primeira vem com a página; as outras são baixadas uma a uma, só com o card
- * perto da tela, e a troca só acontece depois que a próxima já decodificou.
- */
-function CaseCarousel({ imgs, nome, eager }: { imgs: string[]; nome: string; eager: boolean }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [idx, setIdx] = useState(0);
-  const [montadas, setMontadas] = useState(1);
-  const [visivel, setVisivel] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const io = new IntersectionObserver(([e]) => setVisivel(e.isIntersecting), {
-      rootMargin: "200px 0px",
-    });
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (!visivel || imgs.length < 2) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const prox = (idx + 1) % imgs.length;
-    let cancelado = false;
-    const pre = new Image();
-    pre.src = imgs[prox]!;
-    const pronta = pre.decode().catch(() => undefined);
-    const t = window.setTimeout(() => {
-      void pronta.then(() => {
-        if (cancelado) return;
-        setMontadas((m) => Math.max(m, prox + 1));
-        setIdx(prox);
-      });
-    }, INTERVALO_MS);
-    return () => {
-      cancelado = true;
-      window.clearTimeout(t);
-    };
-  }, [visivel, idx, imgs]);
-
-  return (
-    <div className="b-carousel" ref={ref}>
-      {imgs.slice(0, montadas).map((src, i) => (
-        <img
-          key={src}
-          src={src}
-          alt={i === 0 ? `Identidade visual ${nome}` : ""}
-          aria-hidden={i === 0 ? undefined : true}
-          width={1600}
-          height={900}
-          loading={eager && i === 0 ? "eager" : "lazy"}
-          decoding="async"
-          style={{ opacity: i === idx ? 1 : 0 }}
-        />
-      ))}
-      <div className="b-dots" aria-hidden="true">
-        {imgs.map((src, i) => (
-          <i key={src} className={i === idx ? "on" : ""} />
-        ))}
-      </div>
-    </div>
   );
 }
 
@@ -357,12 +205,7 @@ function AdsBPage() {
             a diferencia. Só depois isso vira logo, cor e tipografia.
           </p>
           <div className="b-flow">
-            {[
-              ["Estratégia", "Posicionamento"],
-              ["Estratégia", "Base de comunicação"],
-              ["Estratégia", "Diferencial"],
-              ["Resultado", "Identidade de alto padrão"],
-            ].map(([k, v]) => (
+            {FLUXO.map(([k, v]) => (
               <div key={v}>
                 <small>{k}</small>
                 <b>{v}</b>
@@ -380,7 +223,13 @@ function AdsBPage() {
           <div className="b-cases">
             {CASES.map((c, i) => (
               <article key={c.nome} className="b-case">
-                <CaseCarousel imgs={c.imgs} nome={c.nome} eager={i === 0} />
+                <CaseCarousel
+                  imgs={c.imgs}
+                  nome={c.nome}
+                  eager={i === 0}
+                  className="b-carousel"
+                  dotsClassName="b-dots"
+                />
                 <div className="b-case-txt">
                   <p className="b-case-seg">{c.seg}</p>
                   <h3 className="b-d">{c.nome}</h3>
