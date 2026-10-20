@@ -17,7 +17,29 @@ Regras do chat:
 - Informações marcadas como [CONFIRMAR] na base não estão confirmadas: não as afirme ao lead como certas sem avisar quem está usando o chat.
 `;
 
+// Se o modelo escolhido estiver sobrecarregado (503), sem cota (429) ou fora
+// do ar (404), tenta os de reserva na ordem.
+const RESERVAS = ["gemini-flash-latest", "gemini-3.5-flash"];
+
 export async function conversar(
+  instrucoes: string,
+  modelo: string,
+  mensagens: MensagemChat[],
+): Promise<string> {
+  const modelos = [modelo, ...RESERVAS.filter((m) => m !== modelo)];
+  let ultimoErro: Error | null = null;
+  for (const m of modelos) {
+    try {
+      return await conversarCom(instrucoes, m, mensagens);
+    } catch (e) {
+      ultimoErro = e instanceof Error ? e : new Error(String(e));
+      if (!/Gemini (404|429|500|503)/.test(ultimoErro.message)) throw ultimoErro;
+    }
+  }
+  throw ultimoErro ?? new Error("Nenhum modelo respondeu");
+}
+
+async function conversarCom(
   instrucoes: string,
   modelo: string,
   mensagens: MensagemChat[],

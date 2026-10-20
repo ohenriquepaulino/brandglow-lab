@@ -6,7 +6,7 @@
 CREATE TABLE public.conselheiro_config (
   id          int PRIMARY KEY DEFAULT 1 CHECK (id = 1),
   instrucoes  text NOT NULL DEFAULT '',
-  modelo      text NOT NULL DEFAULT 'gemini-2.5-flash',
+  modelo      text NOT NULL DEFAULT 'gemini-3.8-flash',
   updated_at  timestamptz NOT NULL DEFAULT now()
 );
 INSERT INTO public.conselheiro_config (id) VALUES (1) ON CONFLICT (id) DO NOTHING;
