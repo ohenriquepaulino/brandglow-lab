@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
-import { conversar, listarModelos } from "@/lib/conselheiro.server";
+import { GeminiOcupado, conversar, listarModelos } from "@/lib/conselheiro.server";
 
 const Imagem = z.object({
   mime: z.enum(["image/jpeg", "image/png", "image/webp"]),
@@ -78,7 +78,7 @@ export const Route = createFileRoute("/api/public/crm/conselheiro")({
           console.error("[conselheiro]", e);
           return Response.json(
             { error: e instanceof Error ? e.message : String(e) },
-            { status: 502 },
+            { status: e instanceof GeminiOcupado ? 503 : 502 },
           );
         }
       },

@@ -17,32 +17,51 @@ Regras do chat:
 - Informações marcadas como [CONFIRMAR] na base não estão confirmadas: não as afirme ao lead como certas sem avisar quem está usando o chat.
 `;
 
-// Se o modelo escolhido estiver sobrecarregado (503), sem cota (429) ou fora
-// do ar (404), tenta os de reserva na ordem.
-const RESERVAS = ["gemini-flash-latest", "gemini-3.5-flash"];
+// No plano gratuito, os modelos do Gemini às vezes ficam sobrecarregados (503)
+// ou sem cota (429). Tenta o escolhido e os de reserva; se todos falharem,
+// espera um pouco e faz uma segunda rodada, dentro de um teto de tempo.
+const RESERVAS = [
+  "gemini-flash-latest",
+  "gemini-3.5-flash",
+  "gemini-3.1-flash-lite",
+  "gemini-flash-lite-latest",
+];
+const TETO_MS = 100_000;
+const TEMPORARIO = /Gemini (404|429|500|503)|aborted|timeout/i;
+
+export class GeminiOcupado extends Error {}
 
 export async function conversar(
   instrucoes: string,
   modelo: string,
   mensagens: MensagemChat[],
 ): Promise<string> {
+  const inicio = Date.now();
   const modelos = [modelo, ...RESERVAS.filter((m) => m !== modelo)];
-  let ultimoErro: Error | null = null;
-  for (const m of modelos) {
-    try {
-      return await conversarCom(instrucoes, m, mensagens);
-    } catch (e) {
-      ultimoErro = e instanceof Error ? e : new Error(String(e));
-      if (!/Gemini (404|429|500|503)/.test(ultimoErro.message)) throw ultimoErro;
+  for (let rodada = 0; rodada < 2; rodada++) {
+    if (rodada > 0) await new Promise((r) => setTimeout(r, 3_000));
+    for (const m of modelos) {
+      const resta = TETO_MS - (Date.now() - inicio);
+      if (resta < 5_000) break;
+      try {
+        return await conversarCom(instrucoes, m, mensagens, Math.min(45_000, resta));
+      } catch (e) {
+        const erro = e instanceof Error ? e : new Error(String(e));
+        if (!TEMPORARIO.test(erro.message)) throw erro;
+        console.warn("[conselheiro]", m, erro.message.slice(0, 120));
+      }
     }
   }
-  throw ultimoErro ?? new Error("Nenhum modelo respondeu");
+  throw new GeminiOcupado(
+    "O Gemini está sobrecarregado agora. Espere um minuto e clique em Tentar de novo.",
+  );
 }
 
 async function conversarCom(
   instrucoes: string,
   modelo: string,
   mensagens: MensagemChat[],
+  timeoutMs: number,
 ): Promise<string> {
   const chave = process.env.GEMINI_API_KEY;
   if (!chave) throw new Error("GEMINI_API_KEY não configurada no projeto");
@@ -61,7 +80,7 @@ async function conversarCom(
       })),
       generationConfig: { temperature: 0.7 },
     }),
-    signal: AbortSignal.timeout(90_000),
+    signal: AbortSignal.timeout(timeoutMs),
   });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const data: any = await res.json().catch(() => ({}));

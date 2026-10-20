@@ -69,7 +69,13 @@ async function perguntar(msgs: Msg[]): Promise<string> {
       action: "chat",
       mensagens: msgs.slice(-CONTEXTO).map((m) => ({
         papel: m.papel,
-        texto: m.texto || (m.qtdImagens ? "[print enviado antes]" : ""),
+        texto:
+          m.texto ||
+          (m.imagens?.length
+            ? "Me ajuda a responder esse lead com base nesse print da conversa."
+            : m.qtdImagens
+              ? "[print enviado antes]"
+              : ""),
         ...(m.imagens?.length ? { imagens: m.imagens } : {}),
       })),
     }),
@@ -400,8 +406,13 @@ function Chat() {
     setMsgs(lista);
     setTexto("");
     setImagens([]);
-    setErro(null);
     setGuia(null);
+    await responder(lista);
+  }
+
+  /** Pede a resposta para a conversa dada (a última mensagem é do usuário). */
+  async function responder(lista: Msg[]) {
+    setErro(null);
     setPensando(true);
     try {
       const resposta = await perguntar(lista);
@@ -479,9 +490,18 @@ function Chat() {
             </div>
           )}
           {erro && (
-            <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
-              Não consegui responder: {erro}
-            </p>
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+              <span>{erro.startsWith("Gemini") ? `Não consegui responder: ${erro}` : erro}</span>
+              {msgs.at(-1)?.papel === "user" && !pensando && (
+                <button
+                  type="button"
+                  onClick={() => void responder(msgs)}
+                  className="rounded-md border border-red-200 bg-white px-2.5 py-1 text-xs font-medium text-red-700 hover:bg-red-50"
+                >
+                  Tentar de novo
+                </button>
+              )}
+            </div>
           )}
           <div ref={fimRef} />
         </div>
