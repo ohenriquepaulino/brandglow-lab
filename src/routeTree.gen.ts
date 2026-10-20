@@ -30,6 +30,7 @@ import { Route as CrmTarefasRouteImport } from './routes/crm.tarefas'
 import { Route as CrmKanbanRouteImport } from './routes/crm.kanban'
 import { Route as CrmGravadorRouteImport } from './routes/crm.gravador'
 import { Route as CrmDashboardRouteImport } from './routes/crm.dashboard'
+import { Route as CrmConselheiroRouteImport } from './routes/crm.conselheiro'
 import { Route as CrmAbRouteImport } from './routes/crm.ab'
 import { Route as CasesSlugRouteImport } from './routes/cases.$slug'
 import { Route as CrmPropostasIndexRouteImport } from './routes/crm.propostas.index'
@@ -51,6 +52,7 @@ import { Route as ApiPublicCrmVideosRouteImport } from './routes/api/public/crm/
 import { Route as ApiPublicCrmTasksRouteImport } from './routes/api/public/crm/tasks'
 import { Route as ApiPublicCrmProposalsRouteImport } from './routes/api/public/crm/proposals'
 import { Route as ApiPublicCrmDataRouteImport } from './routes/api/public/crm/data'
+import { Route as ApiPublicCrmConselheiroRouteImport } from './routes/api/public/crm/conselheiro'
 import { Route as ApiPublicCrmAbRouteImport } from './routes/api/public/crm/ab'
 import { Route as ApiPublicAbVisitRouteImport } from './routes/api/public/ab/visit'
 
@@ -157,6 +159,11 @@ const CrmGravadorRoute = CrmGravadorRouteImport.update({
 const CrmDashboardRoute = CrmDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => CrmRoute,
+} as any)
+const CrmConselheiroRoute = CrmConselheiroRouteImport.update({
+  id: '/conselheiro',
+  path: '/conselheiro',
   getParentRoute: () => CrmRoute,
 } as any)
 const CrmAbRoute = CrmAbRouteImport.update({
@@ -271,6 +278,11 @@ const ApiPublicCrmDataRoute = ApiPublicCrmDataRouteImport.update({
   path: '/api/public/crm/data',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCrmConselheiroRoute = ApiPublicCrmConselheiroRouteImport.update({
+  id: '/api/public/crm/conselheiro',
+  path: '/api/public/crm/conselheiro',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicCrmAbRoute = ApiPublicCrmAbRouteImport.update({
   id: '/api/public/crm/ab',
   path: '/api/public/crm/ab',
@@ -295,6 +307,7 @@ export interface FileRoutesByFullPath {
   '/whatsapp': typeof WhatsappRoute
   '/cases/$slug': typeof CasesSlugRoute
   '/crm/ab': typeof CrmAbRoute
+  '/crm/conselheiro': typeof CrmConselheiroRoute
   '/crm/dashboard': typeof CrmDashboardRoute
   '/crm/gravador': typeof CrmGravadorRoute
   '/crm/kanban': typeof CrmKanbanRoute
@@ -312,6 +325,7 @@ export interface FileRoutesByFullPath {
   '/crm/propostas/': typeof CrmPropostasIndexRoute
   '/api/public/ab/visit': typeof ApiPublicAbVisitRoute
   '/api/public/crm/ab': typeof ApiPublicCrmAbRoute
+  '/api/public/crm/conselheiro': typeof ApiPublicCrmConselheiroRoute
   '/api/public/crm/data': typeof ApiPublicCrmDataRoute
   '/api/public/crm/proposals': typeof ApiPublicCrmProposalsRoute
   '/api/public/crm/tasks': typeof ApiPublicCrmTasksRoute
@@ -340,6 +354,7 @@ export interface FileRoutesByTo {
   '/whatsapp': typeof WhatsappRoute
   '/cases/$slug': typeof CasesSlugRoute
   '/crm/ab': typeof CrmAbRoute
+  '/crm/conselheiro': typeof CrmConselheiroRoute
   '/crm/dashboard': typeof CrmDashboardRoute
   '/crm/gravador': typeof CrmGravadorRoute
   '/crm/kanban': typeof CrmKanbanRoute
@@ -357,6 +372,7 @@ export interface FileRoutesByTo {
   '/crm/propostas': typeof CrmPropostasIndexRoute
   '/api/public/ab/visit': typeof ApiPublicAbVisitRoute
   '/api/public/crm/ab': typeof ApiPublicCrmAbRoute
+  '/api/public/crm/conselheiro': typeof ApiPublicCrmConselheiroRoute
   '/api/public/crm/data': typeof ApiPublicCrmDataRoute
   '/api/public/crm/proposals': typeof ApiPublicCrmProposalsRoute
   '/api/public/crm/tasks': typeof ApiPublicCrmTasksRoute
@@ -387,6 +403,7 @@ export interface FileRoutesById {
   '/whatsapp': typeof WhatsappRoute
   '/cases/$slug': typeof CasesSlugRoute
   '/crm/ab': typeof CrmAbRoute
+  '/crm/conselheiro': typeof CrmConselheiroRoute
   '/crm/dashboard': typeof CrmDashboardRoute
   '/crm/gravador': typeof CrmGravadorRoute
   '/crm/kanban': typeof CrmKanbanRoute
@@ -404,6 +421,7 @@ export interface FileRoutesById {
   '/crm/propostas/': typeof CrmPropostasIndexRoute
   '/api/public/ab/visit': typeof ApiPublicAbVisitRoute
   '/api/public/crm/ab': typeof ApiPublicCrmAbRoute
+  '/api/public/crm/conselheiro': typeof ApiPublicCrmConselheiroRoute
   '/api/public/crm/data': typeof ApiPublicCrmDataRoute
   '/api/public/crm/proposals': typeof ApiPublicCrmProposalsRoute
   '/api/public/crm/tasks': typeof ApiPublicCrmTasksRoute
@@ -435,6 +453,7 @@ export interface FileRouteTypes {
     | '/whatsapp'
     | '/cases/$slug'
     | '/crm/ab'
+    | '/crm/conselheiro'
     | '/crm/dashboard'
     | '/crm/gravador'
     | '/crm/kanban'
@@ -452,6 +471,7 @@ export interface FileRouteTypes {
     | '/crm/propostas/'
     | '/api/public/ab/visit'
     | '/api/public/crm/ab'
+    | '/api/public/crm/conselheiro'
     | '/api/public/crm/data'
     | '/api/public/crm/proposals'
     | '/api/public/crm/tasks'
@@ -480,6 +500,7 @@ export interface FileRouteTypes {
     | '/whatsapp'
     | '/cases/$slug'
     | '/crm/ab'
+    | '/crm/conselheiro'
     | '/crm/dashboard'
     | '/crm/gravador'
     | '/crm/kanban'
@@ -497,6 +518,7 @@ export interface FileRouteTypes {
     | '/crm/propostas'
     | '/api/public/ab/visit'
     | '/api/public/crm/ab'
+    | '/api/public/crm/conselheiro'
     | '/api/public/crm/data'
     | '/api/public/crm/proposals'
     | '/api/public/crm/tasks'
@@ -526,6 +548,7 @@ export interface FileRouteTypes {
     | '/whatsapp'
     | '/cases/$slug'
     | '/crm/ab'
+    | '/crm/conselheiro'
     | '/crm/dashboard'
     | '/crm/gravador'
     | '/crm/kanban'
@@ -543,6 +566,7 @@ export interface FileRouteTypes {
     | '/crm/propostas/'
     | '/api/public/ab/visit'
     | '/api/public/crm/ab'
+    | '/api/public/crm/conselheiro'
     | '/api/public/crm/data'
     | '/api/public/crm/proposals'
     | '/api/public/crm/tasks'
@@ -580,6 +604,7 @@ export interface RootRouteChildren {
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPublicAbVisitRoute: typeof ApiPublicAbVisitRoute
   ApiPublicCrmAbRoute: typeof ApiPublicCrmAbRoute
+  ApiPublicCrmConselheiroRoute: typeof ApiPublicCrmConselheiroRoute
   ApiPublicCrmDataRoute: typeof ApiPublicCrmDataRoute
   ApiPublicCrmProposalsRoute: typeof ApiPublicCrmProposalsRoute
   ApiPublicCrmTasksRoute: typeof ApiPublicCrmTasksRoute
@@ -746,6 +771,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CrmDashboardRouteImport
       parentRoute: typeof CrmRoute
     }
+    '/crm/conselheiro': {
+      id: '/crm/conselheiro'
+      path: '/conselheiro'
+      fullPath: '/crm/conselheiro'
+      preLoaderRoute: typeof CrmConselheiroRouteImport
+      parentRoute: typeof CrmRoute
+    }
     '/crm/ab': {
       id: '/crm/ab'
       path: '/ab'
@@ -893,6 +925,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCrmDataRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/crm/conselheiro': {
+      id: '/api/public/crm/conselheiro'
+      path: '/api/public/crm/conselheiro'
+      fullPath: '/api/public/crm/conselheiro'
+      preLoaderRoute: typeof ApiPublicCrmConselheiroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/crm/ab': {
       id: '/api/public/crm/ab'
       path: '/api/public/crm/ab'
@@ -912,6 +951,7 @@ declare module '@tanstack/react-router' {
 
 interface CrmRouteChildren {
   CrmAbRoute: typeof CrmAbRoute
+  CrmConselheiroRoute: typeof CrmConselheiroRoute
   CrmDashboardRoute: typeof CrmDashboardRoute
   CrmGravadorRoute: typeof CrmGravadorRoute
   CrmKanbanRoute: typeof CrmKanbanRoute
@@ -925,6 +965,7 @@ interface CrmRouteChildren {
 
 const CrmRouteChildren: CrmRouteChildren = {
   CrmAbRoute: CrmAbRoute,
+  CrmConselheiroRoute: CrmConselheiroRoute,
   CrmDashboardRoute: CrmDashboardRoute,
   CrmGravadorRoute: CrmGravadorRoute,
   CrmKanbanRoute: CrmKanbanRoute,
@@ -958,6 +999,7 @@ const rootRouteChildren: RootRouteChildren = {
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ApiPublicAbVisitRoute: ApiPublicAbVisitRoute,
   ApiPublicCrmAbRoute: ApiPublicCrmAbRoute,
+  ApiPublicCrmConselheiroRoute: ApiPublicCrmConselheiroRoute,
   ApiPublicCrmDataRoute: ApiPublicCrmDataRoute,
   ApiPublicCrmProposalsRoute: ApiPublicCrmProposalsRoute,
   ApiPublicCrmTasksRoute: ApiPublicCrmTasksRoute,

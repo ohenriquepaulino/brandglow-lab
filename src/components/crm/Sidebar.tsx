@@ -5,6 +5,7 @@ import {
   FlaskConical,
   KanbanSquare,
   LayoutDashboard,
+  Lightbulb,
   ListChecks,
   MessageCircle,
   Video,
@@ -18,6 +19,7 @@ const NAV_ITEMS = [
   { to: "/crm/videos", label: "Vídeos", icon: Clapperboard },
   { to: "/crm/gravador", label: "Gravador", icon: Video },
   { to: "/crm/whatsapp", label: "WhatsApp", icon: MessageCircle },
+  { to: "/crm/conselheiro", label: "Conselheiro", icon: Lightbulb },
   { to: "/crm/ab", label: "Teste A/B", icon: FlaskConical },
 ] as const;
 
