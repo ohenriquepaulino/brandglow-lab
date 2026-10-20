@@ -41,6 +41,7 @@ import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/l
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicWhatsappWebhookRouteImport } from './routes/api/public/whatsapp/webhook'
 import { Route as ApiPublicWhatsappProcessRouteImport } from './routes/api/public/whatsapp/process'
+import { Route as ApiPublicWhatsappLinkEnviadoRouteImport } from './routes/api/public/whatsapp/link-enviado'
 import { Route as ApiPublicWhatsappFollowupRouteImport } from './routes/api/public/whatsapp/followup'
 import { Route as ApiPublicVideoTrackRouteImport } from './routes/api/public/video/track'
 import { Route as ApiPublicVideoProcessRouteImport } from './routes/api/public/video/process'
@@ -218,6 +219,12 @@ const ApiPublicWhatsappProcessRoute =
     path: '/api/public/whatsapp/process',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicWhatsappLinkEnviadoRoute =
+  ApiPublicWhatsappLinkEnviadoRouteImport.update({
+    id: '/api/public/whatsapp/link-enviado',
+    path: '/api/public/whatsapp/link-enviado',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicWhatsappFollowupRoute =
   ApiPublicWhatsappFollowupRouteImport.update({
     id: '/api/public/whatsapp/followup',
@@ -314,6 +321,7 @@ export interface FileRoutesByFullPath {
   '/api/public/video/process': typeof ApiPublicVideoProcessRoute
   '/api/public/video/track': typeof ApiPublicVideoTrackRoute
   '/api/public/whatsapp/followup': typeof ApiPublicWhatsappFollowupRoute
+  '/api/public/whatsapp/link-enviado': typeof ApiPublicWhatsappLinkEnviadoRoute
   '/api/public/whatsapp/process': typeof ApiPublicWhatsappProcessRoute
   '/api/public/whatsapp/webhook': typeof ApiPublicWhatsappWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -358,6 +366,7 @@ export interface FileRoutesByTo {
   '/api/public/video/process': typeof ApiPublicVideoProcessRoute
   '/api/public/video/track': typeof ApiPublicVideoTrackRoute
   '/api/public/whatsapp/followup': typeof ApiPublicWhatsappFollowupRoute
+  '/api/public/whatsapp/link-enviado': typeof ApiPublicWhatsappLinkEnviadoRoute
   '/api/public/whatsapp/process': typeof ApiPublicWhatsappProcessRoute
   '/api/public/whatsapp/webhook': typeof ApiPublicWhatsappWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -404,6 +413,7 @@ export interface FileRoutesById {
   '/api/public/video/process': typeof ApiPublicVideoProcessRoute
   '/api/public/video/track': typeof ApiPublicVideoTrackRoute
   '/api/public/whatsapp/followup': typeof ApiPublicWhatsappFollowupRoute
+  '/api/public/whatsapp/link-enviado': typeof ApiPublicWhatsappLinkEnviadoRoute
   '/api/public/whatsapp/process': typeof ApiPublicWhatsappProcessRoute
   '/api/public/whatsapp/webhook': typeof ApiPublicWhatsappWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -451,6 +461,7 @@ export interface FileRouteTypes {
     | '/api/public/video/process'
     | '/api/public/video/track'
     | '/api/public/whatsapp/followup'
+    | '/api/public/whatsapp/link-enviado'
     | '/api/public/whatsapp/process'
     | '/api/public/whatsapp/webhook'
     | '/lovable/email/queue/process'
@@ -495,6 +506,7 @@ export interface FileRouteTypes {
     | '/api/public/video/process'
     | '/api/public/video/track'
     | '/api/public/whatsapp/followup'
+    | '/api/public/whatsapp/link-enviado'
     | '/api/public/whatsapp/process'
     | '/api/public/whatsapp/webhook'
     | '/lovable/email/queue/process'
@@ -540,6 +552,7 @@ export interface FileRouteTypes {
     | '/api/public/video/process'
     | '/api/public/video/track'
     | '/api/public/whatsapp/followup'
+    | '/api/public/whatsapp/link-enviado'
     | '/api/public/whatsapp/process'
     | '/api/public/whatsapp/webhook'
     | '/lovable/email/queue/process'
@@ -576,6 +589,7 @@ export interface RootRouteChildren {
   ApiPublicVideoProcessRoute: typeof ApiPublicVideoProcessRoute
   ApiPublicVideoTrackRoute: typeof ApiPublicVideoTrackRoute
   ApiPublicWhatsappFollowupRoute: typeof ApiPublicWhatsappFollowupRoute
+  ApiPublicWhatsappLinkEnviadoRoute: typeof ApiPublicWhatsappLinkEnviadoRoute
   ApiPublicWhatsappProcessRoute: typeof ApiPublicWhatsappProcessRoute
   ApiPublicWhatsappWebhookRoute: typeof ApiPublicWhatsappWebhookRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
@@ -809,6 +823,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWhatsappProcessRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/whatsapp/link-enviado': {
+      id: '/api/public/whatsapp/link-enviado'
+      path: '/api/public/whatsapp/link-enviado'
+      fullPath: '/api/public/whatsapp/link-enviado'
+      preLoaderRoute: typeof ApiPublicWhatsappLinkEnviadoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/whatsapp/followup': {
       id: '/api/public/whatsapp/followup'
       path: '/api/public/whatsapp/followup'
@@ -946,6 +967,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicVideoProcessRoute: ApiPublicVideoProcessRoute,
   ApiPublicVideoTrackRoute: ApiPublicVideoTrackRoute,
   ApiPublicWhatsappFollowupRoute: ApiPublicWhatsappFollowupRoute,
+  ApiPublicWhatsappLinkEnviadoRoute: ApiPublicWhatsappLinkEnviadoRoute,
   ApiPublicWhatsappProcessRoute: ApiPublicWhatsappProcessRoute,
   ApiPublicWhatsappWebhookRoute: ApiPublicWhatsappWebhookRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
