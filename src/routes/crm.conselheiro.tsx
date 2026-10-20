@@ -126,7 +126,7 @@ function ConselheiroPage() {
           className="flex items-center justify-between border-b bg-white px-6 py-3"
           style={{ borderColor: BORDER }}
         >
-          <p className="text-sm font-semibold text-neutral-900">Conselheiro de vendas</p>
+          <p className="text-sm font-semibold text-neutral-900">Conselheiro LBC</p>
           <button
             onClick={handleLogout}
             className="rounded-md border px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50"
@@ -491,7 +491,7 @@ function Chat() {
           {msgs.length === 0 && (
             <div className="pt-8 text-center">
               <p className="text-lg font-semibold text-neutral-900">
-                Como posso ajudar nas vendas hoje?
+                Como posso ajudar hoje?
               </p>
               <p className="mx-auto mt-2 max-w-md text-sm text-neutral-500">
                 Escolha um atalho abaixo ou cole a conversa do WhatsApp. Dá para arrastar o print
