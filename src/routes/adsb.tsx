@@ -88,24 +88,20 @@ const DEPOIMENTOS = [
 
 const FAQ = [
   {
-    q: "Para que serve a análise?",
-    a: "Para você conhecer o nosso trabalho de estratégia e identidade visual antes de decidir. Em 25 minutos por vídeo, olhamos a sua marca, mostramos onde ela está perdendo valor e apresentamos como funciona o projeto: etapas, prazo e investimento.",
-  },
-  {
-    q: "Para quem é a análise?",
-    a: "Para empresas que já faturam e estão avaliando investir na marca. A conversa não tem custo nem compromisso: você conhece o projeto e o investimento e decide depois.",
+    q: "Vocês atendem a minha área?",
+    a: "Atendemos profissionais liberais e empresas em todo o Brasil: saúde, estética, educação, advocacia, imobiliário, tecnologia e muito mais. O método começa pelo seu mercado, não por um modelo pronto.",
   },
   {
     q: "Quanto custa um projeto?",
-    a: "Cada projeto é dimensionado para o momento do negócio. Apresentamos o investimento na reunião, junto com o que faz sentido para você.",
+    a: "Os projetos começam em R$ 5 mil. O valor final depende do escopo, e na conversa mostramos o investimento exato para o seu caso.",
+  },
+  {
+    q: "A conversa tem custo?",
+    a: "Não. São 25 minutos por vídeo para entender o seu momento e mostrar como trabalhamos. Você decide depois, sem compromisso.",
   },
   {
     q: "Quanto tempo leva?",
     a: "Cerca de 6 semanas, contadas a partir do momento em que você responde o Legacy Brand Canvas, a nossa ferramenta de estratégia.",
-  },
-  {
-    q: "Vocês atendem a minha área?",
-    a: "Atendemos profissionais liberais e empresas em todo o Brasil: saúde, estética, educação, advocacia, imobiliário, tecnologia e muito mais. O método começa pelo seu mercado, não por um modelo pronto.",
   },
   {
     q: "Já tenho logo. Ainda faz sentido?",
@@ -113,7 +109,7 @@ const FAQ = [
   },
   {
     q: "Meu negócio ainda não fatura. Posso preencher?",
-    a: "Pode, sim. Mas, sendo transparentes: o nosso trabalho faz mais sentido para quem já tem faturamento e uma verba separada para investir numa identidade visual estratégica. Se você ainda está começando, a conversa serve para entender o seu momento e dizer com sinceridade quando vale a pena dar esse passo.",
+    a: "Pode. Só vale saber que os projetos começam em R$ 5 mil. Na conversa, dizemos com sinceridade se faz sentido agora ou mais para frente.",
   },
 ];
 

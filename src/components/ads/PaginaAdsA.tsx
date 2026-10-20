@@ -44,8 +44,8 @@ const PASSOS = [
   },
 ];
 
-// Mesmas perguntas do FAQ da /adsb (as mais tocadas no Clarity), com as
-// respostas ajustadas à oferta desta página: conversa e preço de partida.
+// Mesmo FAQ da /adsb (perguntas e respostas iguais), ajustado à oferta:
+// conversa e preço de partida.
 const FAQ = [
   {
     q: "Vocês atendem a minha área?",
