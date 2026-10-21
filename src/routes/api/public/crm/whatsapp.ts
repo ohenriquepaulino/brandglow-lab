@@ -4,8 +4,8 @@ import { z } from "zod";
 import {
   conectar,
   desconectar,
+  enviarMensagem,
   enviarTexto,
-  enviarVideo,
   estadoDaConexao,
   evolutionConfigurada,
   garantirWebhook,
@@ -203,8 +203,7 @@ export const Route = createFileRoute("/api/public/crm/whatsapp")({
             try {
               const telefone = normalizarTelefone(payload.telefone);
               const texto = montarMensagem(payload.mensagem, "Teste");
-              if (payload.video_url) await enviarVideo(telefone, payload.video_url, texto);
-              else await enviarTexto(telefone, texto);
+              await enviarMensagem(telefone, texto, payload.video_url);
               return Response.json({ success: true });
             } catch (e) {
               return erro(e);
@@ -212,7 +211,7 @@ export const Route = createFileRoute("/api/public/crm/whatsapp")({
           }
           case "send_test": {
             try {
-              await enviarTexto(
+              await enviarMensagem(
                 normalizarTelefone(payload.telefone),
                 montarMensagem(payload.mensagem, "Teste"),
               );

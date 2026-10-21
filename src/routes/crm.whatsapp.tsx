@@ -296,7 +296,8 @@ function WhatsAppContent() {
         </div>
         <p className="mt-2 text-xs text-neutral-500">
           Enviada até um minuto depois do prazo abaixo, contado do cadastro no site. Use{" "}
-          <code>{"{primeiro-nome}"}</code> ou <code>{"{nome}"}</code>.
+          <code>{"{primeiro-nome}"}</code> ou <code>{"{nome}"}</code>. Uma linha só com{" "}
+          <code>---</code> quebra em mensagens separadas, com "digitando..." entre elas.
         </p>
         <p className="mt-4 text-xs font-medium text-neutral-700">Fatura acima de R$ 6 mil</p>
         <textarea

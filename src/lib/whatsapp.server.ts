@@ -162,10 +162,12 @@ export async function enviarVideo(telefone: string, url: string, legenda: string
   }
 }
 
-export async function enviarTexto(telefone: string, texto: string) {
+/** `digitandoMs`: a Evolution mostra "digitando..." por esse tempo antes de enviar. */
+export async function enviarTexto(telefone: string, texto: string, digitandoMs = 0) {
   const r = await evo("/message/sendText/{instance}", {
     method: "POST",
-    body: { number: telefone, text: texto },
+    body: { number: telefone, text: texto, ...(digitandoMs > 0 && { delay: digitandoMs }) },
+    timeoutMs: TIMEOUT_MS + digitandoMs,
   });
   if (!r.ok) {
     const detalhe = JSON.stringify(r.data?.response?.message ?? r.data?.message ?? r.data).slice(
@@ -174,6 +176,35 @@ export async function enviarTexto(telefone: string, texto: string) {
     );
     throw new Error(`Evolution ${r.status}: ${detalhe}`);
   }
+}
+
+// Uma linha só com "---" no texto quebra a mensagem em balões separados, como
+// uma pessoa digitando. Cada balão tem "digitando..." proporcional ao tamanho.
+const SEPARADOR = /^[ \t]*---[ \t]*$/m;
+
+function partes(texto: string): string[] {
+  return texto
+    .split(SEPARADOR)
+    .map((p) => p.trim())
+    .filter(Boolean);
+}
+
+function tempoDigitando(texto: string): number {
+  return Math.min(6_000, Math.max(2_000, texto.length * 25));
+}
+
+/** Texto (ou vídeo com legenda) quebrado nos "---"; sem separador, um envio só. */
+export async function enviarMensagem(telefone: string, texto: string, video?: string | null) {
+  const lista = partes(texto);
+  if (lista.length <= 1) {
+    if (video) await enviarVideo(telefone, video, texto);
+    else await enviarTexto(telefone, texto);
+    return;
+  }
+  // Com vídeo, o primeiro balão vira a legenda dele.
+  const resto = video ? lista.slice(1) : lista;
+  if (video) await enviarVideo(telefone, video, lista[0]);
+  for (const parte of resto) await enviarTexto(telefone, parte, tempoDigitando(parte));
 }
 
 /**
@@ -441,8 +472,7 @@ export async function processarFila(supabase: SupabaseClient) {
 
     let erro: string | null = null;
     try {
-      if (video) await enviarVideo(envio.telefone, video, envio.mensagem);
-      else await enviarTexto(envio.telefone, envio.mensagem);
+      await enviarMensagem(envio.telefone, envio.mensagem, video);
       enviados++;
     } catch (e) {
       erro = e instanceof Error ? e.message : String(e);
