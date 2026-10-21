@@ -14,21 +14,21 @@ import print5 from "@/assets/ads/IMG_1697.webp.asset.json";
 // sorteia). Mesmo formulário e mesmo fluxo (CRM, WhatsApp, Pixel); muda a
 // página: visual da proposta (Anton + verde-limão), análise da marca por vídeo,
 // cases em carrossel, processo, entregas e FAQ. Sem links que saiam da página.
-// Desde 2026-10-09 a oferta não fala mais em "diagnóstico gratuito": o grátis
-// em destaque trazia muito lead sem faturamento. A página agora diz para quem é.
+// Desde 2026-10-20 o texto é o mesmo da /adsa (que traz leads mais qualificados):
+// o teste passa a medir só o estímulo visual. Mudou o texto de uma, mude na outra.
 export const Route = createFileRoute("/adsb")({
   head: () => ({
     meta: [
-      { title: "Análise de marca | Legacy BrandCo." },
+      { title: "Estratégia e identidade visual | Legacy BrandCo." },
       {
         name: "description",
         content:
-          "Estratégia de marca e identidade visual para empresas que já faturam. Comece com uma análise da sua marca em 25 minutos por vídeo.",
+          "Consultoria de estratégia de marca e identidade visual. Preencha o formulário e marque uma conversa sobre o projeto da sua marca.",
       },
-      { property: "og:title", content: "Análise de marca | Legacy BrandCo." },
+      { property: "og:title", content: "Estratégia e identidade visual | Legacy BrandCo." },
       {
         property: "og:description",
-        content: "Sua empresa é boa. Sua marca precisa mostrar isso.",
+        content: "Estratégia de marca e identidade visual para negócios que já entregam resultado.",
       },
       { name: "robots", content: "noindex, follow" },
     ],
@@ -73,8 +73,8 @@ const PASSOS = [
   { n: "02", t: "Analisamos seu perfil", d: "Chegamos na conversa sabendo do seu negócio." },
   {
     n: "03",
-    t: "Análise de 25 min",
-    d: "Por vídeo. Mostramos onde sua marca perde valor e como funciona o projeto: etapas, prazo e investimento.",
+    t: "Conversa de 25 min",
+    d: "Por vídeo. Entendemos o momento da sua marca, mostramos como trabalhamos e o investimento do projeto.",
   },
 ];
 
@@ -88,24 +88,20 @@ const DEPOIMENTOS = [
 
 const FAQ = [
   {
-    q: "Para que serve a análise?",
-    a: "Para você conhecer o nosso trabalho de estratégia e identidade visual antes de decidir. Em 25 minutos por vídeo, olhamos a sua marca, mostramos onde ela está perdendo valor e apresentamos como funciona o projeto: etapas, prazo e investimento.",
-  },
-  {
-    q: "Para quem é a análise?",
-    a: "Para empresas que já faturam e estão avaliando investir na marca. A conversa não tem custo nem compromisso: você conhece o projeto e o investimento e decide depois.",
+    q: "Vocês atendem a minha área?",
+    a: "Atendemos profissionais liberais e empresas em todo o Brasil: saúde, estética, educação, advocacia, imobiliário, tecnologia e muito mais. O método começa pelo seu mercado, não por um modelo pronto.",
   },
   {
     q: "Quanto custa um projeto?",
-    a: "Cada projeto é dimensionado para o momento do negócio. Apresentamos o investimento na reunião, junto com o que faz sentido para você.",
+    a: "Os projetos começam em R$ 5 mil. O valor final depende do escopo, e na conversa mostramos o investimento exato para o seu caso.",
+  },
+  {
+    q: "A conversa tem custo?",
+    a: "Não. São 25 minutos por vídeo para entender o seu momento e mostrar como trabalhamos. Você decide depois, sem compromisso.",
   },
   {
     q: "Quanto tempo leva?",
     a: "Cerca de 6 semanas, contadas a partir do momento em que você responde o Legacy Brand Canvas, a nossa ferramenta de estratégia.",
-  },
-  {
-    q: "Vocês atendem a minha área?",
-    a: "Atendemos profissionais liberais e empresas em todo o Brasil: saúde, estética, educação, advocacia, imobiliário, tecnologia e muito mais. O método começa pelo seu mercado, não por um modelo pronto.",
   },
   {
     q: "Já tenho logo. Ainda faz sentido?",
@@ -113,7 +109,7 @@ const FAQ = [
   },
   {
     q: "Meu negócio ainda não fatura. Posso preencher?",
-    a: "Pode, sim. Mas, sendo transparentes: o nosso trabalho faz mais sentido para quem já tem faturamento e uma verba separada para investir numa identidade visual estratégica. Se você ainda está começando, a conversa serve para entender o seu momento e dizer com sinceridade quando vale a pena dar esse passo.",
+    a: "Pode. Só vale saber que os projetos começam em R$ 5 mil. Na conversa, dizemos com sinceridade se faz sentido agora ou mais para frente.",
   },
 ];
 
@@ -125,10 +121,7 @@ function Form({ id }: { id: string }) {
   return (
     <div className="b-form" id={id}>
       <p className="b-form-title">Converse sobre o seu projeto</p>
-      <p className="b-form-sub">
-        25 min por vídeo: olhamos a sua marca e mostramos como funciona um projeto de identidade
-        visual.
-      </p>
+      <p className="b-form-sub">Projetos a partir de R$ 5 mil · 25 min por vídeo</p>
       <ContactSection {...FORM_PROPS} />
     </div>
   );
@@ -153,23 +146,23 @@ function AdsBPage() {
         <div className="b-wrap b-hero-grid">
           <div className="b-hero-copy">
             <img src={LOGO} alt="Legacy BrandCo." className="b-logo" width={172} height={61} />
-            <Kicker>Estratégia e identidade visual</Kicker>
+            <Kicker>Consultoria de marca</Kicker>
             <h1 className="b-d b-h1">
-              <span>Sua empresa é boa.</span> <span>Sua marca precisa mostrar isso.</span>
+              Construímos a estratégia e a identidade visual da sua empresa
             </h1>
             <p className="b-lead">
-              <strong>Estratégia</strong> e <strong>identidade visual</strong> para empresas que já
-              faturam e querem uma marca à altura do que entregam.
+              <strong>Comunicação clara</strong> e uma identidade à altura do seu serviço, para{" "}
+              <strong>vender mais</strong>.
             </p>
           </div>
           <Form id="diagnostico" />
           {/* No celular os números vêm depois do formulário, para ele caber na primeira tela. */}
           <ul className="b-facts">
             <li>
-              <b>+8 anos</b> construindo marcas
+              <b>+8</b> anos de operação
             </li>
             <li>
-              <b>Brasil inteiro</b> de clientes
+              <b>BR</b> clientes em todo o Brasil
             </li>
             <li>
               <b>80%</b> estratégia
@@ -182,7 +175,7 @@ function AdsBPage() {
       <section className="b-sec tone-paper">
         <div className="b-wrap">
           <Kicker>Como funciona</Kicker>
-          <h2 className="b-d b-h2">Três passos até a sua análise</h2>
+          <h2 className="b-d b-h2">Três passos até a sua conversa</h2>
           <ol className="b-steps">
             {PASSOS.map((p) => (
               <li key={p.n}>
@@ -245,11 +238,30 @@ function AdsBPage() {
         </div>
       </section>
 
+      {/* SOBRE */}
+      <section className="b-sec tone-surface">
+        <div className="b-wrap">
+          <Kicker>Sobre</Kicker>
+          <div className="b-about">
+            <p>
+              A Legacy BrandCo. é uma consultoria de <strong>estratégia de marca</strong> e{" "}
+              <strong>identidade visual</strong> com <strong>mais de 8 anos</strong> de operação.
+              Atendemos negócios em todo o Brasil, de profissionais liberais a empresas em
+              crescimento.
+            </p>
+            <p>
+              Nosso trabalho <strong>começa antes do visual</strong>. Entendemos o negócio, o
+              mercado e o consumidor, e só depois traduzimos isso em uma marca.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* DEPOIMENTOS */}
       <section className="b-sec tone-deep">
         <div className="b-wrap">
           <Kicker>Depoimentos</Kicker>
-          <h2 className="b-d b-h2">O que dizem os clientes</h2>
+          <h2 className="b-d b-h2">O que dizem sobre o nosso trabalho</h2>
           <div className="b-shots">
             {DEPOIMENTOS.map((d) => (
               <figure key={d.src} className="b-shot">
@@ -263,6 +275,9 @@ function AdsBPage() {
                 />
               </figure>
             ))}
+          </div>
+          <div className="b-cta-row">
+            <Cta />
           </div>
         </div>
       </section>
@@ -300,6 +315,26 @@ function AdsBPage() {
         </div>
       </section>
 
+      {/* MÉTODO */}
+      <section className="b-sec tone-deep">
+        <div className="b-wrap b-method">
+          <div>
+            <Kicker>Método</Kicker>
+            <h2 className="b-d b-h2">
+              <span className="b-accent">80%</span> estratégia.
+              <br />
+              <span className="b-dim">20% execução visual.</span>
+            </h2>
+          </div>
+          <p className="b-promise">
+            Antes de definir logotipo, cor ou tipografia, entendemos{" "}
+            <strong>o que o seu negócio faz</strong>, <strong>contra quem ele compete</strong> e{" "}
+            <strong>quem precisa ser convencido</strong>. A identidade visual é a{" "}
+            <strong>conclusão</strong> desse processo, não o começo dele.
+          </p>
+        </div>
+      </section>
+
       {/* FAQ */}
       <section className="b-sec tone-paper">
         <div className="b-wrap b-faq-wrap">
@@ -323,10 +358,11 @@ function AdsBPage() {
         <div className="b-wrap b-hero-grid">
           <div>
             <Kicker>Próximo passo</Kicker>
-            <h2 className="b-d b-h2">Vamos olhar a sua marca de perto</h2>
+            <h2 className="b-d b-h2">Vamos olhar sua marca de perto.</h2>
             <p className="b-lead">
-              Nossa equipe analisa o seu perfil e entra em contato em{" "}
-              <strong>até 1 dia útil</strong> para agendar.
+              Preencha o formulário. Nossa equipe analisa seu perfil e entra em contato em{" "}
+              <strong>até 1 dia útil</strong> para agendar. Projetos a partir de{" "}
+              <strong>R$ 5 mil</strong>.
             </p>
           </div>
           <Form id="formulario" />
@@ -352,10 +388,12 @@ function AdsBPage() {
       </a>
 
       <style>{`
-        @font-face { font-family: "LBC Anton"; font-weight: 400; font-display: swap; src: url("/proposta/fonts/anton-400.woff2") format("woff2"); }
-        @font-face { font-family: "LBC Inter"; font-weight: 400; font-display: swap; src: url("/proposta/fonts/inter-400.woff2") format("woff2"); }
-        @font-face { font-family: "LBC Inter"; font-weight: 500; font-display: swap; src: url("/proposta/fonts/inter-500.woff2") format("woff2"); }
-        @font-face { font-family: "LBC Inter"; font-weight: 600; font-display: swap; src: url("/proposta/fonts/inter-600.woff2") format("woff2"); }
+        /* A 2ª fonte (Google) só baixa se a 1ª falhar: no player do Clarity, que roda em
+           outro domínio e não recebe CORS dos nossos arquivos, o título caía no Impact. */
+        @font-face { font-family: "LBC Anton"; font-weight: 400; font-display: swap; src: url("/proposta/fonts/anton-400.woff2") format("woff2"), url("https://fonts.gstatic.com/s/anton/v27/1Ptgg87LROyAm3Kz-C8CSKlv.woff2") format("woff2"); }
+        @font-face { font-family: "LBC Inter"; font-weight: 400; font-display: swap; src: url("/proposta/fonts/inter-400.woff2") format("woff2"), url("https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfAZ9hiJ-Ek-_0ew.woff2") format("woff2"); }
+        @font-face { font-family: "LBC Inter"; font-weight: 500; font-display: swap; src: url("/proposta/fonts/inter-500.woff2") format("woff2"), url("https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuI6fAZ9hiJ-Ek-_0ew.woff2") format("woff2"); }
+        @font-face { font-family: "LBC Inter"; font-weight: 600; font-display: swap; src: url("/proposta/fonts/inter-600.woff2") format("woff2"), url("https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuGKYAZ9hiJ-Ek-_0ew.woff2") format("woff2"); }
 
         html:has(.adsb) { scroll-behavior: smooth; }
         /* Selo do Lovable escondido aqui também, como no /ads. */
@@ -519,6 +557,17 @@ function AdsBPage() {
         .b-dl li { padding: 16px 12px 16px 0; border-bottom: 1px solid var(--line); }
         .b-dl small { display: block; font-size: 12px; color: var(--muted); }
         .b-dl b { font-size: 16px; font-weight: 600; line-height: 1.25; }
+
+        /* sobre e método */
+        .b-about { display: grid; gap: 16px; font-size: 18px; line-height: 1.5; max-width: 46ch; }
+        .b-method { display: grid; gap: 8px; }
+        .b-method .b-h2 { margin-bottom: 16px; }
+        .b-accent { color: var(--lime); }
+        .b-dim { color: var(--deep-muted); }
+        @media (min-width: 900px) {
+          .b-about { grid-template-columns: 1fr 1fr; gap: 48px; max-width: none; }
+          .b-method { grid-template-columns: 1fr 1fr; gap: 48px; align-items: end; }
+        }
 
         /* faq */
         .b-faq-wrap { display: grid; gap: 8px; }

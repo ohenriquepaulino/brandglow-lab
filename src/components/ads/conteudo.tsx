@@ -93,7 +93,7 @@ export const ENTREGAS = [
   "Todos os arquivos",
 ];
 
-const INTERVALO_MS = 1800;
+const INTERVALO_MS = 2000;
 
 /**
  * Imagens do case trocando sozinhas a cada 1,8 s. Para carregar rápido: só a
@@ -117,6 +117,14 @@ export function CaseCarousel({
   const [idx, setIdx] = useState(0);
   const [montadas, setMontadas] = useState(1);
   const [visivel, setVisivel] = useState(false);
+  const toqueX = useRef<number | null>(null);
+
+  // Arrastar para o lado no celular: troca o slide e reinicia o tempo do automático.
+  const irPara = (i: number) => {
+    const n = (i + imgs.length) % imgs.length;
+    setMontadas((m) => Math.max(m, n + 1));
+    setIdx(n);
+  };
 
   useEffect(() => {
     const el = ref.current;
@@ -150,7 +158,19 @@ export function CaseCarousel({
   }, [visivel, idx, imgs]);
 
   return (
-    <div className={className} ref={ref}>
+    <div
+      className={className}
+      ref={ref}
+      onTouchStart={(e) => {
+        toqueX.current = e.touches[0]!.clientX;
+      }}
+      onTouchEnd={(e) => {
+        if (toqueX.current === null || imgs.length < 2) return;
+        const dx = e.changedTouches[0]!.clientX - toqueX.current;
+        toqueX.current = null;
+        if (Math.abs(dx) > 40) irPara(idx + (dx < 0 ? 1 : -1));
+      }}
+    >
       {imgs.slice(0, montadas).map((src, i) => (
         <img
           key={src}

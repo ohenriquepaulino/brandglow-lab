@@ -44,8 +44,8 @@ const PASSOS = [
   },
 ];
 
-// Mesmas perguntas do FAQ da /adsb (as mais tocadas no Clarity), com as
-// respostas ajustadas à oferta desta página: conversa e preço de partida.
+// Mesmo FAQ da /adsb (perguntas e respostas iguais), ajustado à oferta:
+// conversa e preço de partida.
 const FAQ = [
   {
     q: "Vocês atendem a minha área?",
@@ -90,22 +90,53 @@ function AdsSlider() {
     return () => io.disconnect();
   }, []);
 
+  const toqueX = useRef<number | null>(null);
+  const arrastou = useRef(false);
+
+  const irPara = (i: number) => {
+    const n = (i + heroSlides.length) % heroSlides.length;
+    setLoaded((l) => Math.max(l, n + 1));
+    setIndex(n);
+  };
+
+  // Timeout por slide (e não interval) para o arrastar reiniciar a contagem.
   useEffect(() => {
     if (!visivel) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const id = window.setInterval(() => {
-      setIndex((i) => {
-        const next = (i + 1) % heroSlides.length;
-        setLoaded((l) => Math.max(l, next + 1));
-        return next;
-      });
-    }, 4000);
-    return () => window.clearInterval(id);
-  }, [visivel]);
+    const id = window.setTimeout(() => irPara(index + 1), 2000);
+    return () => window.clearTimeout(id);
+  }, [visivel, index]);
 
   return (
-    <a href="#formulario" className="ads-slider-link" aria-label="Ir para o formulário">
-      <div className="ads-slider" ref={ref}>
+    <a
+      href="#formulario"
+      className="ads-slider-link"
+      aria-label="Ir para o formulário"
+      onClick={(e) => {
+        // Arrastar não pode virar toque no link.
+        if (arrastou.current) {
+          e.preventDefault();
+          arrastou.current = false;
+        }
+      }}
+    >
+      <div
+        className="ads-slider"
+        ref={ref}
+        onTouchStart={(e) => {
+          toqueX.current = e.touches[0]!.clientX;
+          arrastou.current = false;
+        }}
+        onTouchEnd={(e) => {
+          if (toqueX.current === null) return;
+          const dx = e.changedTouches[0]!.clientX - toqueX.current;
+          toqueX.current = null;
+          if (Math.abs(dx) > 40) {
+            arrastou.current = true;
+            irPara(index + (dx < 0 ? 1 : -1));
+          }
+        }}
+      >
         {/* O slider fica abaixo do formulário, fora da primeira tela: tudo lazy.
             Com fetchPriority alta, o React gerava um preload de 100 KB no <head>
             que disputava banda com o texto e o formulário no celular. */}
@@ -601,6 +632,7 @@ export function PaginaAdsA({
           background: #FFFFFF; border: 1px solid rgba(18,17,16,0.08); border-radius: 12px;
           overflow: hidden;
         }
+        .ads-carousel, .ads-slider { touch-action: pan-y; }
         .ads-carousel { position: relative; aspect-ratio: 16/10; background: #E8E5E0; overflow: hidden; }
         .ads-carousel img {
           position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block;
