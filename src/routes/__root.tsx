@@ -96,12 +96,15 @@ if(d.readyState==='complete'){setTimeout(go,1500)}else{w.addEventListener('load'
 
 // Pixel do ChatGPT Ads (OpenAI). A conversão "registration_completed" só sai
 // no /obrigado, ou seja, só para quem fatura, como o Lead da Meta.
-// debug: true enquanto os anúncios estão em teste.
-const OPENAI_PIXEL_SCRIPT = `!function(w,d,s,u){if(w.oaiq)return;var q=function(){q.q.push(arguments)};q.q=[];w.oaiq=q;var j=d.createElement(s);j.async=1;j.src=u;var f=d.getElementsByTagName(s)[0];f.parentNode.insertBefore(j,f)}(window,document,"script","https://bzrcdn.openai.com/sdk/oaiq.min.js");oaiq("init",{pixelId:"MEsGYuAUsMpqVqv29bHnpY",debug:true});`;
+// Desde 2026-10-28 (campanha parada) o oaiq.min.js só baixa depois do load,
+// como o GTM; a fila (oaiq.q) guarda o que for chamado antes. Debug desligado.
+const OPENAI_PIXEL_SCRIPT = `!function(w,d,s,u){if(w.oaiq)return;var q=function(){q.q.push(arguments)};q.q=[];w.oaiq=q;var go=function(){var j=d.createElement(s);j.async=1;j.src=u;var f=d.getElementsByTagName(s)[0];f.parentNode.insertBefore(j,f)};if(d.readyState==='complete'){setTimeout(go,1500)}else{w.addEventListener('load',function(){setTimeout(go,1500)})}}(window,document,"script","https://bzrcdn.openai.com/sdk/oaiq.min.js");oaiq("init",{pixelId:"MEsGYuAUsMpqVqv29bHnpY"});`;
 
-// Tag do Google Ads. Carrega na hora, e não junto com o GTM, para gravar o
-// clique (gclid) assim que a pessoa chega. A conversão só sai no /obrigado.
-const GOOGLE_ADS_SCRIPT = `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}window.gtag=gtag;gtag('js',new Date());gtag('config','${GOOGLE_ADS_ID}',{allow_enhanced_conversions:true});`;
+// Tag do Google Ads. A função gtag e a fila (dataLayer) existem na hora, e a
+// conversão só sai no /obrigado. Desde 2026-10-28 (campanha parada) o gtag.js
+// só baixa depois do load, como o GTM: no celular ele pesava ~160 KB e ~600 ms
+// de processamento na primeira dobra. O gclid continua salvo pelo formulário.
+const GOOGLE_ADS_SCRIPT = `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}window.gtag=gtag;gtag('js',new Date());gtag('config','${GOOGLE_ADS_ID}',{allow_enhanced_conversions:true});(function(w,d){var go=function(){var j=d.createElement('script');j.async=true;j.src='https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID}';d.head.appendChild(j)};if(d.readyState==='complete'){setTimeout(go,1500)}else{w.addEventListener('load',function(){setTimeout(go,1500)})}})(window,document);`;
 
 const CLARITY_SCRIPT = `(function(c,l,a,r,i,t,y){
 c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
@@ -167,7 +170,6 @@ function RootShell({ children }: { children: ReactNode }) {
       <head>
         <HeadContent />
         <script id="openai-pixel" dangerouslySetInnerHTML={{ __html: OPENAI_PIXEL_SCRIPT }} />
-        <script async src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID}`} />
         <script id="google-ads" dangerouslySetInnerHTML={{ __html: GOOGLE_ADS_SCRIPT }} />
         <script id="meta-pixel" dangerouslySetInnerHTML={{ __html: META_PIXEL_SCRIPT }} />
         <script id="gtm-head" dangerouslySetInnerHTML={{ __html: GTM_HEAD_SCRIPT }} />

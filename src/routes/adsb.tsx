@@ -221,7 +221,7 @@ function AdsBPage() {
                 <CaseCarousel
                   imgs={c.imgs}
                   nome={c.nome}
-                  eager={i === 0}
+                  eager={false}
                   className="b-carousel"
                   dotsClassName="b-dots"
                 />
