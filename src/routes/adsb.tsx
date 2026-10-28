@@ -63,9 +63,9 @@ const FORM_PROPS = {
   hideInstagram: true,
   showProfession: true,
   revenueLabel: "Faturamento mensal da empresa",
-  // CTA igual ao da /adsa (2026-10-10).
-  ctaLabel: "Quero conversar sobre o projeto",
-  ctaNote: "Conversa sem custo · 25 min por vídeo · resposta em até 1 dia útil",
+  ctaLabel: "Quero saber mais",
+  sendingLabel: "Enviando informações...",
+  ctaNote: "Conversa sem custo · resposta em até 1 dia útil",
   // A política fica só no rodapé.
   hidePrivacy: true,
 } as const;
@@ -123,7 +123,7 @@ function Form({ id }: { id: string }) {
   return (
     <div className="b-form" id={id}>
       <p className="b-form-title">Quero uma das 3 vagas</p>
-      <p className="b-form-sub">Projetos a partir de R$ 5 mil · 25 min por vídeo</p>
+      <p className="b-form-sub">Apenas 3 vagas · Projetos a partir de R$ 5 mil</p>
       <ContactSection {...FORM_PROPS} />
     </div>
   );
@@ -153,8 +153,8 @@ function AdsBPage() {
               3 vagas para empresas que querem se diferenciar dos concorrentes
             </h1>
             <p className="b-lead">
-              Estratégia e identidade visual para <strong>empresas que já faturam</strong> e querem
-              deixar claro por que são a <strong>melhor escolha</strong>.
+              <strong>Nós criamos a estratégia e a identidade visual</strong> para empresas que já
+              faturam e querem deixar claro por que são a melhor escolha.
             </p>
           </div>
           <Form id="diagnostico" />
