@@ -14,18 +14,20 @@ import print5 from "@/assets/ads/IMG_1697.webp.asset.json";
 // sorteia). Mesmo formulário e mesmo fluxo (CRM, WhatsApp, Pixel); muda a
 // página: visual da proposta (Anton + verde-limão), análise da marca por vídeo,
 // cases em carrossel, processo, entregas e FAQ. Sem links que saiam da página.
-// Desde 2026-10-20 o texto é o mesmo da /adsa (que traz leads mais qualificados):
-// o teste passa a medir só o estímulo visual. Mudou o texto de uma, mude na outra.
+// De 2026-10-20 a 2026-10-28 o texto era o mesmo da /adsa. Desde 2026-10-28 a
+// primeira dobra repete o anúncio campeão ("Procuro 3 empresários… se diferenciar
+// dos concorrentes"): o teste compara página que espelha o anúncio vs. página
+// neutra. Do hero para baixo o texto continua igual ao da /adsa.
 export const Route = createFileRoute("/adsb")({
   head: () => ({
     meta: [
-      { title: "Estratégia e identidade visual | Legacy BrandCo." },
+      { title: "3 vagas: identidade visual estratégica | Legacy BrandCo." },
       {
         name: "description",
         content:
           "Consultoria de estratégia de marca e identidade visual. Preencha o formulário e marque uma conversa sobre o projeto da sua marca.",
       },
-      { property: "og:title", content: "Estratégia e identidade visual | Legacy BrandCo." },
+      { property: "og:title", content: "3 vagas: identidade visual estratégica | Legacy BrandCo." },
       {
         property: "og:description",
         content: "Estratégia de marca e identidade visual para negócios que já entregam resultado.",
@@ -120,7 +122,7 @@ function Kicker({ children }: { children: React.ReactNode }) {
 function Form({ id }: { id: string }) {
   return (
     <div className="b-form" id={id}>
-      <p className="b-form-title">Converse sobre o seu projeto</p>
+      <p className="b-form-title">Quero uma das 3 vagas</p>
       <p className="b-form-sub">Projetos a partir de R$ 5 mil · 25 min por vídeo</p>
       <ContactSection {...FORM_PROPS} />
     </div>
@@ -146,13 +148,13 @@ function AdsBPage() {
         <div className="b-wrap b-hero-grid">
           <div className="b-hero-copy">
             <img src={LOGO} alt="Legacy BrandCo." className="b-logo" width={172} height={61} />
-            <Kicker>Consultoria de marca</Kicker>
+            <Kicker>Identidade visual estratégica</Kicker>
             <h1 className="b-d b-h1">
-              Construímos a estratégia e a identidade visual da sua empresa
+              3 vagas para empresas que querem se diferenciar dos concorrentes
             </h1>
             <p className="b-lead">
-              <strong>Comunicação clara</strong> e uma identidade à altura do seu serviço, para{" "}
-              <strong>vender mais</strong>.
+              Estratégia e identidade visual para <strong>empresas que já faturam</strong> e querem
+              deixar claro por que são a <strong>melhor escolha</strong>.
             </p>
           </div>
           <Form id="diagnostico" />
