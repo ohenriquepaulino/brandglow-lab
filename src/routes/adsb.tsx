@@ -3,6 +3,7 @@ import { ContactSection } from "@/components/site/ContactSection";
 import { PrivacyButton } from "@/components/site/PrivacyDialog";
 import { useAbVisit } from "@/lib/ab";
 import { useStickyCta } from "@/lib/useStickyCta";
+import { useAbrirNoTopo } from "@/lib/useAbrirNoTopo";
 import { CASES, CaseCarousel, ENTREGAS, ETAPAS, FLUXO } from "@/components/ads/conteudo";
 import print1 from "@/assets/ads/IMG_1693.webp.asset.json";
 import print2 from "@/assets/ads/IMG_1694.webp.asset.json";
@@ -139,6 +140,7 @@ function Cta({ href = "#formulario", children = "Quero conversar sobre o projeto
 
 function AdsBPage() {
   useAbVisit("b");
+  useAbrirNoTopo();
   const sticky = useStickyCta(".b-hero, .b-last, .b-footer");
 
   return (

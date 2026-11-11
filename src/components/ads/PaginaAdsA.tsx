@@ -4,6 +4,7 @@ import { ContactSection } from "@/components/site/ContactSection";
 import { PrivacyButton } from "@/components/site/PrivacyDialog";
 import { useAbVisit, type Variante } from "@/lib/ab";
 import { useStickyCta } from "@/lib/useStickyCta";
+import { useAbrirNoTopo } from "@/lib/useAbrirNoTopo";
 import { CASES, CaseCarousel, ENTREGAS, ETAPAS, FLUXO } from "@/components/ads/conteudo";
 import img308OutBanner from "@/assets/308-network/308-network-out-banner.webp.asset.json";
 import imgMoewaPosterManifesto from "@/assets/ads/moewa-poster-manifesto.webp.asset.json";
@@ -233,6 +234,7 @@ export function PaginaAdsA({
     ? SEGMENTOS[segmento]
     : { label: "CONSULTORIA DE MARCA", verbo: "Construímos", alvo: "sua empresa" };
   useAbVisit(variante);
+  useAbrirNoTopo();
   const sticky = useStickyCta(".ads-first, .ads-last, .ads-footer");
   return (
     <div className="ads-page">
