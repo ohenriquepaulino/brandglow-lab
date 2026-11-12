@@ -1,6 +1,6 @@
 // Página da /adsa, separada da rota para a /busca reaproveitar.
 import { useEffect, useRef, useState } from "react";
-import { ContactSection } from "@/components/site/ContactSection";
+import { ContactSection, NO_REVENUE_OPTION } from "@/components/site/ContactSection";
 import { useAbrirNoTopo } from "@/lib/useAbrirNoTopo";
 import { PrivacyButton } from "@/components/site/PrivacyDialog";
 import { useAbVisit, type Variante } from "@/lib/ab";
@@ -44,6 +44,13 @@ const PASSOS = [
   },
 ];
 
+// /busca: a call é uma reunião de venda, não "conversa gratuita".
+const PASSOS_BUSCA = [
+  PASSOS[0]!,
+  { n: "02", t: "Analisamos seu perfil", d: "Chegamos na reunião sabendo do seu negócio." },
+  { ...PASSOS[2]!, t: "Reunião de 25 min" },
+];
+
 // Mesmas perguntas do FAQ da /adsb (as mais tocadas no Clarity), com as
 // respostas ajustadas à oferta desta página: conversa e preço de partida.
 const FAQ = [
@@ -73,7 +80,71 @@ const FAQ = [
   },
 ];
 
-function AdsSlider() {
+const FAQ_BUSCA = [
+  FAQ.find((f) => f.q === "Quanto custa um projeto?")!,
+  ...FAQ.filter((f) => f.q !== "Quanto custa um projeto?" && f.q !== "A conversa tem custo?"),
+].map((f) => ({
+  ...f,
+  a: f.a.replace(/na conversa/g, "na reunião").replace(/Na conversa/g, "Na reunião"),
+}));
+
+const BUSCA_REVENUE = [
+  NO_REVENUE_OPTION,
+  "Até R$ 4.000",
+  "De R$ 4.000 a R$ 10.000",
+  "De R$ 10.000 a R$ 30.000",
+  "De R$ 30.000 a R$ 60.000",
+  "Acima de R$ 60.000",
+];
+
+function reduzMovimento() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+/** Foca o primeiro campo visível do cartão (Nome; na etapa 2, o faturamento). */
+function focarCampo(card: Element | null) {
+  if (!card) return;
+  const campos = card.querySelectorAll<HTMLElement>(
+    'input[name="name"], select[name="revenue"]',
+  );
+  for (const c of campos) {
+    if (c.offsetParent !== null) {
+      c.focus({ preventScroll: true });
+      return;
+    }
+  }
+}
+
+/** Rola até o cartão e foca o campo depois da rolagem. */
+function irParaFormulario(card: Element | null, destacar = false) {
+  if (!card) return;
+  const reduz = reduzMovimento();
+  card.scrollIntoView({ behavior: reduz ? "auto" : "smooth", block: "start" });
+  window.setTimeout(() => focarCampo(card), reduz ? 0 : 650);
+  if (destacar) {
+    card.classList.remove("ads-flash");
+    void (card as HTMLElement).offsetWidth;
+    card.classList.add("ads-flash");
+    window.setTimeout(() => card.classList.remove("ads-flash"), 1200);
+  }
+}
+
+function irParaFormularioFinal(e: React.MouseEvent) {
+  e.preventDefault();
+  irParaFormulario(document.querySelector("#formulario .ads-form-slot"));
+}
+
+function BuscaCta({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="ads-cta-row">
+      <a href="#formulario" className="ads-cta" onClick={irParaFormularioFinal}>
+        {children}
+      </a>
+    </div>
+  );
+}
+
+function AdsSlider({ estatico = false }: { estatico?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
   const [loaded, setLoaded] = useState(1);
@@ -103,8 +174,7 @@ function AdsSlider() {
     return () => window.clearInterval(id);
   }, [visivel]);
 
-  return (
-    <a href="#formulario" className="ads-slider-link" aria-label="Ir para o formulário">
+  const slider = (
       <div className="ads-slider" ref={ref}>
         {/* O slider fica abaixo do formulário, fora da primeira tela: tudo lazy.
             Com fetchPriority alta, o React gerava um preload de 100 KB no <head>
@@ -132,6 +202,11 @@ function AdsSlider() {
           </span>
         </div>
       </div>
+  );
+  if (estatico) return slider;
+  return (
+    <a href="#formulario" className="ads-slider-link" aria-label="Ir para o formulário">
+      {slider}
     </a>
   );
 }
@@ -143,7 +218,27 @@ function Label({ children }: { children: React.ReactNode }) {
 // Mesmo formulário do /adsb, mas com outra oferta (desde 2026-10-05): conversa
 // sobre o projeto com o preço de partida à vista, no lugar de "diagnóstico
 // gratuito". O teste A/B passa a medir também se isso qualifica os leads.
-function FormSlot() {
+function FormSlot({ busca = false }: { busca?: boolean }) {
+  if (busca) {
+    return (
+      <div className="ads-card ads-form-slot">
+        <p className="ads-form-title">Conte sobre o seu projeto</p>
+        <p className="ads-form-sub">Projetos a partir de R$ 5 mil · reunião de 25 min por vídeo</p>
+        <ContactSection
+          redirectTo="/obrigado"
+          redirectToNoRevenue="/tks"
+          hideInstagram
+          showProfession
+          revenueLabel="Faturamento mensal da empresa"
+          ctaLabel="Enviar"
+          ctaNote="Reunião por vídeo · resposta em até 1 dia útil"
+          hidePrivacy
+          twoStep
+          revenueOptions={BUSCA_REVENUE}
+        />
+      </div>
+    );
+  }
   return (
     <div className="ads-card ads-form-slot">
       <p className="ads-form-title">Converse sobre o seu projeto</p>
@@ -204,12 +299,39 @@ export function PaginaAdsA({
   useAbVisit(variante);
   useAbrirNoTopo();
   const sticky = useStickyCta(".ads-first, .ads-last, .ads-footer");
+  // /busca (Google Ads): variante null. /adsa segue exatamente como antes.
+  const busca = variante === null;
+  const fatos = (
+    <ul className="ads-facts">
+      <li>
+        <b>+8</b> anos de operação
+      </li>
+      <li>
+        <b>BR</b> clientes em todo o Brasil
+      </li>
+      <li>
+        <b>80%</b> estratégia
+      </li>
+    </ul>
+  );
   return (
-    <div className="ads-page">
+    <div className={busca ? "ads-page ads-busca" : "ads-page"}>
       <header className="ads-topbar">
         <div className="ads-container ads-topbar-inner">
           {/* Muita gente clica no logo: leva ao formulário, nunca para fora. */}
-          <a href="#formulario" className="ads-logo-link" aria-label="Ir para o formulário">
+          <a
+            href="#formulario"
+            className="ads-logo-link"
+            aria-label="Ir para o formulário"
+            onClick={
+              busca
+                ? (e) => {
+                    e.preventDefault();
+                    irParaFormulario(document.querySelector(".ads-first .ads-form-slot"), true);
+                  }
+                : undefined
+            }
+          >
             <img
               src={LOGO}
               alt="Legacy BrandCo."
@@ -237,36 +359,32 @@ export function PaginaAdsA({
                 <strong>vender mais</strong>.
               </p>
             </div>
-            <FormSlot />
-            {/* No celular os números vêm depois do formulário, para ele caber na primeira tela. */}
-            <ul className="ads-facts">
-              <li>
-                <b>+8</b> anos de operação
-              </li>
-              <li>
-                <b>BR</b> clientes em todo o Brasil
-              </li>
-              <li>
-                <b>80%</b> estratégia
-              </li>
-            </ul>
+            <FormSlot busca={busca} />
+            {/* No celular os números vêm depois do formulário, para ele caber na primeira tela
+                (na /busca, entre o subtítulo e o formulário, numa linha só). */}
+            {fatos}
           </div>
         </section>
 
         {/* Slider full-bleed com imagens dos cases */}
         <section className="ads-fullbleed">
-          <AdsSlider />
+          <AdsSlider estatico={busca} />
         </section>
+        {busca && (
+          <div className="ads-container ads-after-slider">
+            <BuscaCta>Quero uma marca nesse nível</BuscaCta>
+          </div>
+        )}
 
         {/* Como funciona */}
         <section className="ads-section">
           <div className="ads-container">
             <Label>COMO FUNCIONA</Label>
             <h2 className="ads-h2">
-              Três passos até a sua <strong>conversa</strong>
+              Três passos até a sua <strong>{busca ? "reunião" : "conversa"}</strong>
             </h2>
             <ol className="ads-steps">
-              {PASSOS.map((p) => (
+              {(busca ? PASSOS_BUSCA : PASSOS).map((p) => (
                 <li key={p.n}>
                   <span className="ads-step-num">{p.n}</span>
                   <p className="ads-h3">{p.t}</p>
@@ -274,10 +392,12 @@ export function PaginaAdsA({
                 </li>
               ))}
             </ol>
+            {busca && <BuscaCta>Agendar minha reunião</BuscaCta>}
           </div>
         </section>
 
-        {/* Sobre */}
+        {/* Sobre (na /busca, junto com o método, mais abaixo) */}
+        {!busca && (
         <section className="ads-section">
           <div className="ads-container ads-about">
             <div className="ads-about-cols">
@@ -299,6 +419,7 @@ export function PaginaAdsA({
             </div>
           </div>
         </section>
+        )}
 
         {/* Depoimentos */}
         <section className="ads-section ads-section-dark">
@@ -308,8 +429,8 @@ export function PaginaAdsA({
               O que dizem sobre o <strong>nosso trabalho</strong>
             </h2>
             <div className="ads-testimonials">
-              {depoimentos.map((d) => (
-                <a key={d.src} href="#formulario" className="ads-shot-link">
+              {depoimentos.map((d) => {
+                const fig = (
                   <figure className="ads-shot ads-shot-dark">
                     <img
                       src={d.src}
@@ -320,18 +441,55 @@ export function PaginaAdsA({
                       decoding="async"
                     />
                   </figure>
-                </a>
-              ))}
+                );
+                return busca ? (
+                  <div key={d.src} className="ads-shot-link">
+                    {fig}
+                  </div>
+                ) : (
+                  <a key={d.src} href="#formulario" className="ads-shot-link">
+                    {fig}
+                  </a>
+                );
+              })}
             </div>
+            {busca ? (
+              <BuscaCta>Quero conversar sobre o meu projeto</BuscaCta>
+            ) : (
             <div className="ads-cta-row">
               <a href="#formulario" className="ads-cta">
                 Quero conversar sobre o projeto
               </a>
             </div>
+            )}
           </div>
         </section>
 
-        {/* Método 80/20 */}
+        {/* Método 80/20 (na /busca, com o "Sobre" num parágrafo só) */}
+        {busca ? (
+          <section className="ads-section">
+            <div className="ads-container ads-method">
+              <div>
+                <Label>SOBRE E MÉTODO</Label>
+                <p className="ads-method-title">
+                  <span className="ads-accent">80%</span> estratégia.
+                  <br />
+                  <span className="ads-dim">20% execução visual.</span>
+                </p>
+              </div>
+              <div>
+                <p className="ads-body ads-measure">
+                  Há <strong>mais de 8 anos</strong> construímos marcas para negócios em todo o
+                  Brasil. Antes de definir logotipo, cor ou tipografia, entendemos{" "}
+                  <strong>o que o seu negócio faz</strong>, <strong>contra quem ele compete</strong>{" "}
+                  e <strong>quem precisa ser convencido</strong>. A identidade visual é a{" "}
+                  <strong>conclusão</strong> desse processo, não o começo dele.
+                </p>
+                <BuscaCta>Solicitar análise da minha marca</BuscaCta>
+              </div>
+            </div>
+          </section>
+        ) : (
         <section className="ads-section">
           <div className="ads-container ads-method">
             <div>
@@ -350,6 +508,7 @@ export function PaginaAdsA({
             </p>
           </div>
         </section>
+        )}
 
         {/* FAQ */}
         <section className="ads-section ads-faq-sec">
@@ -361,7 +520,7 @@ export function PaginaAdsA({
               </h2>
             </div>
             <div className="ads-faq">
-              {FAQ.map((f) => (
+              {(busca ? FAQ_BUSCA : FAQ).map((f) => (
                 <details key={f.q}>
                   <summary>{f.q}</summary>
                   <p>{f.a}</p>
@@ -369,6 +528,11 @@ export function PaginaAdsA({
               ))}
             </div>
           </div>
+          {busca && (
+            <div className="ads-container">
+              <BuscaCta>Receber uma proposta</BuscaCta>
+            </div>
+          )}
         </section>
 
         {/* Formulário final */}
@@ -385,7 +549,7 @@ export function PaginaAdsA({
                 <strong>R$ 5 mil</strong>.
               </p>
             </div>
-            <FormSlot />
+            <FormSlot busca={busca} />
           </div>
         </section>
       </main>
@@ -404,8 +568,9 @@ export function PaginaAdsA({
         className={`ads-sticky${sticky ? " on" : ""}`}
         aria-hidden={!sticky}
         tabIndex={sticky ? 0 : -1}
+        onClick={busca ? irParaFormularioFinal : undefined}
       >
-        Quero conversar sobre o projeto
+        {busca ? "Agendar minha reunião" : "Quero conversar sobre o projeto"}
       </a>
 
       <style>{`
@@ -681,6 +846,31 @@ export function PaginaAdsA({
           }
           .ads-slider-cap { padding-inline: 80px; }
           .ads-steps li { padding: 28px; }
+        }
+
+        /* Só /busca */
+        .ads-busca .lbc-next {
+          width: 100% !important; background: #CFFF87 !important; color: #121110 !important;
+          border-radius: 8px !important; font-size: 15px !important; padding: 16px 24px !important;
+        }
+        .ads-busca .lbc-next + p { margin-top: -6px; }
+        .ads-busca .ads-after-slider .ads-cta-row { margin-top: 32px; }
+        .ads-busca .ads-faq-sec .ads-cta-row { margin-top: 40px; }
+        .ads-busca .ads-card { transition: box-shadow .3s; }
+        .ads-busca .ads-card.ads-flash { box-shadow: 0 0 0 3px #D75631, 0 12px 36px rgba(18,17,16,0.06); }
+        @media (prefers-reduced-motion: reduce) { .ads-busca .ads-card { transition: none; } }
+        @media (max-width: 767px) {
+          .ads-busca .ads-first .ads-hero-grid { grid-template-areas: "copy" "facts" "form"; gap: 12px; }
+          .ads-busca .ads-first .ads-facts {
+            margin: 0; flex-wrap: nowrap; justify-content: center; gap: 12px;
+            font-size: 11.5px; white-space: nowrap;
+          }
+          .ads-busca .ads-first .ads-facts b { font-size: 13px; margin-right: 2px; }
+          .ads-busca .lbc-next { padding: 15px 20px !important; margin-top: 2px !important; }
+          .ads-busca .ads-form-slot .phone-ok { display: none; }
+        }
+        @media (min-width: 1024px) {
+          .ads-busca .ads-method .ads-measure { margin-top: 0; }
         }
       `}</style>
     </div>
