@@ -867,7 +867,6 @@ export function PaginaAdsA({
           }
           .ads-busca .ads-first .ads-facts b { font-size: 13px; margin-right: 2px; }
           .ads-busca .lbc-next { padding: 15px 20px !important; margin-top: 2px !important; }
-          .ads-busca .ads-form-slot .phone-ok { display: none; }
         }
         @media (min-width: 1024px) {
           .ads-busca .ads-method .ads-measure { margin-top: 0; }
