@@ -148,8 +148,9 @@ function AbContent({
           </button>
         </div>
         <p className="mt-3 text-xs text-neutral-500">
-          Metade dos visitantes cai na versão A (<code>/adsa</code>) e metade na B (
-          <code>/adsb</code>). Quem volta vê sempre a mesma versão. As UTMs da campanha são mantidas.{" "}
+          Teste encerrado em 12/11/2026: a versão A (<code>/adsa</code>) foi oficializada e o link
+          leva todo mundo para ela. A B (<code>/adsb</code>) segue no ar só para consulta. As UTMs
+          da campanha são mantidas.{" "}
           <a href="/adsa" target="_blank" rel="noreferrer" className="underline">
             Ver A
           </a>{" "}
