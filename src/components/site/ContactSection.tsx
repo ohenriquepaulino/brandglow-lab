@@ -90,6 +90,8 @@ export function ContactSection({
   showProfession = false,
   ctaNote,
   hidePrivacy = false,
+  twoStep = false,
+  revenueOptions = REVENUE_OPTIONS,
 }: {
   redirectTo?: string;
   redirectToNoRevenue?: string;
@@ -102,6 +104,10 @@ export function ContactSection({
   ctaNote?: string;
   /** Sem a linha da política abaixo do botão (a página já tem no rodapé). */
   hidePrivacy?: boolean;
+  /** Duas etapas: nome + WhatsApp, depois o resto. O envio continua um só, no fim. */
+  twoStep?: boolean;
+  /** Faixas do faturamento (padrão: as de sempre). */
+  revenueOptions?: string[];
 } = {}) {
   const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false);
@@ -115,6 +121,9 @@ export function ContactSection({
   const [verba, setVerba] = useState("");
   const [utms, setUtms] = useState<UtmData>({});
   const [attempted, setAttempted] = useState(false);
+  const [step, setStep] = useState<1 | 2>(1);
+  const formRef = useRef<HTMLFormElement>(null);
+  const advancedRef = useRef(false);
 
   useEffect(() => {
     setUtms(captureUtmsFromUrl());
@@ -147,8 +156,36 @@ export function ContactSection({
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  const step1Valid = nameValid && phoneValid;
+  const onStep1 = twoStep && step === 1;
+  const onStep2 = twoStep && step === 2;
+  const currentValid = onStep1 ? step1Valid : formValid;
+
+  function goNext() {
+    if (!step1Valid) {
+      setAttempted(true);
+      return;
+    }
+    setAttempted(false);
+    advancedRef.current = true;
+    setStep(2);
+  }
+
+  // Ao avançar, foco no primeiro campo da etapa 2 sem a página pular.
+  useEffect(() => {
+    if (step !== 2 || !advancedRef.current) return;
+    advancedRef.current = false;
+    formRef.current
+      ?.querySelector<HTMLSelectElement>('select[name="revenue"]')
+      ?.focus({ preventScroll: true });
+  }, [step]);
+
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (onStep1) {
+      goNext();
+      return;
+    }
     if (!formValid) {
       setAttempted(true);
       return;
@@ -245,10 +282,47 @@ export function ContactSection({
               </p>
             </div>
           ) : (
-            <form onSubmit={onSubmit} noValidate className="flex flex-col gap-6">
+            <form
+              ref={formRef}
+              onSubmit={onSubmit}
+              onKeyDown={
+                onStep1
+                  ? (e) => {
+                      if (e.key === "Enter" && (e.target as HTMLElement).tagName === "INPUT") {
+                        e.preventDefault();
+                        goNext();
+                      }
+                    }
+                  : undefined
+              }
+              noValidate
+              className="flex flex-col gap-6"
+            >
               {formHint && <p className="text-sm font-medium text-ink/80">{formHint}</p>}
+              {twoStep && (
+                <div className="lbc-steps-row">
+                  {onStep2 ? (
+                    <button
+                      type="button"
+                      className="lbc-back"
+                      onClick={() => {
+                        setAttempted(false);
+                        setStep(1);
+                      }}
+                    >
+                      ← Voltar
+                    </button>
+                  ) : (
+                    <span />
+                  )}
+                  <span className="lbc-step-count" aria-live="polite">
+                    {step} de 2
+                  </span>
+                </div>
+              )}
               <div className="grid gap-6 md:grid-cols-2">
                 <Field
+                  hidden={onStep2}
                   label="Nome completo"
                   error={attempted && !nameValid ? "Informe seu nome completo" : undefined}
                 >
@@ -267,6 +341,7 @@ export function ContactSection({
                   />
                 </Field>
                 <PhoneField
+                  hidden={onStep2}
                   pais={pais}
                   digitos={phone}
                   erro={phoneError}
@@ -297,6 +372,7 @@ export function ContactSection({
                   </Field>
                 )}
                 <Field
+                  hidden={onStep1}
                   label={revenueLabel}
                   error={attempted && !revenueValid ? "Selecione uma faixa" : undefined}
                 >
@@ -311,12 +387,12 @@ export function ContactSection({
                     <option value="" disabled>
                       Selecione uma faixa
                     </option>
-                    {REVENUE_OPTIONS.map((o) => (
+                    {revenueOptions.map((o) => (
                       <option key={o}>{o}</option>
                     ))}
                   </select>
                 </Field>
-                {noRevenue && (
+                {noRevenue && !onStep1 && (
                   <>
                     <Field
                       label="Em que momento está o seu negócio?"
@@ -362,6 +438,7 @@ export function ContactSection({
                 )}
                 {showProfession && (
                   <ProfessionField
+                    hidden={onStep1}
                     value={profession}
                     onChange={setProfession}
                     error={
@@ -376,7 +453,7 @@ export function ContactSection({
                 utms[k] ? <input key={k} type="hidden" name={k} value={utms[k]} /> : null,
               )}
 
-              {attempted && !formValid && (
+              {attempted && !currentValid && (
                 <p className="text-sm font-medium text-red-600">
                   Preencha os campos destacados para continuar.
                 </p>
@@ -384,13 +461,25 @@ export function ContactSection({
 
               {submitError && <p className="text-sm text-red-600">{submitError}</p>}
 
+              {onStep1 ? (
+                <button
+                  key="next"
+                  type="button"
+                  onClick={goNext}
+                  className="lbc-next mt-2 inline-flex w-fit items-center justify-center rounded-full bg-gradient-to-r from-lime-brand to-[#a8f25a] px-8 py-4 text-sm font-semibold text-ink transition-opacity hover:opacity-90"
+                >
+                  Continuar
+                </button>
+              ) : (
               <button
+                key="submit"
                 type="submit"
                 disabled={submitting}
                 className="mt-2 inline-flex w-fit items-center justify-center rounded-full bg-gradient-to-r from-lime-brand to-[#a8f25a] px-8 py-4 text-sm font-semibold text-ink transition-opacity hover:opacity-90 disabled:opacity-60"
               >
                 {submitting ? "Enviando..." : ctaLabel}
               </button>
+              )}
               {ctaNote && <p className="-mt-3 text-xs text-ink/60">{ctaNote}</p>}
               {/* div, não p: o <dialog> da política não pode ficar dentro de <p>. */}
               {!hidePrivacy && (
@@ -482,6 +571,10 @@ export function ContactSection({
         .phone-ok b { font-weight: 600; white-space: nowrap; }
         .phone-dica { font-size: 12px; line-height: 1.3; color: #8a8882; }
         .suggest-wrap { position: relative; }
+        .lbc-steps-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: -8px; }
+        .lbc-step-count { font-size: 12px; color: #8a8882; }
+        .lbc-back { font-size: 13px; color: #6b6964; background: none; border: 0; padding: 0; cursor: pointer; }
+        .lbc-back:hover { color: #121110; }
         .suggest-list {
           position: absolute;
           z-index: 30;
@@ -517,13 +610,15 @@ function Field({
   label,
   error,
   children,
+  hidden,
 }: {
   label: string;
   error?: string;
   children: React.ReactNode;
+  hidden?: boolean;
 }) {
   return (
-    <label className="flex flex-col gap-2">
+    <label className="flex flex-col gap-2" hidden={hidden || undefined}>
       <span className="text-[11px] font-normal uppercase tracking-[0.18em] text-muted-foreground">
         {label}
       </span>
@@ -540,6 +635,7 @@ function Field({
  * válido, mostra por extenso para a pessoa conferir.
  */
 function PhoneField({
+  hidden,
   pais,
   digitos,
   erro,
@@ -547,6 +643,7 @@ function PhoneField({
   onPais,
   onDigitos,
 }: {
+  hidden?: boolean;
   pais: Pais;
   digitos: string;
   erro: string | null;
@@ -562,7 +659,7 @@ function PhoneField({
   const mostrarErro = !!erro && (tentouEnviar || (saiu && digitos.length > 0) || erro55);
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2" hidden={hidden || undefined}>
       <label
         htmlFor="lbc-whatsapp"
         className="text-[11px] font-normal uppercase tracking-[0.18em] text-muted-foreground"
@@ -627,11 +724,13 @@ function PhoneField({
 }
 
 function ProfessionField({
+  hidden,
   value,
   onChange,
   error,
   invalid,
 }: {
+  hidden?: boolean;
   value: string;
   onChange: (v: string) => void;
   error?: string;
@@ -666,7 +765,7 @@ function ProfessionField({
   const showList = open && options.length > 0;
 
   return (
-    <Field label="Qual é a sua principal área de atuação?" error={error}>
+    <Field label="Qual é a sua principal área de atuação?" error={error} hidden={hidden}>
       <div className="suggest-wrap" ref={wrapRef}>
         <input
           required

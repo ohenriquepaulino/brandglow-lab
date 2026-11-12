@@ -50,10 +50,15 @@ type PeriodoId = (typeof PERIODOS)[number]["id"];
 /** Faixas na ordem do formulário (do menor para o maior). */
 const ORDEM_FATURAMENTO = [
   "Ainda não estou faturando",
+  "Até R$ 4.000",
   "Até R$ 6.000",
+  "De R$ 4.000 a R$ 10.000",
   "De R$ 6.000 a R$ 10.000",
   "De R$ 10.000 a R$ 20.000",
+  "De R$ 10.000 a R$ 30.000",
   "Acima de R$ 20.000",
+  "De R$ 30.000 a R$ 60.000",
+  "Acima de R$ 60.000",
 ];
 
 function diaLocal(iso: string) {

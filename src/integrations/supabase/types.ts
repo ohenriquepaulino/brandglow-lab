@@ -50,6 +50,57 @@ export type Database = {
         }
         Relationships: []
       }
+      cadencia_passos: {
+        Row: {
+          ativo: boolean
+          dia: number
+          id: string
+          mensagem: string
+          ordem: number
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          ativo?: boolean
+          dia: number
+          id?: string
+          mensagem?: string
+          ordem: number
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          ativo?: boolean
+          dia?: number
+          id?: string
+          mensagem?: string
+          ordem?: number
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: []
+      }
+      conselheiro_config: {
+        Row: {
+          id: number
+          instrucoes: string
+          modelo: string
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          instrucoes?: string
+          modelo?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          instrucoes?: string
+          modelo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
@@ -305,6 +356,7 @@ export type Database = {
           installments_note: string
           price_total: number
           product: string
+          show_card: boolean
           show_diagnosis: boolean
           slug: string
           updated_at: string
@@ -327,6 +379,7 @@ export type Database = {
           installments_note?: string
           price_total?: number
           product?: string
+          show_card?: boolean
           show_diagnosis?: boolean
           slug: string
           updated_at?: string
@@ -349,6 +402,7 @@ export type Database = {
           installments_note?: string
           price_total?: number
           product?: string
+          show_card?: boolean
           show_diagnosis?: boolean
           slug?: string
           updated_at?: string
@@ -490,6 +544,7 @@ export type Database = {
       }
       video_links: {
         Row: {
+          aberto: boolean
           criado_em: string
           destinatario: string
           id: string
@@ -498,6 +553,7 @@ export type Database = {
           video_id: string
         }
         Insert: {
+          aberto?: boolean
           criado_em?: string
           destinatario: string
           id?: string
@@ -506,6 +562,7 @@ export type Database = {
           video_id: string
         }
         Update: {
+          aberto?: boolean
           criado_em?: string
           destinatario?: string
           id?: string
@@ -538,13 +595,16 @@ export type Database = {
           dispositivo: string
           id: string
           iniciado_em: string
+          lead_id: string | null
           link_id: string
           maximo_seg: number
+          nome: string | null
           posicao_seg: number
           resumo_pendente: boolean
           resumos_enviados: number
           ultimo_evento_em: string
           visitante: string
+          whatsapp: string | null
         }
         Insert: {
           assistidos?: number[]
@@ -553,13 +613,16 @@ export type Database = {
           dispositivo?: string
           id?: string
           iniciado_em?: string
+          lead_id?: string | null
           link_id: string
           maximo_seg?: number
+          nome?: string | null
           posicao_seg?: number
           resumo_pendente?: boolean
           resumos_enviados?: number
           ultimo_evento_em?: string
           visitante: string
+          whatsapp?: string | null
         }
         Update: {
           assistidos?: number[]
@@ -568,15 +631,25 @@ export type Database = {
           dispositivo?: string
           id?: string
           iniciado_em?: string
+          lead_id?: string | null
           link_id?: string
           maximo_seg?: number
+          nome?: string | null
           posicao_seg?: number
           resumo_pendente?: boolean
           resumos_enviados?: number
           ultimo_evento_em?: string
           visitante?: string
+          whatsapp?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "video_sessoes_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "video_sessoes_link_id_fkey"
             columns: ["link_id"]
@@ -591,6 +664,7 @@ export type Database = {
           criado_em: string
           duracao_seg: number | null
           id: string
+          proposta_slug: string | null
           titulo: string
           youtube_id: string
         }
@@ -598,6 +672,7 @@ export type Database = {
           criado_em?: string
           duracao_seg?: number | null
           id?: string
+          proposta_slug?: string | null
           titulo: string
           youtube_id: string
         }
@@ -605,6 +680,7 @@ export type Database = {
           criado_em?: string
           duracao_seg?: number | null
           id?: string
+          proposta_slug?: string | null
           titulo?: string
           youtube_id?: string
         }
@@ -618,6 +694,7 @@ export type Database = {
           aviso_grupo_convite: string | null
           aviso_grupo_id: string | null
           aviso_grupo_nome: string | null
+          cadencia_ativa: boolean
           cron_token: string
           followup_lido_em: string | null
           followup_resumo_ativo: boolean
@@ -635,6 +712,7 @@ export type Database = {
           aviso_grupo_convite?: string | null
           aviso_grupo_id?: string | null
           aviso_grupo_nome?: string | null
+          cadencia_ativa?: boolean
           cron_token?: string
           followup_lido_em?: string | null
           followup_resumo_ativo?: boolean
@@ -652,6 +730,7 @@ export type Database = {
           aviso_grupo_convite?: string | null
           aviso_grupo_id?: string | null
           aviso_grupo_nome?: string | null
+          cadencia_ativa?: boolean
           cron_token?: string
           followup_lido_em?: string | null
           followup_resumo_ativo?: boolean
@@ -672,6 +751,7 @@ export type Database = {
           id: string
           lead_id: string | null
           mensagem: string
+          passo_id: string | null
           status: string
           telefone: string
           tipo: string
@@ -683,6 +763,7 @@ export type Database = {
           id?: string
           lead_id?: string | null
           mensagem: string
+          passo_id?: string | null
           status: string
           telefone: string
           tipo?: string
@@ -694,6 +775,7 @@ export type Database = {
           id?: string
           lead_id?: string | null
           mensagem?: string
+          passo_id?: string | null
           status?: string
           telefone?: string
           tipo?: string
@@ -704,6 +786,13 @@ export type Database = {
             columns: ["lead_id"]
             isOneToOne: false
             referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "whatsapp_envios_passo_id_fkey"
+            columns: ["passo_id"]
+            isOneToOne: false
+            referencedRelation: "cadencia_passos"
             referencedColumns: ["id"]
           },
         ]
@@ -737,6 +826,7 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      lead_por_whatsapp: { Args: { p_whatsapp: string }; Returns: string }
       move_to_dlq: {
         Args: {
           dlq_name: string
