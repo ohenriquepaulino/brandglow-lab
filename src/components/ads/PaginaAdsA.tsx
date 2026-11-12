@@ -863,7 +863,7 @@ export function PaginaAdsA({
           .ads-busca .ads-first .ads-hero-grid { grid-template-areas: "copy" "facts" "form"; gap: 12px; }
           .ads-busca .ads-first .ads-facts {
             margin: 0; flex-wrap: nowrap; justify-content: center; gap: 8px;
-            font-size: 10.5px; white-space: nowrap; letter-spacing: -0.03em;
+            font-size: 10px; white-space: nowrap; letter-spacing: -0.03em;
           }
           .ads-busca .ads-first .ads-facts b { font-size: 12px; margin-right: 2px; }
           .ads-busca .lbc-next { padding: 15px 20px !important; margin-top: 2px !important; }
