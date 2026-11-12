@@ -11,6 +11,12 @@ const FAIXAS: Record<string, { faixa: string; value: number; lead10k: boolean }>
   "De R$ 6.000 a R$ 10.000": { faixa: "6k_10k", value: 2, lead10k: false },
   "De R$ 10.000 a R$ 20.000": { faixa: "10k_20k", value: 4, lead10k: true },
   "Acima de R$ 20.000": { faixa: "acima_20k", value: 6, lead10k: true },
+  // Faixas da /busca (desde 2026-11-12). As de cima ficam: leads antigos usam.
+  "Até R$ 4.000": { faixa: "ate_4k", value: 1, lead10k: false },
+  "De R$ 4.000 a R$ 10.000": { faixa: "4k_10k", value: 2, lead10k: false },
+  "De R$ 10.000 a R$ 30.000": { faixa: "10k_30k", value: 4, lead10k: true },
+  "De R$ 30.000 a R$ 60.000": { faixa: "30k_60k", value: 6, lead10k: true },
+  "Acima de R$ 60.000": { faixa: "acima_60k", value: 6, lead10k: true },
 };
 
 export type LeadSignal = {

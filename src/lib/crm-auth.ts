@@ -99,10 +99,13 @@ export function isSemFaturamento(lead: { faturamento: string | null }): boolean 
 }
 
 export const ATE_6K = "Até R$ 6.000";
+/** Faixa equivalente da /busca, tratada como a de até R$ 6 mil. */
+export const ATE_4K = "Até R$ 4.000";
 
 /** Não fatura ou fatura até R$ 6 mil: recebe a boas-vindas com o investimento. */
 export function isAte6k(lead: { faturamento: string | null }): boolean {
-  return isSemFaturamento(lead) || (lead.faturamento ?? "").trim() === ATE_6K;
+  const f = (lead.faturamento ?? "").trim();
+  return isSemFaturamento(lead) || f === ATE_6K || f === ATE_4K;
 }
 
 export function whatsappDigits(value: string): string {
