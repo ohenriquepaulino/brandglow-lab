@@ -223,7 +223,7 @@ function FormSlot({ busca = false }: { busca?: boolean }) {
     return (
       <div className="ads-card ads-form-slot">
         <p className="ads-form-title">Conte sobre o seu projeto</p>
-        <p className="ads-form-sub">Projetos a partir de R$ 5 mil · reunião de 25 min por vídeo</p>
+        <p className="ads-form-sub">Reunião de 25 min por vídeo</p>
         <ContactSection
           redirectTo="/obrigado"
           redirectToNoRevenue="/tks"
