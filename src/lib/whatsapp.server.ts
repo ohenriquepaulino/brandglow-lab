@@ -6,6 +6,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { telefoneInternacional } from "@/lib/telefone";
 import { isAte6k } from "@/lib/crm-auth";
+import { leadSignal } from "@/lib/lead-signal";
+import { mensagemLaisCheckup, resumoCheckup, type CheckupDados } from "@/lib/checkup";
 
 const TIMEOUT_MS = 10_000;
 
@@ -297,6 +299,7 @@ export function montarAviso(lead: {
   momento?: string | null;
   verba?: string | null;
   pagina?: string | null;
+  checkup?: CheckupDados | null;
 }): string {
   const linhas = [`🔔 *NOVO LEAD NO CRM*`, lead.nome.trim()];
   // Campos que nem todo formulário pergunta: sem eles, a linha fica de fora.
@@ -305,6 +308,7 @@ export function montarAviso(lead: {
   if (lead.momento?.trim()) linhas.push(`Momento: ${lead.momento.trim()}`);
   if (lead.verba?.trim()) linhas.push(`Verba para a marca: ${lead.verba.trim()}`);
   if (lead.pagina?.trim()) linhas.push(`Página: ${lead.pagina.trim()}`);
+  if (lead.checkup) linhas.push(resumoCheckup(lead.checkup));
   linhas.push(`https://wa.me/${lead.telefone}`);
   return linhas.join("\n");
 }
@@ -327,6 +331,7 @@ export async function agendarMensagensDoLead(
     momento_negocio?: string | null;
     verba_marca?: string | null;
     pagina?: string | null;
+    checkup?: CheckupDados | null;
   },
 ) {
   try {
@@ -346,12 +351,24 @@ export async function agendarMensagensDoLead(
     const ate6k = isAte6k({ faturamento: lead.faturamento ?? null });
     const template =
       config.mensagem_ate_6k?.trim() && ate6k ? config.mensagem_ate_6k : config.mensagem;
-    if (config.ativo && template?.trim()) {
+    // Diagnóstico de marca (/checkup): só o qualificado (R$ 10 mil ou mais)
+    // recebe mensagem, e ela cita o ponto mais fraco do diagnóstico. Os outros
+    // entram no CRM e no aviso, sem boas-vindas e sem cadência.
+    const checkup = lead.checkup ?? null;
+    const qualificado = leadSignal(lead.faturamento)?.lead_10k === "sim";
+    const mensagem = checkup
+      ? qualificado
+        ? mensagemLaisCheckup(lead.nome, checkup.fraco)
+        : null
+      : template?.trim()
+        ? montarMensagem(template, lead.nome)
+        : null;
+    if (config.ativo && mensagem) {
       envios.push({
         lead_id: lead.id,
         tipo: "boas_vindas",
         telefone,
-        mensagem: montarMensagem(template, lead.nome),
+        mensagem,
         status: "pendente",
         enviar_em: foraDoSilencio(
           new Date(agora + (config.atraso_segundos ?? 30) * 1000),
@@ -374,6 +391,7 @@ export async function agendarMensagensDoLead(
           momento: lead.momento_negocio,
           verba: lead.verba_marca,
           pagina: lead.pagina,
+          checkup: lead.checkup,
         }),
         status: "pendente",
         enviar_em: new Date(agora).toISOString(),
@@ -381,7 +399,7 @@ export async function agendarMensagensDoLead(
     }
     // Cadência: agenda todos os passos, até os desligados (o passo é relido
     // na hora do envio; ligar o D5 depois vale para quem já está na régua).
-    if (config.ativo && config.cadencia_ativa && ate6k && lead.id) {
+    if (config.ativo && config.cadencia_ativa && ate6k && !checkup && lead.id) {
       const { data: passos } = await supabase
         .from("cadencia_passos")
         .select("id, dia, mensagem")

@@ -56,6 +56,8 @@ export function normalizeColuna(id: string): string {
   return TODAS_COLUNAS.some((c) => c.id === mapped) ? mapped : "novo-lead";
 }
 
+import type { CheckupDados } from "@/lib/checkup";
+
 export type ColunaId = string;
 
 export type Lead = {
@@ -82,6 +84,8 @@ export type Lead = {
   ganho_em?: string | null;
   /** Tag da última leitura de follow-up (botão "Ver follow-ups"). */
   followup?: Followup | null;
+  /** Respostas do diagnóstico de marca (/checkup). */
+  checkup?: CheckupDados | null;
 };
 
 export type Movimentacao = {

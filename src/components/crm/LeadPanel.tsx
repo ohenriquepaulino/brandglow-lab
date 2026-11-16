@@ -14,6 +14,7 @@ import {
   type Lead,
   type Movimentacao,
 } from "@/lib/crm-auth";
+import { PERGUNTAS, PONTOS, type CheckupDados } from "@/lib/checkup";
 
 export function LeadPanel({
   lead,
@@ -185,6 +186,8 @@ export function LeadPanel({
           <Row label="Entrada">{formatDateTime(lead.criado_em)}</Row>
         </dl>
 
+        {lead.checkup && <DiagnosticoDoLead checkup={lead.checkup} />}
+
         <div className="mt-6">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-neutral-500">
             UTMs
@@ -250,6 +253,30 @@ const ENVIO_LABEL: Record<WhatsAppEnvio["status"], { texto: string; cor: string 
   erro: { texto: "✕ Mensagem automática falhou", cor: "text-red-600" },
   cancelado: { texto: "– Mensagem automática cancelada", cor: "text-neutral-400" },
 };
+
+function DiagnosticoDoLead({ checkup }: { checkup: CheckupDados }) {
+  return (
+    <div className="mt-6">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-neutral-500">
+        Diagnóstico de marca
+      </p>
+      <div className="mt-2 rounded-md border p-3 text-sm" style={{ borderColor: "#E0DED9" }}>
+        <p className="text-neutral-900">
+          Abismo <strong>{checkup.abismo}</strong> · mais fraco em{" "}
+          <strong>{PONTOS[checkup.fraco]?.nome ?? checkup.fraco}</strong>
+        </p>
+        <dl className="mt-3 space-y-2">
+          {PERGUNTAS.filter((p) => checkup.respostas[p.id]).map((p) => (
+            <div key={p.id}>
+              <dt className="text-[10px] uppercase tracking-wide text-neutral-500">{p.curto}</dt>
+              <dd className="text-neutral-800">{checkup.respostas[p.id]}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </div>
+  );
+}
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (

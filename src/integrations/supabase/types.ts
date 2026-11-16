@@ -273,6 +273,7 @@ export type Database = {
       leads: {
         Row: {
           anotacoes: string | null
+          checkup: Json | null
           coluna: string
           criado_em: string
           faturamento: string
@@ -295,6 +296,7 @@ export type Database = {
         }
         Insert: {
           anotacoes?: string | null
+          checkup?: Json | null
           coluna?: string
           criado_em?: string
           faturamento: string
@@ -317,6 +319,7 @@ export type Database = {
         }
         Update: {
           anotacoes?: string | null
+          checkup?: Json | null
           coluna?: string
           criado_em?: string
           faturamento?: string

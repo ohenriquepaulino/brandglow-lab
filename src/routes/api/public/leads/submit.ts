@@ -22,6 +22,15 @@ const LeadSchema = z.object({
   momento_negocio: z.string().trim().max(80).nullish(),
   verba_marca: z.string().trim().max(40).nullish(),
   pagina: z.string().trim().max(120).nullish(),
+  // Respostas do diagnóstico de marca (/checkup). Formato em src/lib/checkup.ts.
+  checkup: z
+    .object({
+      versao: z.literal(1),
+      respostas: z.record(z.string().max(40), z.string().max(400)),
+      fraco: z.enum(["posicionamento", "abismo", "mensagem", "negocio"]),
+      abismo: z.enum(["pequeno", "médio", "grande"]),
+    })
+    .nullish(),
 
   utm_source: z.string().max(120).nullish(),
   utm_medium: z.string().max(120).nullish(),
@@ -176,6 +185,7 @@ export const Route = createFileRoute("/api/public/leads/submit")({
             momento_negocio: parsed.momento_negocio?.trim() || null,
             verba_marca: parsed.verba_marca?.trim() || null,
             pagina: parsed.pagina?.trim() || null,
+            checkup: parsed.checkup ?? null,
 
             utm_source: parsed.utm_source ?? null,
             utm_medium: parsed.utm_medium ?? null,
@@ -215,6 +225,7 @@ export const Route = createFileRoute("/api/public/leads/submit")({
           momento_negocio: parsed.momento_negocio,
           verba_marca: parsed.verba_marca,
           pagina: parsed.pagina,
+          checkup: parsed.checkup ?? null,
         });
         await notify(origin, parsed);
         if (!parsed.skip_meta) {
