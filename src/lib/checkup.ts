@@ -260,3 +260,75 @@ export function mensagemLaisCheckup(nome: string, fraco: Ponto): string {
     `Queria marcar 25 min por vídeo pra te mostrar o que mudaria na sua marca. Qual dia fica melhor pra você essa semana`,
   ].join("\n\n");
 }
+
+// ---------------------------------------------------------------------------
+// Validações e textos que mudam conforme a resposta.
+
+const NOMES_FALSOS = [
+  "teste",
+  "test",
+  "testando",
+  "asdf",
+  "qwerty",
+  "fulano",
+  "ciclano",
+  "beltrano",
+  "nome",
+  "sobrenome",
+  "admin",
+  "lead",
+  "ninguem",
+  "anonimo",
+  "xxx",
+  "abc",
+  "aaa",
+  "eu",
+  "sei la",
+];
+
+/** null = nome aceito; senão, o que dizer. */
+export function erroNome(valor: string): string | null {
+  const nome = valor.trim().replace(/\s+/g, " ");
+  if (!nome) return "Digite o seu nome";
+  if (/\d/.test(nome)) return "O nome não pode ter números";
+  if (!/^[\p{L}' .-]+$/u.test(nome)) return "Use só letras no nome";
+  const letras = nome.replace(/[^\p{L}]/gu, "");
+  if (letras.length < 3) return "Digite o seu nome completo";
+  const base = semAcento(nome);
+  if (NOMES_FALSOS.some((f) => base === f || base.startsWith(`${f} `))) {
+    return "Digite o seu nome de verdade, é ele que vai no diagnóstico";
+  }
+  // "aaaa", "kkkk", "ssss": a mesma letra três vezes seguidas.
+  if (/(\p{L})\1\1/u.test(base)) return "Confira o seu nome";
+  // Sem nenhuma vogal ("bcdf", "jkl"): digitação aleatória.
+  if (!/[aeiouy]/.test(base)) return "Confira o seu nome";
+  return null;
+}
+
+/** null = resposta aberta aceita; senão, o que dizer. */
+export function erroRespostaAberta(valor: string): string | null {
+  const t = semAcento(valor.trim());
+  const palavras = t.split(/\s+/).filter((p) => /[a-z]/.test(p));
+  if (palavras.length < 3 || t.length < 15) return "Escreva pelo menos uma frase completa";
+  if (/\b(teste|asdf|qwerty)\b/.test(t) || /(\w)\1\1\1/.test(t)) {
+    return "Escreva a sua resposta de verdade: é ela que a gente analisa";
+  }
+  return null;
+}
+
+// Quem é o "cliente" em cada área: o diagnóstico fala a língua de quem responde.
+const CLIENTE_POR_AREA: Record<string, [string, string]> = {
+  Saúde: ["paciente", "pacientes"],
+  "Estética e bem-estar": ["cliente", "clientes"],
+  "Educação e mentoria": ["aluno", "alunos"],
+};
+
+/** Troca "cliente(s)" pela palavra da área ("paciente", "aluno"), mantendo maiúscula. */
+export function falarComArea(texto: string, area: string | undefined): string {
+  const par = area ? CLIENTE_POR_AREA[area] : undefined;
+  if (!par) return texto;
+  return texto.replace(/\b([Cc])liente(s?)\b/g, (_m, c: string, plural: string) => {
+    const p = plural ? par[1] : par[0];
+    return c === "C" ? p[0]!.toUpperCase() + p.slice(1) : p;
+  });
+}

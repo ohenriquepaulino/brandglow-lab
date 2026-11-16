@@ -4,12 +4,25 @@ import { PrivacyButton } from "@/components/site/PrivacyDialog";
 import { captureUtmsFromUrl, type UtmData } from "@/lib/utm";
 import { leadSignal } from "@/lib/lead-signal";
 import { dispararConversoesLead, eventoMeta } from "@/lib/conversoes";
-import { BRASIL, erroBR, limparBR, mascaraBR, telefoneParaEnvio } from "@/lib/telefone";
+import {
+  BRASIL,
+  PAISES,
+  erroBR,
+  erroExterior,
+  limparBR,
+  mascaraBR,
+  telefoneLegivel,
+  telefoneParaEnvio,
+  type Pais,
+} from "@/lib/telefone";
 import {
   PERGUNTAS,
   PONTOS,
   ROTULO_NOTA,
   diagnosticar,
+  erroNome,
+  erroRespostaAberta,
+  falarComArea,
   listaComE,
   type CheckupDados,
   type Diagnostico,
@@ -21,11 +34,11 @@ import {
 // Conteúdo e regras em src/lib/checkup.ts.
 
 const LOGO = "/proposta/brand/legacy-logo-preto.webp";
-const WHATSAPP_LAIS = "5511966064917";
-const VIDEO_COMO_FUNCIONA = "/v/apresentacao-44nj-legacy";
 const SEM_FATURAMENTO = "Ainda não estou faturando";
 // Guarda o resultado: recarregar a página mostra o diagnóstico de novo, sem reenviar.
 const STORAGE = "lbc_checkup_v1";
+// Guarda o andamento: recarregar no meio do quiz volta para a mesma pergunta.
+const PROGRESSO = "lbc_checkup_progresso_v1";
 
 export const Route = createFileRoute("/checkup")({
   head: () => ({
@@ -64,6 +77,7 @@ type Tela =
 
 type Resultado = {
   nome: string;
+  telefone?: string;
   respostas: Respostas;
   diag: Diagnostico;
   qualificado: boolean;
@@ -82,7 +96,8 @@ function CheckupPage() {
   const [tela, setTela] = useState<Tela>({ t: "inicio" });
   const [respostas, setRespostas] = useState<Respostas>({});
   const [nome, setNome] = useState("");
-  const [fone, setFone] = useState("");
+  const [pais, setPais] = useState<Pais>(BRASIL);
+  const [fone, setFone] = useState(""); // só dígitos, sem o código do país
   const [tentou, setTentou] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
@@ -96,8 +111,33 @@ function CheckupPage() {
     if (salvo) {
       setResultado(salvo);
       setTela({ t: "resultado" });
+      return;
+    }
+    try {
+      const p = JSON.parse(sessionStorage.getItem(PROGRESSO) ?? "null") as {
+        tela: Tela;
+        respostas: Respostas;
+        nome: string;
+      } | null;
+      if (p && p.tela.t !== "resultado") {
+        setRespostas(p.respostas ?? {});
+        setNome(p.nome ?? "");
+        // O WhatsApp não é guardado: quem volta cai no nome.
+        setTela(p.tela.t === "whatsapp" ? { t: "nome" } : p.tela);
+      }
+    } catch {
+      // sem storage: começa do zero
     }
   }, []);
+
+  useEffect(() => {
+    if (tela.t === "inicio" || tela.t === "resultado") return;
+    try {
+      sessionStorage.setItem(PROGRESSO, JSON.stringify({ tela, respostas, nome }));
+    } catch {
+      // sem storage: só não guarda o andamento
+    }
+  }, [tela, respostas, nome]);
 
   // Cada tela nova começa do topo, com o foco no primeiro campo.
   useEffect(() => {
@@ -130,7 +170,8 @@ function CheckupPage() {
     window.setTimeout(() => avancar(i), 220);
   }
 
-  const erroFone = erroBR(fone);
+  const erroFone = pais.iso === "BR" ? erroBR(fone) : erroExterior(fone);
+  const erroDoNome = erroNome(nome);
 
   async function enviar() {
     if (erroFone) {
@@ -157,8 +198,8 @@ function CheckupPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          nome: nome.trim(),
-          whatsapp: telefoneParaEnvio(BRASIL, fone),
+          nome: nome.trim().replace(/\s+/g, " "),
+          whatsapp: telefoneParaEnvio(pais, fone),
           faturamento,
           profissao: respostas.area ?? null,
           pagina: "/checkup",
@@ -178,16 +219,23 @@ function CheckupPage() {
 
       // Mesmo filtro do site: só quem fatura conta como Lead.
       if (semFaturamento) eventoMeta("LeadSemFaturamento");
-      else dispararConversoesLead(eventId, faturamento, `+55${fone}`);
+      else
+        dispararConversoesLead(
+          eventId,
+          faturamento,
+          `+${telefoneLegivel(pais, fone).replace(/\D/g, "")}`,
+        );
 
       const r: Resultado = {
         nome: nome.trim(),
+        telefone: telefoneLegivel(pais, fone),
         respostas,
         diag,
         qualificado: leadSignal(faturamento)?.lead_10k === "sim",
       };
       try {
         sessionStorage.setItem(STORAGE, JSON.stringify(r));
+        sessionStorage.removeItem(PROGRESSO);
       } catch {
         // sem storage: só não guarda para o recarregamento
       }
@@ -236,6 +284,7 @@ function CheckupPage() {
           <TelaPergunta
             key={tela.i}
             i={tela.i}
+            area={respostas.area}
             valor={respostas[PERGUNTAS[tela.i]!.id] ?? ""}
             onEscolher={escolher}
             onTexto={(id, v) => setRespostas((r) => ({ ...r, [id]: v }))}
@@ -249,7 +298,7 @@ function CheckupPage() {
             className="ck-step"
             onSubmit={(e) => {
               e.preventDefault();
-              if (nome.trim().length < 2) return setTentou(true);
+              if (erroDoNome) return setTentou(true);
               setTentou(false);
               setTela({ t: "whatsapp" });
             }}
@@ -257,15 +306,20 @@ function CheckupPage() {
             <p className="ck-kicker">Seu diagnóstico está pronto</p>
             <h1 className="ck-h">Como você se chama?</h1>
             <input
-              className={`ck-input ${tentou && nome.trim().length < 2 ? "is-err" : ""}`}
+              className={`ck-input ${tentou && erroDoNome ? "is-err" : ""}`}
               name="name"
-              autoComplete="given-name"
+              autoComplete="name"
+              autoCapitalize="words"
               placeholder="Seu nome"
               value={nome}
               maxLength={100}
-              onChange={(e) => setNome(e.target.value)}
+              onChange={(e) => {
+                setTentou(false);
+                setNome(e.target.value);
+              }}
+              onBlur={() => nome.trim() && setTentou(true)}
             />
-            {tentou && nome.trim().length < 2 && <p className="ck-err">Digite o seu nome</p>}
+            {tentou && erroDoNome && <p className="ck-err">{erroDoNome}</p>}
             <button className="ck-btn" type="submit">
               Continuar
             </button>
@@ -285,17 +339,17 @@ function CheckupPage() {
           >
             <p className="ck-kicker">Último passo</p>
             <h1 className="ck-h">Qual é o seu WhatsApp?</h1>
-            <input
-              className={`ck-input ${tentou && erroFone ? "is-err" : ""}`}
-              name="tel"
-              type="tel"
-              inputMode="tel"
-              autoComplete="tel-national"
-              placeholder="(11) 98888-7777"
-              value={mascaraBR(fone)}
-              onChange={(e) => setFone(limparBR(e.target.value))}
+            <CampoWhatsApp
+              pais={pais}
+              digitos={fone}
+              erro={erroFone}
+              tentouEnviar={tentou}
+              onPais={(p) => {
+                setPais(p);
+                setFone("");
+              }}
+              onDigitos={setFone}
             />
-            {tentou && erroFone && <p className="ck-err">{erroFone}</p>}
             {erro && <p className="ck-err">{erro}</p>}
             <button className="ck-btn" type="submit" disabled={enviando}>
               {enviando ? "Montando o seu diagnóstico…" : "Ver meu diagnóstico"}
@@ -344,6 +398,7 @@ function Inicio({ onComecar }: { onComecar: () => void }) {
 
 function TelaPergunta({
   i,
+  area,
   valor,
   onEscolher,
   onTexto,
@@ -351,6 +406,7 @@ function TelaPergunta({
   onVoltar,
 }: {
   i: number;
+  area: string | undefined;
   valor: string;
   onEscolher: (i: number, id: string, opcao: string) => void;
   onTexto: (id: string, v: string) => void;
@@ -359,10 +415,10 @@ function TelaPergunta({
 }) {
   const p = PERGUNTAS[i]!;
   const [tentou, setTentou] = useState(false);
-  const curto = valor.trim().length < 8;
+  const erroAberta = p.tipo === "aberta" ? erroRespostaAberta(valor) : null;
   return (
     <section className="ck-step">
-      <h1 className="ck-h">{p.titulo}</h1>
+      <h1 className="ck-h">{falarComArea(p.titulo, area)}</h1>
       {p.sub && <p className="ck-sub">{p.sub}</p>}
       {p.tipo === "escolha" ? (
         <div className="ck-opcoes">
@@ -381,19 +437,22 @@ function TelaPergunta({
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            if (curto) return setTentou(true);
+            if (erroAberta) return setTentou(true);
             onAvancar();
           }}
         >
           <textarea
-            className={`ck-input ck-area ${tentou && curto ? "is-err" : ""}`}
+            className={`ck-input ck-area ${tentou && erroAberta ? "is-err" : ""}`}
             rows={4}
             maxLength={400}
             placeholder={p.placeholder}
             value={valor}
-            onChange={(e) => onTexto(p.id, e.target.value)}
+            onChange={(e) => {
+              setTentou(false);
+              onTexto(p.id, e.target.value);
+            }}
           />
-          {tentou && curto && <p className="ck-err">Escreva pelo menos uma frase</p>}
+          {tentou && erroAberta && <p className="ck-err">{erroAberta}</p>}
           <button className="ck-btn" type="submit">
             Continuar
           </button>
@@ -406,10 +465,93 @@ function TelaPergunta({
   );
 }
 
+/**
+ * WhatsApp igual ao formulário do site (PhoneField do ContactSection): país
+ * na frente (Brasil, +55, já escolhido), só DDD + número. O 55 e o 0 da
+ * operadora saem sozinhos; o "55 no lugar do DDD" avisa na hora; os outros
+ * erros, ao sair do campo ou ao enviar. Número válido aparece por extenso.
+ */
+function CampoWhatsApp({
+  pais,
+  digitos,
+  erro,
+  tentouEnviar,
+  onPais,
+  onDigitos,
+}: {
+  pais: Pais;
+  digitos: string;
+  erro: string | null;
+  tentouEnviar: boolean;
+  onPais: (p: Pais) => void;
+  onDigitos: (d: string) => void;
+}) {
+  const [saiu, setSaiu] = useState(false);
+  const br = pais.iso === "BR";
+  const erro55 = !!erro && erro.includes("55 do país");
+  const mostrarErro = !!erro && (tentouEnviar || (saiu && digitos.length > 0) || erro55);
+  return (
+    <>
+      <div className={`ck-fone ${mostrarErro ? "is-err" : ""}`}>
+        <div className="ck-pais">
+          <span aria-hidden="true">
+            {pais.bandeira} +{pais.ddi}
+          </span>
+          <svg aria-hidden="true" width="10" height="6" viewBox="0 0 10 6">
+            <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" fill="none" />
+          </svg>
+          <select
+            aria-label="País do WhatsApp"
+            value={pais.iso}
+            onChange={(e) => onPais(PAISES.find((p) => p.iso === e.target.value) ?? BRASIL)}
+          >
+            {PAISES.map((p) => (
+              <option key={p.iso} value={p.iso}>
+                {p.bandeira} {p.nome} (+{p.ddi})
+              </option>
+            ))}
+          </select>
+        </div>
+        <input
+          type="tel"
+          name="tel"
+          inputMode="tel"
+          maxLength={20}
+          autoComplete={br ? "tel-national" : "tel"}
+          placeholder={br ? "(11) 98888-7777" : "Número com código de área"}
+          value={br ? mascaraBR(digitos) : digitos}
+          onChange={(e) => {
+            setSaiu(false);
+            onDigitos(
+              br ? limparBR(e.target.value) : e.target.value.replace(/\D/g, "").slice(0, 15),
+            );
+          }}
+          onBlur={() => setSaiu(true)}
+          aria-invalid={mostrarErro}
+          aria-describedby="ck-fone-ajuda"
+        />
+      </div>
+      <p id="ck-fone-ajuda" className="ck-fone-ajuda" aria-live="polite">
+        {mostrarErro ? (
+          <span className="ck-err">{erro}</span>
+        ) : !erro ? (
+          <span className="ck-ok">
+            ✓ Confere: <b>{telefoneLegivel(pais, digitos)}</b>
+          </span>
+        ) : br ? (
+          <span className="ck-dica">Só DDD + número. O +55 já está aí.</span>
+        ) : null}
+      </p>
+    </>
+  );
+}
+
 const ORDEM_PONTOS: Ponto[] = ["posicionamento", "abismo", "mensagem", "negocio"];
 
 function TelaResultado({ r }: { r: Resultado }) {
   const { diag } = r;
+  const area = r.respostas.area;
+  const fala = (t: string) => falarComArea(t, area);
   const fraco = PONTOS[diag.fraco];
   const primeiro = r.nome.split(/\s+/)[0] ?? "";
   const porque = r.respostas.porque?.trim();
@@ -418,7 +560,7 @@ function TelaResultado({ r }: { r: Resultado }) {
       <p className="ck-kicker">Seu diagnóstico{primeiro ? `, ${primeiro}` : ""}</p>
       <h1 className="ck-h ck-h-xl">O abismo da sua marca é {diag.abismo}.</h1>
       <p className="ck-lead">
-        É a distância entre o que você entrega e o que o cliente entende antes de comprar.
+        {fala("É a distância entre o que você entrega e o que o cliente entende antes de comprar.")}
       </p>
 
       <div className="ck-card">
@@ -437,8 +579,8 @@ function TelaResultado({ r }: { r: Resultado }) {
 
       <div className="ck-bloco">
         <p className="ck-label">Por onde a gente começaria</p>
-        <h2 className="ck-h2">{fraco.titulo}</h2>
-        <p>{fraco.texto}</p>
+        <h2 className="ck-h2">{fala(fraco.titulo)}</h2>
+        <p>{fala(fraco.texto)}</p>
       </div>
 
       {porque && (
@@ -450,7 +592,7 @@ function TelaResultado({ r }: { r: Resultado }) {
               {diag.genericas.length === 1 ? "A palavra " : "As palavras "}
               <strong>{listaComE(diag.genericas)}</strong>
               {diag.genericas.length === 1 ? " é a mesma" : " são as mesmas"} que os seus
-              concorrentes usam. Para o cliente, isso não diferencia ninguém.
+              concorrentes usam. {fala("Para o cliente, isso não diferencia ninguém.")}
             </p>
           ) : (
             <p>
@@ -463,35 +605,20 @@ function TelaResultado({ r }: { r: Resultado }) {
 
       <div className="ck-bloco ck-tarefa">
         <p className="ck-label">Para fazer esta semana</p>
-        <p>{fraco.tarefa}</p>
+        <p>{fala(fraco.tarefa)}</p>
       </div>
 
       {r.qualificado ? (
         <div className="ck-prox">
           <p className="ck-label">Próximo passo</p>
           <p>
-            A Lais, do nosso time, vai te chamar no WhatsApp para marcar 25 minutos por vídeo. Na
-            conversa, a gente abre esse diagnóstico com você e mostra o que mudaria na sua marca.
+            A Lais, do nosso time, vai te chamar no WhatsApp
+            {r.telefone ? <strong> {r.telefone}</strong> : null} para marcar 25 minutos por vídeo.
+            Na conversa, a gente abre esse diagnóstico com você e mostra o que mudaria na sua marca.
           </p>
-          <a
-            className="ck-btn"
-            href={`https://wa.me/${WHATSAPP_LAIS}?text=${encodeURIComponent(
-              `Oi Lais, fiz o diagnóstico de marca. O ponto mais fraco foi ${fraco.nome.toLowerCase()}.`,
-            )}`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            Falar com a Lais agora
-          </a>
         </div>
       ) : (
-        <div className="ck-prox">
-          <p className="ck-label">Quer ir além</p>
-          <p>Veja em 5 minutos como a Legacy resolve isso num projeto de marca.</p>
-          <a className="ck-btn" href={VIDEO_COMO_FUNCIONA}>
-            Ver como funciona
-          </a>
-        </div>
+        <p className="ck-note ck-fim">Tire um print para guardar o seu diagnóstico.</p>
       )}
     </section>
   );
@@ -555,6 +682,18 @@ function EstiloCheckup() {
       .ck-back { display: block; margin: 18px auto 0; background: none; border: 0; font: inherit; font-size: 14px; color: var(--muted); cursor: pointer; }
       .ck-note { font-size: 13px; color: var(--muted); text-align: center; margin-top: 12px !important; }
       .ck-priv { background: none; border: 0; padding: 0; font: inherit; color: inherit; text-decoration: underline; cursor: pointer; }
+      .ck-fone { display: flex; align-items: stretch; margin-top: 24px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+      .ck-fone:focus-within { border-color: var(--ink); }
+      .ck-fone.is-err { border-color: #c62828; }
+      .ck-pais { position: relative; display: flex; align-items: center; gap: 6px; padding: 0 12px 0 14px; border-right: 1px solid var(--line); font-size: 16px; white-space: nowrap; }
+      .ck-pais select { position: absolute; inset: 0; width: 100%; opacity: 0; cursor: pointer; font-size: 16px; }
+      .ck-fone input { flex: 1; min-width: 0; width: 100%; border: 0; outline: none; background: transparent; color: var(--ink); font: inherit; font-size: 18px; padding: 16px 14px; }
+      .ck-fone-ajuda { min-height: 20px; margin-top: 8px !important; font-size: 14px; }
+      .ck-fone-ajuda .ck-err { margin: 0 !important; }
+      .ck-ok { color: #2f7d32; }
+      .ck-ok b { font-weight: 600; white-space: nowrap; }
+      .ck-dica { color: var(--muted); }
+      .ck-fim { margin-top: 32px !important; }
       .ck-card { background: var(--ink); color: var(--paper); border-radius: 16px; padding: 8px 20px; margin-top: 28px; }
       .ck-linha { display: grid; grid-template-columns: 1fr auto 64px; gap: 12px; align-items: center; padding: 14px 0; border-bottom: 1px solid rgba(242,242,240,.14); font-size: 15px; }
       .ck-linha:last-child { border-bottom: 0; }
