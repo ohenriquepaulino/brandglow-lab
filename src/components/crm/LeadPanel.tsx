@@ -262,7 +262,7 @@ function DiagnosticoDoLead({ checkup }: { checkup: CheckupDados }) {
       </p>
       <div className="mt-2 rounded-md border p-3 text-sm" style={{ borderColor: "#E0DED9" }}>
         <p className="text-neutral-900">
-          Abismo <strong>{checkup.abismo}</strong> · mais fraco em{" "}
+          Distância <strong>{checkup.abismo}</strong> · ponto cego em{" "}
           <strong>{PONTOS[checkup.fraco]?.nome ?? checkup.fraco}</strong>
         </p>
         <dl className="mt-3 space-y-2">

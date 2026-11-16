@@ -12,8 +12,8 @@ export const PONTOS: Record<
   { nome: string; comArtigo: string; titulo: string; texto: string; tarefa: string }
 > = {
   posicionamento: {
-    nome: "Posicionamento",
-    comArtigo: "o posicionamento",
+    nome: "Diferencial",
+    comArtigo: "o diferencial",
     titulo: "O cliente não sabe por que escolher você.",
     texto:
       "Quando a empresa não decide quem é, o que faz e qual é o diferencial, sobra a resposta que todo mundo dá. O cliente ouve a mesma coisa de três concorrentes e escolhe pelo preço.",
@@ -21,17 +21,17 @@ export const PONTOS: Record<
       "Escreva três coisas que os seus concorrentes fazem e que você não faz de jeito nenhum. É daí que sai o seu diferencial.",
   },
   abismo: {
-    nome: "Valor percebido",
-    comArtigo: "o valor percebido",
+    nome: "Preço",
+    comArtigo: "o preço",
     titulo: "O cliente não enxerga o seu valor antes de ver o preço.",
     texto:
-      "Quando o desconto vira parte da venda, o problema raramente é o preço. É o abismo da marca: a distância entre o que você entrega e o que o cliente entende antes de comprar.",
+      "Quando o desconto vira parte da venda, o problema raramente é o preço. É a distância entre o que você entrega e o que o cliente entende antes de comprar.",
     tarefa:
       "Na próxima proposta, antes do valor, escreva em três linhas o que o cliente perde se não fechar com você.",
   },
   mensagem: {
-    nome: "Mensagem",
-    comArtigo: "a mensagem",
+    nome: "Atrair clientes",
+    comArtigo: "atrair clientes sem indicação",
     titulo: "A sua marca ainda não vende sozinha.",
     texto:
       "Se quase todo cliente chega por indicação, quem vende é quem indica, não a marca. Quem te encontra pelo perfil não entende rápido o que você faz e para quem.",
@@ -39,13 +39,13 @@ export const PONTOS: Record<
       "Peça para alguém que não te conhece olhar o seu Instagram por 10 segundos e dizer o que você vende e para quem.",
   },
   negocio: {
-    nome: "Marca como negócio",
-    comArtigo: "a marca como negócio",
+    nome: "Empresa sem você",
+    comArtigo: "a empresa depender de você",
     titulo: "A empresa ainda depende de você para existir.",
     texto:
-      "Quando a marca é só o nome do dono, ela para quando ele para. Uma marca que é negócio tem produtos, processo e valor mesmo sem você na sala.",
+      "Quando a empresa é só o nome do dono, ela para quando ele para. Uma empresa que cresce tem produtos, processo e valor mesmo sem você na sala.",
     tarefa:
-      "Liste tudo o que a empresa vende e quanto cada item rende por mês. Se um item só passa de 80%, é aí que começa a sua esteira.",
+      "Liste tudo o que a empresa vende e quanto cada item rende por mês. Se um item só passa de 80% do faturamento, a empresa depende demais dele, e de você.",
   },
 };
 
@@ -243,7 +243,7 @@ export type CheckupDados = {
 /** Linhas do aviso no grupo. */
 export function resumoCheckup(c: CheckupDados): string {
   const linhas = [
-    `Diagnóstico: abismo ${c.abismo}, mais fraco em ${PONTOS[c.fraco]?.nome ?? c.fraco}`,
+    `Diagnóstico: distância ${c.abismo}, ponto cego em ${PONTOS[c.fraco]?.nome ?? c.fraco}`,
   ];
   const porque = c.respostas.porque?.trim();
   if (porque) linhas.push(`Por que escolhem: "${porque.slice(0, 200)}"`);

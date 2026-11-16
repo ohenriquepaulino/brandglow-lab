@@ -46,12 +46,13 @@ export const Route = createFileRoute("/checkup")({
       { title: "Diagnóstico de marca | Legacy BrandCo." },
       {
         name: "description",
-        content: "Diagnóstico de marca em 3 passos: 7 perguntas rápidas e o resultado na tela.",
+        content:
+          "Vender mais começa por enxergar o ponto cego da sua marca. Diagnóstico gratuito: 7 perguntas e o resultado na tela.",
       },
       { property: "og:title", content: "Diagnóstico de marca | Legacy BrandCo." },
       {
         property: "og:description",
-        content: "7 perguntas rápidas sobre o seu negócio e o diagnóstico da sua marca na tela.",
+        content: "Vender mais começa por enxergar o ponto cego da sua marca.",
       },
       { name: "robots", content: "noindex, follow" },
     ],
@@ -372,10 +373,10 @@ function CheckupPage() {
 function Inicio({ onComecar }: { onComecar: () => void }) {
   return (
     <section className="ck-step ck-inicio">
-      <p className="ck-kicker">Diagnóstico de marca</p>
-      <h1 className="ck-h ck-h-xl">Descubra o que a sua marca não está dizendo para o cliente.</h1>
+      <p className="ck-kicker">Diagnóstico gratuito</p>
+      <h1 className="ck-h ck-h-xl">Vender mais começa por enxergar o ponto cego da sua marca.</h1>
       <p className="ck-lead">
-        Em 3 passos e menos de 2 minutos, você vê onde a sua marca perde venda e por onde começar.
+        Faça o diagnóstico gratuito: 7 perguntas, menos de 2 minutos e o resultado na tela.
       </p>
       <ol className="ck-passos">
         <li>
@@ -557,10 +558,12 @@ function TelaResultado({ r }: { r: Resultado }) {
   const porque = r.respostas.porque?.trim();
   return (
     <section className="ck-step ck-res">
-      <p className="ck-kicker">Seu diagnóstico{primeiro ? `, ${primeiro}` : ""}</p>
-      <h1 className="ck-h ck-h-xl">O abismo da sua marca é {diag.abismo}.</h1>
+      <p className="ck-kicker">O ponto cego da sua marca{primeiro ? `, ${primeiro}` : ""}</p>
+      <h1 className="ck-h ck-h-xl">{fala(fraco.titulo)}</h1>
       <p className="ck-lead">
-        {fala("É a distância entre o que você entrega e o que o cliente entende antes de comprar.")}
+        {fala(
+          `A distância entre o que você entrega e o que o cliente entende antes de comprar é ${{ pequeno: "pequena", médio: "média", grande: "grande" }[diag.abismo]}.`,
+        )}
       </p>
 
       <div className="ck-card">
@@ -578,8 +581,7 @@ function TelaResultado({ r }: { r: Resultado }) {
       </div>
 
       <div className="ck-bloco">
-        <p className="ck-label">Por onde a gente começaria</p>
-        <h2 className="ck-h2">{fala(fraco.titulo)}</h2>
+        <p className="ck-label">Por que isso trava as suas vendas</p>
         <p>{fala(fraco.texto)}</p>
       </div>
 
