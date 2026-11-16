@@ -262,8 +262,12 @@ function DiagnosticoDoLead({ checkup }: { checkup: CheckupDados }) {
       </p>
       <div className="mt-2 rounded-md border p-3 text-sm" style={{ borderColor: "#E0DED9" }}>
         <p className="text-neutral-900">
-          Distância <strong>{checkup.abismo}</strong> · ponto cego em{" "}
-          <strong>{PONTOS[checkup.fraco]?.nome ?? checkup.fraco}</strong>
+          Distância{" "}
+          <strong>
+            {{ pequeno: "pequena", médio: "média", grande: "grande" }[checkup.abismo] ??
+              checkup.abismo}
+          </strong>{" "}
+          · ponto cego em <strong>{PONTOS[checkup.fraco]?.nome ?? checkup.fraco}</strong>
         </p>
         <dl className="mt-3 space-y-2">
           {PERGUNTAS.filter((p) => checkup.respostas[p.id]).map((p) => (

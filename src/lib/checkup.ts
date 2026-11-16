@@ -240,10 +240,12 @@ export type CheckupDados = {
   abismo: Diagnostico["abismo"];
 };
 
+const DISTANCIA: Record<string, string> = { pequeno: "pequena", médio: "média", grande: "grande" };
+
 /** Linhas do aviso no grupo. */
 export function resumoCheckup(c: CheckupDados): string {
   const linhas = [
-    `Diagnóstico: distância ${c.abismo}, ponto cego em ${PONTOS[c.fraco]?.nome ?? c.fraco}`,
+    `Diagnóstico: distância ${DISTANCIA[c.abismo] ?? c.abismo}, ponto cego em ${PONTOS[c.fraco]?.nome ?? c.fraco}`,
   ];
   const porque = c.respostas.porque?.trim();
   if (porque) linhas.push(`Por que escolhem: "${porque.slice(0, 200)}"`);
