@@ -17,6 +17,7 @@ import { Route as CrmRouteImport } from './routes/crm'
 import { Route as CheckupRouteImport } from './routes/checkup'
 import { Route as CentralRouteImport } from './routes/central'
 import { Route as BuscaRouteImport } from './routes/busca'
+import { Route as ArquitetosRouteImport } from './routes/arquitetos'
 import { Route as AdsbRouteImport } from './routes/adsb'
 import { Route as AdsaRouteImport } from './routes/adsa'
 import { Route as AdsRouteImport } from './routes/ads'
@@ -96,6 +97,11 @@ const CentralRoute = CentralRouteImport.update({
 const BuscaRoute = BuscaRouteImport.update({
   id: '/busca',
   path: '/busca',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ArquitetosRoute = ArquitetosRouteImport.update({
+  id: '/arquitetos',
+  path: '/arquitetos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdsbRoute = AdsbRouteImport.update({
@@ -311,6 +317,7 @@ export interface FileRoutesByFullPath {
   '/ads': typeof AdsRoute
   '/adsa': typeof AdsaRoute
   '/adsb': typeof AdsbRoute
+  '/arquitetos': typeof ArquitetosRoute
   '/busca': typeof BuscaRoute
   '/central': typeof CentralRoute
   '/checkup': typeof CheckupRoute
@@ -361,6 +368,7 @@ export interface FileRoutesByTo {
   '/ads': typeof AdsRoute
   '/adsa': typeof AdsaRoute
   '/adsb': typeof AdsbRoute
+  '/arquitetos': typeof ArquitetosRoute
   '/busca': typeof BuscaRoute
   '/central': typeof CentralRoute
   '/checkup': typeof CheckupRoute
@@ -411,6 +419,7 @@ export interface FileRoutesById {
   '/ads': typeof AdsRoute
   '/adsa': typeof AdsaRoute
   '/adsb': typeof AdsbRoute
+  '/arquitetos': typeof ArquitetosRoute
   '/busca': typeof BuscaRoute
   '/central': typeof CentralRoute
   '/checkup': typeof CheckupRoute
@@ -463,6 +472,7 @@ export interface FileRouteTypes {
     | '/ads'
     | '/adsa'
     | '/adsb'
+    | '/arquitetos'
     | '/busca'
     | '/central'
     | '/checkup'
@@ -513,6 +523,7 @@ export interface FileRouteTypes {
     | '/ads'
     | '/adsa'
     | '/adsb'
+    | '/arquitetos'
     | '/busca'
     | '/central'
     | '/checkup'
@@ -562,6 +573,7 @@ export interface FileRouteTypes {
     | '/ads'
     | '/adsa'
     | '/adsb'
+    | '/arquitetos'
     | '/busca'
     | '/central'
     | '/checkup'
@@ -613,6 +625,7 @@ export interface RootRouteChildren {
   AdsRoute: typeof AdsRoute
   AdsaRoute: typeof AdsaRoute
   AdsbRoute: typeof AdsbRoute
+  ArquitetosRoute: typeof ArquitetosRoute
   BuscaRoute: typeof BuscaRoute
   CentralRoute: typeof CentralRoute
   CheckupRoute: typeof CheckupRoute
@@ -704,6 +717,13 @@ declare module '@tanstack/react-router' {
       path: '/busca'
       fullPath: '/busca'
       preLoaderRoute: typeof BuscaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/arquitetos': {
+      id: '/arquitetos'
+      path: '/arquitetos'
+      fullPath: '/arquitetos'
+      preLoaderRoute: typeof ArquitetosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/adsb': {
@@ -1024,6 +1044,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdsRoute: AdsRoute,
   AdsaRoute: AdsaRoute,
   AdsbRoute: AdsbRoute,
+  ArquitetosRoute: ArquitetosRoute,
   BuscaRoute: BuscaRoute,
   CentralRoute: CentralRoute,
   CheckupRoute: CheckupRoute,

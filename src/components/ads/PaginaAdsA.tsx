@@ -19,7 +19,7 @@ import print5 from "@/assets/ads/IMG_1697.webp.asset.json";
 const LOGO = "/proposta/brand/legacy-logo-preto.webp";
 
 /* SUBSTITUIR: prints de depoimentos. Editar array abaixo. */
-const depoimentos = [
+export const depoimentos = [
   { src: print1.url, w: 900, h: 1314, alt: "Mensagem de cliente elogiando o projeto" },
   { src: print4.url, w: 900, h: 495, alt: "Mensagem de cliente sobre identidade visual" },
   { src: print2.url, w: 900, h: 1035, alt: "Mensagem de cliente sobre o resultado" },
@@ -573,7 +573,13 @@ export function PaginaAdsA({
         {busca ? "Agendar minha reunião" : "Quero conversar sobre o projeto"}
       </a>
 
-      <style>{`
+      <style>{ADS_CSS}</style>
+    </div>
+  );
+}
+
+// Estilo das landing pages de anúncio, também usado pela /arquitetos.
+export const ADS_CSS = `
         .ads-page {
           background: #F4F2EF;
           color: #121110;
@@ -871,7 +877,4 @@ export function PaginaAdsA({
         @media (min-width: 1024px) {
           .ads-busca .ads-method .ads-measure { margin-top: 0; }
         }
-      `}</style>
-    </div>
-  );
-}
+      `;
