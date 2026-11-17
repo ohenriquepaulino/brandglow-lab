@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
+import { AbaIcp, SECOES_ICP } from "@/components/central/AbaIcp";
 import {
   BIG_IDEA,
   CENTRAL_ATUALIZADA,
@@ -11,10 +12,17 @@ import {
   PILARES,
   REGRAS,
 } from "@/lib/central";
+import { ICP_ATUALIZADO } from "@/lib/central-icp";
 
 // Central interna da Legacy: o método e a linha editorial. Fora do Google
 // (noindex) e sem link no site; quem tem o endereço acessa.
+// Duas abas: o método (padrão) e ICP e Narrativa (?aba=icp).
+type Aba = "metodo" | "icp";
+
 export const Route = createFileRoute("/central")({
+  validateSearch: (search: Record<string, unknown>): { aba?: Aba } => ({
+    aba: search.aba === "icp" ? "icp" : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Central — Legacy BrandCo." },
@@ -37,18 +45,29 @@ const SECOES = [
 ] as const;
 
 function CentralPage() {
+  const { aba } = Route.useSearch();
+  const icp = aba === "icp";
+  const secoes = icp ? SECOES_ICP : SECOES;
   return (
     <div className="ctl">
       <EstiloCentral />
       <header className="ctl-wrap ctl-topo">
         <p className="ctl-marca">Legacy BrandCo. · Central</p>
-        <h1 className="ctl-h1">Método Legacy</h1>
-        <p className="ctl-sub">Atualizado em {CENTRAL_ATUALIZADA}</p>
+        <h1 className="ctl-h1">{icp ? "ICP e Narrativa" : "Método Legacy"}</h1>
+        <p className="ctl-sub">Atualizado em {icp ? ICP_ATUALIZADO : CENTRAL_ATUALIZADA}</p>
+        <nav className="ctl-abas" aria-label="Abas">
+          <Link to="/central" search={{}} aria-current={icp ? undefined : "page"}>
+            Método
+          </Link>
+          <Link to="/central" search={{ aba: "icp" }} aria-current={icp ? "page" : undefined}>
+            ICP e Narrativa
+          </Link>
+        </nav>
       </header>
 
       <div className="ctl-wrap ctl-grade">
         <nav className="ctl-nav" aria-label="Seções">
-          {SECOES.map(([id, nome]) => (
+          {secoes.map(([id, nome]) => (
             <a key={id} href={`#${id}`}>
               {nome}
             </a>
@@ -56,227 +75,234 @@ function CentralPage() {
         </nav>
 
         <main className="ctl-corpo">
-          <section id="entrega" className="ctl-sec">
-            <h2 className="ctl-h2">O que entregamos</h2>
-            <p className="ctl-lead">
-              A Legacy pega uma empresa boa que o mercado não entende e devolve clareza: o que ela
-              é, contra o que ela é, para quem vende, o que diz, como ganha mais dinheiro e, por
-              último, a cara que traduz tudo isso.
-            </p>
-            <p>
-              O cliente chega achando que vai comprar uma marca nova. Sai com o mapa do próprio
-              negócio. A identidade visual é a última camada desse mapa, não a primeira.
-            </p>
-            <h3 className="ctl-h3">O problema: o abismo da marca</h3>
-            <div className="ctl-abismo">
-              <div>
-                <span>O que a empresa acha que comunica</span>
-                <strong>Qualidade, experiência, atendimento, resultado</strong>
-              </div>
-              <div>
-                <span>O que o mercado entende</span>
-                <strong>Mais uma no meio de várias</strong>
-              </div>
-            </div>
-            <p>
-              Branding é o que as pessoas acreditam sobre você, não o que você acredita sobre si
-              mesmo. A 308Network entregava um serviço à frente do mercado imobiliário, mas São
-              Paulo não reconhecia isso. O projeto existe para fechar essa distância.
-            </p>
-            <div className="ctl-bigidea">
-              <span>A ideia por trás de tudo</span>
-              <p>{BIG_IDEA}</p>
-            </div>
-          </section>
-
-          <section id="metodo" className="ctl-sec">
-            <h2 className="ctl-h2">O método em 7 etapas</h2>
-            <p>
-              O projeto vai do mercado para dentro da empresa e só no fim chega ao visual. Cada
-              etapa responde uma pergunta do empresário.
-            </p>
-            <ol className="ctl-etapas">
-              {ETAPAS.map((e, i) => (
-                <li key={e.nome}>
-                  <span className="ctl-num">{String(i + 1).padStart(2, "0")}</span>
+          {icp ? (
+            <AbaIcp />
+          ) : (
+            <>
+              <section id="entrega" className="ctl-sec">
+                <h2 className="ctl-h2">O que entregamos</h2>
+                <p className="ctl-lead">
+                  A Legacy pega uma empresa boa que o mercado não entende e devolve clareza: o que
+                  ela é, contra o que ela é, para quem vende, o que diz, como ganha mais dinheiro e,
+                  por último, a cara que traduz tudo isso.
+                </p>
+                <p>
+                  O cliente chega achando que vai comprar uma marca nova. Sai com o mapa do próprio
+                  negócio. A identidade visual é a última camada desse mapa, não a primeira.
+                </p>
+                <h3 className="ctl-h3">O problema: o abismo da marca</h3>
+                <div className="ctl-abismo">
                   <div>
-                    <p className="ctl-etapa-nome">
-                      {e.nome} <em>{e.pergunta}</em>
-                    </p>
-                    <p>{e.texto}</p>
+                    <span>O que a empresa acha que comunica</span>
+                    <strong>Qualidade, experiência, atendimento, resultado</strong>
                   </div>
-                </li>
-              ))}
-            </ol>
-            <p className="ctl-nota">
-              A apresentação de entrega tem de 70 a 80 páginas e é também o guia da marca. Sempre
-              que o cliente for lançar algo, dar uma entrevista ou treinar a equipe, volta a ela.
-            </p>
-          </section>
-
-          <section id="pilares" className="ctl-sec">
-            <h2 className="ctl-h2">Os 3 pilares</h2>
-            <p>Os dois primeiros são fixos. O terceiro muda de forma conforme o cliente.</p>
-            <div className="ctl-pilares">
-              {PILARES.map((p, i) => (
-                <article key={p.nome}>
-                  <span className="ctl-num">{String(i + 1).padStart(2, "0")}</span>
-                  <h3>{p.nome}</h3>
-                  <p className="ctl-resumo">{p.resumo}</p>
-                  <ul>
-                    {p.itens.map((it) => (
-                      <li key={it}>{it}</li>
-                    ))}
-                  </ul>
-                  <p className="ctl-nota">{p.nota}</p>
-                </article>
-              ))}
-            </div>
-          </section>
-
-          <section id="negocio" className="ctl-sec">
-            <h2 className="ctl-h2">Marca como negócio</h2>
-            <p>
-              A marca não é um logo nem uma cor: é o que traz valor para a empresa. O projeto
-              mostra como a estratégia vira faturamento e patrimônio.
-            </p>
-            <div className="ctl-tabela">
-              {NEGOCIO.map((n) => (
-                <div key={n.oque} className="ctl-linha">
-                  <p className="ctl-oque">{n.oque}</p>
-                  <p className="ctl-resolve">{n.resolve}</p>
-                  <p className="ctl-exemplo">{n.exemplo}</p>
+                  <div>
+                    <span>O que o mercado entende</span>
+                    <strong>Mais uma no meio de várias</strong>
+                  </div>
                 </div>
-              ))}
-            </div>
-            <p className="ctl-frase">
-              Uma empresa tem três destinos: ser vendida, ser herdada ou quebrar. A marca define o
-              valor dela nos dois primeiros.
-            </p>
-          </section>
+                <p>
+                  Branding é o que as pessoas acreditam sobre você, não o que você acredita sobre si
+                  mesmo. A 308Network entregava um serviço à frente do mercado imobiliário, mas São
+                  Paulo não reconhecia isso. O projeto existe para fechar essa distância.
+                </p>
+                <div className="ctl-bigidea">
+                  <span>A ideia por trás de tudo</span>
+                  <p>{BIG_IDEA}</p>
+                </div>
+              </section>
 
-          <section id="entregaveis" className="ctl-sec">
-            <h2 className="ctl-h2">O que o cliente leva</h2>
-            <ul className="ctl-lista">
-              {ENTREGAVEIS.map((e) => (
-                <li key={e}>{e}</li>
-              ))}
-            </ul>
-            <p className="ctl-nota">
-              O site entra em alguns projetos como etapa seguinte. Em aberto: o que desta lista
-              entra no projeto a partir de R$ 4.500.
-            </p>
-          </section>
-
-          <section id="linha" className="ctl-sec">
-            <h2 className="ctl-h2">Linha editorial: 3 elementos</h2>
-            <p className="ctl-lead">
-              Três tipos de post, cada um tirado de uma parte do método, na ordem em que o
-              empresário ganha consciência: ele percebe o problema, entende a causa e confia em
-              quem resolve.
-            </p>
-            <div className="ctl-elementos">
-              {ELEMENTOS.map((el, i) => (
-                <article key={el.nome}>
-                  <span className="ctl-num">{String(i + 1).padStart(2, "0")}</span>
-                  <h3>{el.nome}</h3>
-                  <p className="ctl-pensa">“{el.pensa}”</p>
-                  <dl>
-                    <dt>Vem de</dt>
-                    <dd>{el.origem}</dd>
-                    <dt>Fala de</dt>
-                    <dd>{el.fala}</dd>
-                    <dt>Formato</dt>
-                    <dd>{el.formato}</dd>
-                    <dt>A Legacy aparece</dt>
-                    <dd>{el.legacy}</dd>
-                    <dt>Ritmo</dt>
-                    <dd>1 por semana</dd>
-                  </dl>
-                  <p className="ctl-temas-t">Temas</p>
-                  <ul>
-                    {el.temas.map((t) => (
-                      <li key={t}>{t}</li>
-                    ))}
-                  </ul>
-                </article>
-              ))}
-            </div>
-          </section>
-
-          <section id="escrever" className="ctl-sec">
-            <h2 className="ctl-h2">Como escrever</h2>
-            <p>
-              As regras vêm do marketing de premissas do Leandro Ladeira, aplicado ao método e ao
-              jeito da Legacy.
-            </p>
-            <ol className="ctl-regras">
-              {REGRAS.map(([titulo, texto], i) => (
-                <li key={titulo}>
-                  <span className="ctl-num">{String(i + 1).padStart(2, "0")}</span>
-                  <p>
-                    <strong>{titulo}</strong> {texto}
-                  </p>
-                </li>
-              ))}
-            </ol>
-            <h3 className="ctl-h3">Um exemplo de cada</h3>
-            <div className="ctl-exemplos">
-              {EXEMPLOS.map((ex) => (
-                <article key={ex.titulo}>
-                  <p className="ctl-ex-tag">{ex.elemento}</p>
-                  <h4>{ex.titulo}</h4>
-                  {ex.linhas.map((bloco) => (
-                    <p key={bloco[0]}>
-                      {bloco.map((l, j) => (
-                        <span key={l}>
-                          {j > 0 && <br />}
-                          {l}
-                        </span>
-                      ))}
-                    </p>
+              <section id="metodo" className="ctl-sec">
+                <h2 className="ctl-h2">O método em 7 etapas</h2>
+                <p>
+                  O projeto vai do mercado para dentro da empresa e só no fim chega ao visual. Cada
+                  etapa responde uma pergunta do empresário.
+                </p>
+                <ol className="ctl-etapas">
+                  {ETAPAS.map((e, i) => (
+                    <li key={e.nome}>
+                      <span className="ctl-num">{String(i + 1).padStart(2, "0")}</span>
+                      <div>
+                        <p className="ctl-etapa-nome">
+                          {e.nome} <em>{e.pergunta}</em>
+                        </p>
+                        <p>{e.texto}</p>
+                      </div>
+                    </li>
                   ))}
-                </article>
-              ))}
-            </div>
-          </section>
+                </ol>
+                <p className="ctl-nota">
+                  A apresentação de entrega tem de 70 a 80 páginas e é também o guia da marca.
+                  Sempre que o cliente for lançar algo, dar uma entrevista ou treinar a equipe,
+                  volta a ela.
+                </p>
+              </section>
 
-          <section id="conteudos" className="ctl-sec">
-            <h2 className="ctl-h2">Conteúdos</h2>
-            {CONTEUDOS.length === 0 ? (
-              <p className="ctl-vazio">
-                Nenhum conteúdo registrado ainda. Tudo o que for produzido a partir desta linha
-                editorial entra aqui.
-              </p>
-            ) : (
-              <div className="ctl-tabela">
-                {CONTEUDOS.map((c) => (
-                  <div key={`${c.data}-${c.titulo}`} className="ctl-linha ctl-conteudo">
-                    <p className="ctl-oque">
-                      {c.link ? (
-                        <a href={c.link} target="_blank" rel="noreferrer">
-                          {c.titulo}
-                        </a>
-                      ) : (
-                        c.titulo
-                      )}
-                    </p>
-                    <p className="ctl-resolve">
-                      {c.elemento} · {c.formato}
-                    </p>
-                    <p className="ctl-exemplo">
-                      {c.status} · {c.data}
-                    </p>
+              <section id="pilares" className="ctl-sec">
+                <h2 className="ctl-h2">Os 3 pilares</h2>
+                <p>Os dois primeiros são fixos. O terceiro muda de forma conforme o cliente.</p>
+                <div className="ctl-pilares">
+                  {PILARES.map((p, i) => (
+                    <article key={p.nome}>
+                      <span className="ctl-num">{String(i + 1).padStart(2, "0")}</span>
+                      <h3>{p.nome}</h3>
+                      <p className="ctl-resumo">{p.resumo}</p>
+                      <ul>
+                        {p.itens.map((it) => (
+                          <li key={it}>{it}</li>
+                        ))}
+                      </ul>
+                      <p className="ctl-nota">{p.nota}</p>
+                    </article>
+                  ))}
+                </div>
+              </section>
+
+              <section id="negocio" className="ctl-sec">
+                <h2 className="ctl-h2">Marca como negócio</h2>
+                <p>
+                  A marca não é um logo nem uma cor: é o que traz valor para a empresa. O projeto
+                  mostra como a estratégia vira faturamento e patrimônio.
+                </p>
+                <div className="ctl-tabela">
+                  {NEGOCIO.map((n) => (
+                    <div key={n.oque} className="ctl-linha">
+                      <p className="ctl-oque">{n.oque}</p>
+                      <p className="ctl-resolve">{n.resolve}</p>
+                      <p className="ctl-exemplo">{n.exemplo}</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="ctl-frase">
+                  Uma empresa tem três destinos: ser vendida, ser herdada ou quebrar. A marca define
+                  o valor dela nos dois primeiros.
+                </p>
+              </section>
+
+              <section id="entregaveis" className="ctl-sec">
+                <h2 className="ctl-h2">O que o cliente leva</h2>
+                <ul className="ctl-lista">
+                  {ENTREGAVEIS.map((e) => (
+                    <li key={e}>{e}</li>
+                  ))}
+                </ul>
+                <p className="ctl-nota">
+                  O site entra em alguns projetos como etapa seguinte. Em aberto: o que desta lista
+                  entra no projeto a partir de R$ 4.500.
+                </p>
+              </section>
+
+              <section id="linha" className="ctl-sec">
+                <h2 className="ctl-h2">Linha editorial: 3 elementos</h2>
+                <p className="ctl-lead">
+                  Três tipos de post, cada um tirado de uma parte do método, na ordem em que o
+                  empresário ganha consciência: ele percebe o problema, entende a causa e confia em
+                  quem resolve.
+                </p>
+                <div className="ctl-elementos">
+                  {ELEMENTOS.map((el, i) => (
+                    <article key={el.nome}>
+                      <span className="ctl-num">{String(i + 1).padStart(2, "0")}</span>
+                      <h3>{el.nome}</h3>
+                      <p className="ctl-pensa">“{el.pensa}”</p>
+                      <dl>
+                        <dt>Vem de</dt>
+                        <dd>{el.origem}</dd>
+                        <dt>Fala de</dt>
+                        <dd>{el.fala}</dd>
+                        <dt>Formato</dt>
+                        <dd>{el.formato}</dd>
+                        <dt>A Legacy aparece</dt>
+                        <dd>{el.legacy}</dd>
+                        <dt>Ritmo</dt>
+                        <dd>1 por semana</dd>
+                      </dl>
+                      <p className="ctl-temas-t">Temas</p>
+                      <ul>
+                        {el.temas.map((t) => (
+                          <li key={t}>{t}</li>
+                        ))}
+                      </ul>
+                    </article>
+                  ))}
+                </div>
+              </section>
+
+              <section id="escrever" className="ctl-sec">
+                <h2 className="ctl-h2">Como escrever</h2>
+                <p>
+                  As regras vêm do marketing de premissas do Leandro Ladeira, aplicado ao método e
+                  ao jeito da Legacy.
+                </p>
+                <ol className="ctl-regras">
+                  {REGRAS.map(([titulo, texto], i) => (
+                    <li key={titulo}>
+                      <span className="ctl-num">{String(i + 1).padStart(2, "0")}</span>
+                      <p>
+                        <strong>{titulo}</strong> {texto}
+                      </p>
+                    </li>
+                  ))}
+                </ol>
+                <h3 className="ctl-h3">Um exemplo de cada</h3>
+                <div className="ctl-exemplos">
+                  {EXEMPLOS.map((ex) => (
+                    <article key={ex.titulo}>
+                      <p className="ctl-ex-tag">{ex.elemento}</p>
+                      <h4>{ex.titulo}</h4>
+                      {ex.linhas.map((bloco) => (
+                        <p key={bloco[0]}>
+                          {bloco.map((l, j) => (
+                            <span key={l}>
+                              {j > 0 && <br />}
+                              {l}
+                            </span>
+                          ))}
+                        </p>
+                      ))}
+                    </article>
+                  ))}
+                </div>
+              </section>
+
+              <section id="conteudos" className="ctl-sec">
+                <h2 className="ctl-h2">Conteúdos</h2>
+                {CONTEUDOS.length === 0 ? (
+                  <p className="ctl-vazio">
+                    Nenhum conteúdo registrado ainda. Tudo o que for produzido a partir desta linha
+                    editorial entra aqui.
+                  </p>
+                ) : (
+                  <div className="ctl-tabela">
+                    {CONTEUDOS.map((c) => (
+                      <div key={`${c.data}-${c.titulo}`} className="ctl-linha ctl-conteudo">
+                        <p className="ctl-oque">
+                          {c.link ? (
+                            <a href={c.link} target="_blank" rel="noreferrer">
+                              {c.titulo}
+                            </a>
+                          ) : (
+                            c.titulo
+                          )}
+                        </p>
+                        <p className="ctl-resolve">
+                          {c.elemento} · {c.formato}
+                        </p>
+                        <p className="ctl-exemplo">
+                          {c.status} · {c.data}
+                        </p>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            )}
-          </section>
+                )}
+              </section>
 
-          <footer className="ctl-rodape">
-            Fontes: entregas da Legacy (308Network, Maite, Joana Ulmer, GeriAcademy) e o marketing
-            de premissas, a big idea e a urgência oculta de Leandro Ladeira.
-          </footer>
+              <footer className="ctl-rodape">
+                Fontes: entregas da Legacy (308Network, Maite, Joana Ulmer, GeriAcademy) e o
+                marketing de premissas, a big idea e a urgência oculta de Leandro Ladeira.
+              </footer>
+            </>
+          )}
         </main>
       </div>
     </div>
@@ -369,6 +395,19 @@ function EstiloCentral() {
       .ctl-ex-tag { font-size: 13px; color: var(--muted); }
       .ctl-exemplos h4 { margin-top: 4px !important; font-size: 19px; letter-spacing: -0.03em; }
       .ctl-exemplos article p:not(.ctl-ex-tag) { font-size: 16px; line-height: 1.55; }
+
+      .ctl-abas { display: flex; gap: 24px; margin-top: 32px; border-bottom: 1px solid var(--line); }
+      .ctl-abas a { font-size: 15px; font-weight: 500; color: var(--muted); text-decoration: none; padding-bottom: 10px; margin-bottom: -1px; border-bottom: 2px solid transparent; }
+      .ctl-abas a:hover { color: var(--ink); }
+      .ctl-abas a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--ink); }
+      .ctl-icp-texto { margin-top: 12px !important; color: rgba(17,17,17,0.78); }
+      .ctl-icp-dl { margin-top: 16px !important; display: grid; grid-template-columns: 1fr; border-top: 1px solid var(--line); }
+      .ctl-icp-dl dt { padding-top: 10px; font-size: 13px; color: var(--muted); }
+      .ctl-icp-dl dd { padding-bottom: 10px; border-bottom: 1px solid var(--line); font-size: 15px; }
+      .ctl-icp-cena { font-size: 16px !important; font-weight: 500; line-height: 1.5 !important; }
+      .ctl-icp-paras > * + * { margin-top: 8px; }
+      .ctl-icp-manifesto { display: grid; gap: 18px; }
+      .ctl-icp-manifesto p { font-size: 19px; line-height: 1.55; letter-spacing: -0.01em; font-weight: 500; }
 
       .ctl-vazio { color: var(--muted); padding: 24px; border: 1px dashed var(--line); background: var(--surface); }
       .ctl-rodape { padding-top: 32px; font-size: 13px; color: var(--muted); }
