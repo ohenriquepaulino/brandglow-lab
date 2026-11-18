@@ -85,6 +85,14 @@ function Formulario() {
   );
 }
 
+// Rola suave até o formulário do fim da página (o href fica de reserva).
+function irParaFormulario(e: React.MouseEvent<HTMLAnchorElement>) {
+  const alvo = document.getElementById("formulario");
+  if (!alvo) return;
+  e.preventDefault();
+  alvo.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 function PaginaArquitetos() {
   useAbrirNoTopo();
   const sticky = useStickyCta(".ads-first, .ads-last, .ads-footer");
@@ -120,8 +128,26 @@ function PaginaArquitetos() {
                 seu escritório faz de diferente e cria a sua identidade visual e a sua comunicação a
                 partir disso.
               </p>
+              <div className="arq-hero-cta">
+                <a href="#formulario" className="ads-cta" onClick={irParaFormulario}>
+                  Quero saber mais
+                </a>
+              </div>
             </div>
-            <Formulario />
+            {/* No Clarity de 17 e 18/11, 88% saíam na 1ª tela com o formulário logo
+                abaixo do H1. O formulário fica só no fim; aqui, um case. */}
+            <a href="#formulario" className="arq-hero-case" onClick={irParaFormulario}>
+              <img
+                src={CASES[0]!.src}
+                alt={`Projeto ${CASES[0]!.nome}`}
+                loading="eager"
+                decoding="async"
+              />
+              <div className="ads-slider-cap">
+                <span className="ads-slider-seg">{CASES[0]!.seg}</span>
+                <span className="ads-slider-nome">{CASES[0]!.nome}</span>
+              </div>
+            </a>
           </div>
         </section>
 
@@ -254,6 +280,9 @@ function PaginaArquitetos() {
       <style>{ADS_CSS}</style>
       <style>{`
         .arq-page .arq-h1 { font-size: 30px; line-height: 1.12; }
+        .arq-hero-cta { margin-top: 24px; display: flex; }
+        .arq-hero-case { grid-area: form; position: relative; display: block; overflow: hidden; border-radius: 12px; aspect-ratio: 16 / 10; background: #ddd; min-width: 0; }
+        .arq-hero-case img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
         .arq-dia { background: #121110; color: #F4F2EF; }
         .arq-texto { font-size: 22px; line-height: 1.4; letter-spacing: -0.03em; max-width: 34ch; margin: 0 auto; text-align: center; }
         .arq-colunas { display: grid; gap: 48px; text-align: left; }
@@ -273,6 +302,7 @@ function PaginaArquitetos() {
           .arq-colunas { grid-template-columns: 1fr 1fr; gap: 64px; }
           .arq-cases { grid-template-columns: repeat(3, 1fr); gap: 20px; }
           .arq-case { aspect-ratio: 4 / 5; }
+          .arq-hero-case { aspect-ratio: 4 / 5; }
         }
         @media (min-width: 1024px) {
           .arq-page .arq-h1 { font-size: 44px; }

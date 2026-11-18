@@ -147,9 +147,10 @@ function CheckupPage() {
     if (tela.t === "nome") eventoMeta("CheckupContato");
   }, [tela]);
 
-  function comecar() {
+  // A área é respondida na própria abertura e já leva para a 2ª pergunta.
+  function comecar(opcao: string) {
     eventoMeta("CheckupInicio");
-    setTela({ t: "pergunta", i: 0 });
+    escolher(0, PERGUNTAS[0]!.id, opcao);
   }
 
   function avancar(i: number) {
@@ -160,7 +161,8 @@ function CheckupPage() {
   function voltar() {
     setTentou(false);
     if (tela.t === "pergunta")
-      setTela(tela.i === 0 ? { t: "inicio" } : { t: "pergunta", i: tela.i - 1 });
+      // A 1ª pergunta mora na abertura: voltar da 2ª leva para lá.
+      setTela(tela.i <= 1 ? { t: "inicio" } : { t: "pergunta", i: tela.i - 1 });
     else if (tela.t === "nome") setTela({ t: "pergunta", i: PERGUNTAS.length - 1 });
     else if (tela.t === "whatsapp") setTela({ t: "nome" });
   }
@@ -279,7 +281,9 @@ function CheckupPage() {
           </div>
         )}
 
-        {tela.t === "inicio" && <Inicio onComecar={comecar} />}
+        {tela.t === "inicio" && (
+          <Inicio valor={respostas[PERGUNTAS[0]!.id] ?? ""} onEscolher={comecar} />
+        )}
 
         {tela.t === "pergunta" && (
           <TelaPergunta
@@ -370,7 +374,16 @@ function CheckupPage() {
   );
 }
 
-function Inicio({ onComecar }: { onComecar: () => void }) {
+// A abertura já traz a primeira pergunta (área): no Clarity de 16 a 18/11,
+// ninguém vindo do Instagram tocou no antigo "Começar diagnóstico".
+function Inicio({
+  valor,
+  onEscolher,
+}: {
+  valor: string;
+  onEscolher: (opcao: string) => void;
+}) {
+  const p = PERGUNTAS[0]!;
   return (
     <section className="ck-step ck-inicio">
       <p className="ck-kicker">Diagnóstico gratuito</p>
@@ -378,20 +391,24 @@ function Inicio({ onComecar }: { onComecar: () => void }) {
       <p className="ck-lead">
         Faça o diagnóstico gratuito: 7 perguntas, menos de 2 minutos e o resultado na tela.
       </p>
-      <ol className="ck-passos">
-        <li>
-          <span>01</span>Responda 7 perguntas rápidas
-        </li>
-        <li>
-          <span>02</span>Deixe seu nome e WhatsApp
-        </li>
-        <li>
-          <span>03</span>Veja o seu diagnóstico na tela
-        </li>
-      </ol>
-      <button className="ck-btn" type="button" onClick={onComecar}>
-        Começar diagnóstico
-      </button>
+      <div className="ck-primeira">
+        <p className="ck-label">Para começar</p>
+        <h2 className="ck-h2">{p.titulo}</h2>
+        {p.tipo === "escolha" && (
+          <div className="ck-opcoes">
+            {p.opcoes.map((o) => (
+              <button
+                key={o}
+                type="button"
+                className={`ck-op ${valor === o ? "is-on" : ""}`}
+                onClick={() => onEscolher(o)}
+              >
+                {o}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
       <p className="ck-note">Gratuito · sem cadastro de e-mail</p>
     </section>
   );
@@ -656,6 +673,8 @@ function EstiloCheckup() {
       .ck-h2 { font-weight: 600; font-size: 21px; line-height: 1.2; letter-spacing: -0.03em; margin-bottom: 8px !important; }
       .ck-sub { color: var(--muted); margin-top: 8px !important; }
       .ck-lead { font-size: 17px; color: #3a3a3a; margin-top: 16px !important; text-wrap: pretty; }
+      .ck-primeira { margin-top: 28px; padding-top: 20px; border-top: 1.5px solid var(--ink); }
+      .ck-primeira .ck-opcoes { margin-top: 16px; }
       .ck-passos { list-style: none; padding: 0; margin: 28px 0 !important; border-top: 1.5px solid var(--ink); }
       .ck-passos li { display: flex; gap: 14px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--line); font-weight: 500; }
       .ck-passos span { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
