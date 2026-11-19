@@ -148,8 +148,9 @@ function AbContent({
           </button>
         </div>
         <p className="mt-3 text-xs text-neutral-500">
-          Teste encerrado em 12/11/2026: a versão A (<code>/adsa</code>) foi oficializada e o link
-          leva todo mundo para ela. A B (<code>/adsb</code>) segue no ar só para consulta. As UTMs
+          Teste encerrado em 12/11/2026. Desde 19/11 o link leva todo mundo para a versão B
+          (<code>/adsb</code>), que converteu melhor. A A (<code>/adsa</code>) segue no ar só para
+          consulta. As UTMs
           da campanha são mantidas.{" "}
           <a href="/adsa" target="_blank" rel="noreferrer" className="underline">
             Ver A
