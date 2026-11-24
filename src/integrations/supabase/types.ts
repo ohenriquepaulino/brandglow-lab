@@ -285,6 +285,7 @@ export type Database = {
           nome: string
           pagina: string | null
           profissao: string | null
+          qualificacao: Json | null
           utm_campaign: string | null
           utm_content: string | null
           utm_medium: string | null
@@ -308,6 +309,7 @@ export type Database = {
           nome: string
           pagina?: string | null
           profissao?: string | null
+          qualificacao?: Json | null
           utm_campaign?: string | null
           utm_content?: string | null
           utm_medium?: string | null
@@ -331,6 +333,7 @@ export type Database = {
           nome?: string
           pagina?: string | null
           profissao?: string | null
+          qualificacao?: Json | null
           utm_campaign?: string | null
           utm_content?: string | null
           utm_medium?: string | null

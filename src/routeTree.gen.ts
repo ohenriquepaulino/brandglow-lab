@@ -13,6 +13,7 @@ import { Route as WhatsappRouteImport } from './routes/whatsapp'
 import { Route as TksRouteImport } from './routes/tks'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as ObrigadoRouteImport } from './routes/obrigado'
+import { Route as IdentidadeRouteImport } from './routes/identidade'
 import { Route as CrmRouteImport } from './routes/crm'
 import { Route as CheckupRouteImport } from './routes/checkup'
 import { Route as CentralRouteImport } from './routes/central'
@@ -77,6 +78,11 @@ const PrivacidadeRoute = PrivacidadeRouteImport.update({
 const ObrigadoRoute = ObrigadoRouteImport.update({
   id: '/obrigado',
   path: '/obrigado',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IdentidadeRoute = IdentidadeRouteImport.update({
+  id: '/identidade',
+  path: '/identidade',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CrmRoute = CrmRouteImport.update({
@@ -322,6 +328,7 @@ export interface FileRoutesByFullPath {
   '/central': typeof CentralRoute
   '/checkup': typeof CheckupRoute
   '/crm': typeof CrmRouteWithChildren
+  '/identidade': typeof IdentidadeRoute
   '/obrigado': typeof ObrigadoRoute
   '/privacidade': typeof PrivacidadeRoute
   '/tks': typeof TksRoute
@@ -372,6 +379,7 @@ export interface FileRoutesByTo {
   '/busca': typeof BuscaRoute
   '/central': typeof CentralRoute
   '/checkup': typeof CheckupRoute
+  '/identidade': typeof IdentidadeRoute
   '/obrigado': typeof ObrigadoRoute
   '/privacidade': typeof PrivacidadeRoute
   '/tks': typeof TksRoute
@@ -424,6 +432,7 @@ export interface FileRoutesById {
   '/central': typeof CentralRoute
   '/checkup': typeof CheckupRoute
   '/crm': typeof CrmRouteWithChildren
+  '/identidade': typeof IdentidadeRoute
   '/obrigado': typeof ObrigadoRoute
   '/privacidade': typeof PrivacidadeRoute
   '/tks': typeof TksRoute
@@ -477,6 +486,7 @@ export interface FileRouteTypes {
     | '/central'
     | '/checkup'
     | '/crm'
+    | '/identidade'
     | '/obrigado'
     | '/privacidade'
     | '/tks'
@@ -527,6 +537,7 @@ export interface FileRouteTypes {
     | '/busca'
     | '/central'
     | '/checkup'
+    | '/identidade'
     | '/obrigado'
     | '/privacidade'
     | '/tks'
@@ -578,6 +589,7 @@ export interface FileRouteTypes {
     | '/central'
     | '/checkup'
     | '/crm'
+    | '/identidade'
     | '/obrigado'
     | '/privacidade'
     | '/tks'
@@ -630,6 +642,7 @@ export interface RootRouteChildren {
   CentralRoute: typeof CentralRoute
   CheckupRoute: typeof CheckupRoute
   CrmRoute: typeof CrmRouteWithChildren
+  IdentidadeRoute: typeof IdentidadeRoute
   ObrigadoRoute: typeof ObrigadoRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   TksRoute: typeof TksRoute
@@ -689,6 +702,13 @@ declare module '@tanstack/react-router' {
       path: '/obrigado'
       fullPath: '/obrigado'
       preLoaderRoute: typeof ObrigadoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/identidade': {
+      id: '/identidade'
+      path: '/identidade'
+      fullPath: '/identidade'
+      preLoaderRoute: typeof IdentidadeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/crm': {
@@ -1049,6 +1069,7 @@ const rootRouteChildren: RootRouteChildren = {
   CentralRoute: CentralRoute,
   CheckupRoute: CheckupRoute,
   CrmRoute: CrmRouteWithChildren,
+  IdentidadeRoute: IdentidadeRoute,
   ObrigadoRoute: ObrigadoRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   TksRoute: TksRoute,

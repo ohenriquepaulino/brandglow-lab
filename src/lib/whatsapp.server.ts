@@ -8,6 +8,7 @@ import { telefoneInternacional } from "@/lib/telefone";
 import { isAte6k } from "@/lib/crm-auth";
 import { leadSignal } from "@/lib/lead-signal";
 import { mensagemLaisCheckup, resumoCheckup, type CheckupDados } from "@/lib/checkup";
+import { resumoQualificacao, type QualificacaoDados } from "@/lib/identidade";
 
 const TIMEOUT_MS = 10_000;
 
@@ -300,6 +301,7 @@ export function montarAviso(lead: {
   verba?: string | null;
   pagina?: string | null;
   checkup?: CheckupDados | null;
+  qualificacao?: QualificacaoDados | null;
 }): string {
   const linhas = [`🔔 *NOVO LEAD NO CRM*`, lead.nome.trim()];
   // Campos que nem todo formulário pergunta: sem eles, a linha fica de fora.
@@ -309,6 +311,10 @@ export function montarAviso(lead: {
   if (lead.verba?.trim()) linhas.push(`Verba para a marca: ${lead.verba.trim()}`);
   if (lead.pagina?.trim()) linhas.push(`Página: ${lead.pagina.trim()}`);
   if (lead.checkup) linhas.push(resumoCheckup(lead.checkup));
+  if (lead.qualificacao) {
+    const resumo = resumoQualificacao(lead.qualificacao);
+    if (resumo) linhas.push(resumo);
+  }
   linhas.push(`https://wa.me/${lead.telefone}`);
   return linhas.join("\n");
 }
@@ -332,6 +338,7 @@ export async function agendarMensagensDoLead(
     verba_marca?: string | null;
     pagina?: string | null;
     checkup?: CheckupDados | null;
+    qualificacao?: QualificacaoDados | null;
   },
 ) {
   try {
@@ -356,13 +363,18 @@ export async function agendarMensagensDoLead(
     // entram no CRM e no aviso, sem boas-vindas e sem cadência.
     const checkup = lead.checkup ?? null;
     const qualificado = leadSignal(lead.faturamento)?.lead_10k === "sim";
-    const mensagem = checkup
-      ? qualificado
-        ? mensagemLaisCheckup(lead.nome, checkup.fraco)
-        : null
-      : template?.trim()
-        ? montarMensagem(template, lead.nome)
-        : null;
+    // Página /identidade: fora do recorte (restaurante, bar, varejo, moda) não
+    // recebe mensagem nem cadência; o resto segue o fluxo padrão.
+    const fora = !!lead.qualificacao?.fora_do_recorte;
+    const mensagem = fora
+      ? null
+      : checkup
+        ? qualificado
+          ? mensagemLaisCheckup(lead.nome, checkup.fraco)
+          : null
+        : template?.trim()
+          ? montarMensagem(template, lead.nome)
+          : null;
     if (config.ativo && mensagem) {
       envios.push({
         lead_id: lead.id,
@@ -392,6 +404,7 @@ export async function agendarMensagensDoLead(
           verba: lead.verba_marca,
           pagina: lead.pagina,
           checkup: lead.checkup,
+          qualificacao: lead.qualificacao,
         }),
         status: "pendente",
         enviar_em: new Date(agora).toISOString(),
@@ -399,7 +412,7 @@ export async function agendarMensagensDoLead(
     }
     // Cadência: agenda todos os passos, até os desligados (o passo é relido
     // na hora do envio; ligar o D5 depois vale para quem já está na régua).
-    if (config.ativo && config.cadencia_ativa && ate6k && !checkup && lead.id) {
+    if (config.ativo && config.cadencia_ativa && ate6k && !checkup && !fora && lead.id) {
       const { data: passos } = await supabase
         .from("cadencia_passos")
         .select("id, dia, mensagem")

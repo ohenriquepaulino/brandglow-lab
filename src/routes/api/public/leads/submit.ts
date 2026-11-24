@@ -9,12 +9,7 @@ import { leadSignal } from "@/lib/lead-signal";
 const LeadSchema = z.object({
   nome: z.string().trim().min(2).max(100),
   // Brasil: "(11) 98888-7777", celular com DDD válido e o 9. Fora: "+351 912345678".
-  whatsapp: z
-    .string()
-    .trim()
-    .min(8)
-    .max(24)
-    .refine(telefoneValido, "WhatsApp inválido"),
+  whatsapp: z.string().trim().min(8).max(24).refine(telefoneValido, "WhatsApp inválido"),
   instagram: z.string().trim().max(40).nullish(),
   faturamento: z.string().trim().min(1).max(80),
   profissao: z.string().trim().max(80).nullish(),
@@ -29,6 +24,15 @@ const LeadSchema = z.object({
       respostas: z.record(z.string().max(40), z.string().max(400)),
       fraco: z.enum(["posicionamento", "abismo", "mensagem", "negocio"]),
       abismo: z.enum(["pequeno", "médio", "grande"]),
+    })
+    .nullish(),
+  // Respostas do formulário SPICED da /identidade. Formato em src/lib/identidade.ts.
+  qualificacao: z
+    .object({
+      versao: z.literal(1),
+      respostas: z.record(z.string().max(40), z.string().max(120)),
+      urgencia: z.enum(["confirmada", "so_prazo", "sem_urgencia"]),
+      fora_do_recorte: z.boolean(),
     })
     .nullish(),
 
@@ -186,6 +190,8 @@ export const Route = createFileRoute("/api/public/leads/submit")({
             verba_marca: parsed.verba_marca?.trim() || null,
             pagina: parsed.pagina?.trim() || null,
             checkup: parsed.checkup ?? null,
+            // Só a /identidade manda: os outros formulários não dependem da coluna.
+            ...(parsed.qualificacao ? { qualificacao: parsed.qualificacao } : {}),
 
             utm_source: parsed.utm_source ?? null,
             utm_medium: parsed.utm_medium ?? null,
@@ -226,6 +232,7 @@ export const Route = createFileRoute("/api/public/leads/submit")({
           verba_marca: parsed.verba_marca,
           pagina: parsed.pagina,
           checkup: parsed.checkup ?? null,
+          qualificacao: parsed.qualificacao ?? null,
         });
         await notify(origin, parsed);
         if (!parsed.skip_meta) {

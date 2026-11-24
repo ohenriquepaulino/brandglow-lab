@@ -57,6 +57,7 @@ export function normalizeColuna(id: string): string {
 }
 
 import type { CheckupDados } from "@/lib/checkup";
+import type { QualificacaoDados } from "@/lib/identidade";
 
 export type ColunaId = string;
 
@@ -86,6 +87,8 @@ export type Lead = {
   followup?: Followup | null;
   /** Respostas do diagnóstico de marca (/checkup). */
   checkup?: CheckupDados | null;
+  /** Respostas do formulário SPICED (/identidade). */
+  qualificacao?: QualificacaoDados | null;
 };
 
 export type Movimentacao = {

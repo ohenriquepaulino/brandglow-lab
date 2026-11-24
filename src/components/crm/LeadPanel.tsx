@@ -15,6 +15,11 @@ import {
   type Movimentacao,
 } from "@/lib/crm-auth";
 import { PERGUNTAS, PONTOS, type CheckupDados } from "@/lib/checkup";
+import {
+  PERGUNTAS as PERGUNTAS_IDENTIDADE,
+  ROTULO_URGENCIA,
+  type QualificacaoDados,
+} from "@/lib/identidade";
 
 export function LeadPanel({
   lead,
@@ -187,6 +192,7 @@ export function LeadPanel({
         </dl>
 
         {lead.checkup && <DiagnosticoDoLead checkup={lead.checkup} />}
+        {lead.qualificacao && <QualificacaoDoLead q={lead.qualificacao} />}
 
         <div className="mt-6">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-neutral-500">
@@ -276,6 +282,34 @@ function DiagnosticoDoLead({ checkup }: { checkup: CheckupDados }) {
               <dd className="text-neutral-800">{checkup.respostas[p.id]}</dd>
             </div>
           ))}
+        </dl>
+      </div>
+    </div>
+  );
+}
+
+function QualificacaoDoLead({ q }: { q: QualificacaoDados }) {
+  return (
+    <div className="mt-6">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-neutral-500">
+        Respostas da página
+      </p>
+      <div className="mt-2 rounded-md border p-3 text-sm" style={{ borderColor: "#E0DED9" }}>
+        {q.fora_do_recorte && (
+          <p className="mb-2 font-medium text-red-700">Fora do recorte (sem mensagem da Lais)</p>
+        )}
+        <p className="text-neutral-900">
+          Urgência <strong>{ROTULO_URGENCIA[q.urgencia] ?? q.urgencia}</strong>
+        </p>
+        <dl className="mt-3 space-y-2">
+          {PERGUNTAS_IDENTIDADE.filter((p) => q.respostas[p.id] && p.id !== "faturamento").map(
+            (p) => (
+              <div key={p.id}>
+                <dt className="text-[10px] uppercase tracking-wide text-neutral-500">{p.curto}</dt>
+                <dd className="text-neutral-800">{q.respostas[p.id]}</dd>
+              </div>
+            ),
+          )}
         </dl>
       </div>
     </div>
