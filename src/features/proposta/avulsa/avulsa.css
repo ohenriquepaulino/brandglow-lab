@@ -1,23 +1,16 @@
-/* Proposta avulsa: grade de entregas, bônus, cases e barra de edição. */
+/* Proposta avulsa: slides extras (quadro 1920x1080), barra de edição e login. */
 .lbc-av-loading { min-height: 100vh; background: #121110; }
 
-.lbc-av-grid { list-style: none; padding: 0; margin: 2.5rem 0 0; display: grid; gap: 1.25rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.lbc-av-grid li { border-top: 1px solid currentColor; padding-top: 1rem; }
-.lbc-av-grid small { display: block; opacity: 0.6; font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.5rem; }
-.lbc-av-grid b { display: block; font-size: 1.25rem; margin-bottom: 0.5rem; }
-.lbc-av-grid p { margin: 0; opacity: 0.85; line-height: 1.5; }
-.lbc-av-bonus { background: #121110; color: #f4f2ef; padding: 1.5rem !important; border-radius: 12px; border-top: 0 !important; }
-.lbc-av-bonus small { color: #cfff87; opacity: 1 !important; }
-
-.lbc-av-cases { list-style: none; padding: 0; margin: 2.5rem 0 0; display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
-.lbc-av-cases img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 10px; display: block; margin-bottom: 0.75rem; }
-.lbc-av-cases b { display: block; font-size: 1.1rem; }
-.lbc-av-cases small { display: block; opacity: 0.6; margin: 0.15rem 0 0.5rem; }
-.lbc-av-cases p { margin: 0; font-size: 0.92rem; line-height: 1.45; opacity: 0.85; }
-
-@media (max-width: 720px) {
-  .lbc-av-grid, .lbc-av-grid.two { grid-template-columns: 1fr; }
-}
+.lbc-av-slide-grid { list-style: none; padding: 0; margin-top: auto !important; display: grid; grid-template-columns: repeat(4, 1fr); gap: 44px; }
+.lbc-av-slide-grid.two { grid-template-columns: repeat(2, 1fr); gap: 56px; }
+.lbc-av-slide-grid li { border-top: 2px solid currentColor; padding-top: 28px; display: flex; flex-direction: column; }
+.lbc-av-slide-grid .n { font-family: var(--display); font-size: 34px; line-height: 1; margin-bottom: 24px; color: var(--lime); }
+.lbc-av-slide-grid b { font-family: var(--display); font-weight: 400; font-size: 42px; line-height: 1.06; margin-bottom: 20px; }
+.lbc-av-slide-grid p { font-size: 25px; line-height: 1.45; opacity: 0.8; }
+.lbc-av-slide-grid.two b { font-size: 54px; }
+.lbc-av-slide-grid.two p { font-size: 28px; }
+.lbc-av-slide-grid li.bonus { background: #121110; color: #f4f2ef; border-top: 0; padding: 44px; border-radius: 20px; }
+.lbc-av-slide-grid li.bonus .n { color: #cfff87; font-size: 26px; letter-spacing: 0.08em; text-transform: uppercase; }
 
 .lbc-av-bar {
   position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
@@ -29,7 +22,6 @@
 .lbc-av-bar label { display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer; }
 .lbc-av-bar input { accent-color: #cfff87; }
 .lbc-av-bar button { background: transparent; color: inherit; border: 1px solid #555; border-radius: 6px; padding: 0.4rem 0.7rem; cursor: pointer; font: inherit; }
-.lbc-av-pick { position: relative; }
 .lbc-av-menu {
   position: fixed; top: 52px; background: #1d1c1a; border: 1px solid #333; border-radius: 8px;
   padding: 0.5rem; display: grid; gap: 0.35rem; min-width: 220px; max-height: 60vh; overflow: auto;
@@ -39,3 +31,12 @@
 .lbc-av-status { min-width: 90px; }
 .lbc-av-status.salvo { color: #cfff87; }
 .lbc-av-status.erro { color: #ff7a5c; }
+
+.lbc-av-login {
+  min-height: 100vh; display: flex; flex-direction: column; gap: 12px; align-items: center; justify-content: center;
+  background: #121110; color: #f4f2ef; font: 15px system-ui, sans-serif;
+}
+.lbc-av-login b { color: #cfff87; font-size: 20px; margin-bottom: 8px; }
+.lbc-av-login input { width: 260px; padding: 10px 12px; border-radius: 8px; border: 1px solid #444; background: #1d1c1a; color: inherit; }
+.lbc-av-login button { width: 260px; padding: 10px; border-radius: 8px; border: 0; background: #cfff87; color: #121110; font-weight: 600; cursor: pointer; }
+.lbc-av-login small { color: #ff7a5c; }

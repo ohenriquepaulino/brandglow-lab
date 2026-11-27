@@ -38,6 +38,13 @@ interface Props {
   onEdit?: (patch: Partial<Proposal>) => void;
   /** Altura de uma barra fixa acima da proposta (a barra de edição do CRM). */
   topOffset?: number;
+  /** Propostas avulsas: slides extras, entram depois dos cases. */
+  extraSlides?: ReactNode;
+  extraChapters?: Chapter[];
+  /** Esconde o slide de cronograma e o prazo do investimento. */
+  hideSchedule?: boolean;
+  /** Esconde o slide de investimento. */
+  hidePrice?: boolean;
 }
 
 type TextField =
@@ -49,7 +56,7 @@ type TextField =
   | "installments_note"
   | "cash_note";
 
-interface Chapter {
+export interface Chapter {
   id: string;
   label: string;
 }
@@ -61,6 +68,10 @@ export default function ProposalView({
   autoPrint = false,
   onEdit,
   topOffset = 0,
+  extraSlides,
+  extraChapters = [],
+  hideSchedule = false,
+  hidePrice = false,
 }: Props) {
   const showPlaceholders = showPh || !!onEdit;
   const rootRef = useRef<HTMLDivElement>(null);
@@ -100,9 +111,10 @@ export default function ProposalView({
     { id: "quem-somos", label: "Quem somos" },
     { id: "o-que-fazemos", label: "O que fazemos" },
     ...(cases.length ? [{ id: "marcas", label: "Marcas que construímos" }] : []),
-    { id: "como-trabalhamos", label: "Como trabalhamos" },
+    ...extraChapters,
+    ...(hideSchedule ? [] : [{ id: "como-trabalhamos", label: "Como trabalhamos" }]),
     { id: "entregaveis", label: "O que você recebe" },
-    { id: "investimento", label: "Investimento" },
+    ...(hidePrice ? [] : [{ id: "investimento", label: "Investimento" }]),
     { id: "proximos-passos", label: "Próximos passos" },
   ];
 
@@ -557,7 +569,10 @@ export default function ProposalView({
         </>
       )}
 
+      {extraSlides}
+
       {/* COMO TRABALHAMOS */}
+      {!hideSchedule && (
       <Slide id="como-trabalhamos" chap="como-trabalhamos" tone="paper">
         <p className="lbc-kicker">
           <b>Como trabalhamos</b>
@@ -614,6 +629,7 @@ export default function ProposalView({
           calls de alinhamento.
         </p>
       </Slide>
+      )}
 
       {/* ENTREGÁVEIS */}
       <Slide id="entregaveis" chap="entregaveis" tone="surface">
@@ -637,6 +653,7 @@ export default function ProposalView({
       </Slide>
 
       {/* INVESTIMENTO */}
+      {!hidePrice && (
       <Slide id="investimento" chap="investimento" tone="deep" className="lbc-inv">
         <div>
           <p className="lbc-kicker">
@@ -660,6 +677,7 @@ export default function ProposalView({
             )}
           </p>
           <div className="lbc-prazo">
+            {!hideSchedule && (
             <div>
               <small>Prazo estimado</small>
               <b>
@@ -679,6 +697,7 @@ export default function ProposalView({
                 dias
               </b>
             </div>
+            )}
             <div>
               <small>Entregas</small>
               <b>{deliverables.length}</b>
@@ -727,6 +746,7 @@ export default function ProposalView({
           )}
         </div>
       </Slide>
+      )}
 
       {/* PRÓXIMOS PASSOS */}
       <Slide id="proximos-passos" chap="proximos-passos" tone="lime">
@@ -749,7 +769,9 @@ export default function ProposalView({
             <small>Passo 3</small>
             <b>Início do projeto</b>
             <p>
-              Fazemos as calls de alinhamento e o prazo de {p.deadline_days} dias começa a contar.
+              {hideSchedule
+                ? "Fazemos as calls de alinhamento e começamos a construir a sua marca."
+                : `Fazemos as calls de alinhamento e o prazo de ${p.deadline_days} dias começa a contar.`}
             </p>
           </li>
         </ol>
@@ -858,7 +880,7 @@ const RESULTS = [
   },
 ];
 
-function Slide({
+export function Slide({
   id,
   chap,
   tone,

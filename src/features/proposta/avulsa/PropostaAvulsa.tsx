@@ -1,16 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import "../proposta.css";
-import "../proposta-direcao.css";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import "./avulsa.css";
-import { BRAND, DIRECAO_CARD_INSTALLMENTS, DIRECAO_CARD_RATE_12X } from "../defaults";
-import { CASES, resolveCases } from "../cases";
-import { brlNumber, parseBrl, round2 } from "../format";
-import { usePrintPdf } from "../usePrintPdf";
+import ProposalView, { Slide } from "../ProposalView";
+import type { Proposal } from "../types";
+import { CASES } from "../cases";
 import EditText from "../EditText";
-import { CRM_PASS, isCrmAuthed } from "@/lib/crm-auth";
+import { CRM_PASS, crmLogin, isCrmAuthed } from "@/lib/crm-auth";
 import { mergeAvulsa, type AvulsaData, type AvulsaItem } from "./defaults";
 
-const PRINT_PAGE = "@media print { @page { size: A4 portrait; margin: 0; } }";
 const BAR_H = 52;
 
 async function loadAvulsa(slug: string): Promise<unknown> {
@@ -34,9 +30,9 @@ async function saveAvulsa(slug: string, data: AvulsaData) {
 }
 
 /**
- * Proposta avulsa com link próprio (ex.: /propostadra), no visual em slides.
- * Quem está logado no CRM vê uma barra no topo para ligar cases e preço,
- * escolher os cases e editar os textos com um clique. Tudo salva no banco.
+ * Proposta avulsa com link próprio (ex.: /propostadra), em cima do modelo
+ * completo (o mesmo das propostas do CRM), com slides extras de entregas e bônus.
+ * Edição: abrir o link com ?editar e entrar com o login do CRM.
  */
 export default function PropostaAvulsa({
   slug,
@@ -48,13 +44,15 @@ export default function PropostaAvulsa({
   const [d, setD] = useState<AvulsaData>(defaults);
   const [loaded, setLoaded] = useState(false);
   const [admin, setAdmin] = useState(false);
+  const [wantsEdit, setWantsEdit] = useState(false);
   const [status, setStatus] = useState<"" | "salvando" | "salvo" | "erro">("");
   const [picker, setPicker] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
-    setAdmin(isCrmAuthed());
+    const editParam = new URLSearchParams(window.location.search).has("editar");
+    setWantsEdit(editParam);
+    setAdmin(editParam && isCrmAuthed());
     loadAvulsa(slug)
       .then((saved) => setD(mergeAvulsa(defaults, saved)))
       .catch(() => {})
@@ -75,28 +73,49 @@ export default function PropostaAvulsa({
     });
   };
 
-  const edit = admin;
-  const t = (value: string, placeholder: string, onCommit: (v: string) => void) =>
-    edit ? <EditText value={value} placeholder={placeholder} onCommit={onCommit} /> : value;
+  // Os dados viram uma proposta comum para o modelo completo.
+  const proposal: Proposal = useMemo(
+    () => ({
+      slug,
+      product: "estrategia",
+      client_name: d.client_name,
+      cover_label: d.cover_label,
+      show_diagnosis: false,
+      diagnosis_moment: null,
+      diagnosis_challenge: null,
+      diagnosis_goal: null,
+      price_total: d.price_total,
+      installments: 2,
+      installments_note: d.installments_note,
+      cash_discount_pct: d.cash_discount_pct,
+      cash_note: d.cash_note,
+      show_card: d.show_card,
+      deadline_days: 60,
+      valid_until: null,
+      case_slugs: d.show_cases && d.case_slugs.length ? d.case_slugs : [],
+    }),
+    [d, slug],
+  );
 
-  const itemList = (key: "entregas" | "bonus", list: AvulsaItem[], i: number, f: keyof AvulsaItem) =>
+  const onEdit = admin
+    ? (patch: Partial<Proposal>) => {
+        const map: Partial<AvulsaData> = {};
+        if (patch.client_name !== undefined) map.client_name = patch.client_name;
+        if (patch.cover_label !== undefined) map.cover_label = patch.cover_label;
+        if (patch.price_total !== undefined) map.price_total = patch.price_total;
+        if (patch.cash_note !== undefined) map.cash_note = patch.cash_note;
+        if (patch.installments_note !== undefined) map.installments_note = patch.installments_note;
+        if (Object.keys(map).length) update(map);
+      }
+    : undefined;
+
+  const t = (value: string, placeholder: string, onCommit: (v: string) => void) =>
+    admin ? <EditText value={value} placeholder={placeholder} onCommit={onCommit} /> : value;
+
+  const item = (key: "entregas" | "bonus", list: AvulsaItem[], i: number, f: keyof AvulsaItem) =>
     t(list[i][f], f === "title" ? "Título" : "Texto", (v) =>
       update({ [key]: list.map((it, j) => (j === i ? { ...it, [f]: v } : it)) }),
     );
-
-  const client = d.client_name.trim() || "Sua empresa";
-  const total = d.price_total;
-  const cash = round2(total * (1 - d.cash_discount_pct / 100));
-  const half = round2(total / 2);
-  const card = Math.floor(round2(total * DIRECAO_CARD_RATE_12X * 100)) / 100;
-  const cases = d.show_cases ? resolveCases(d.case_slugs) : [];
-
-  const getRoot = useCallback(() => rootRef.current, []);
-  const { print, preparing } = usePrintPdf(getRoot, `Proposta Legacy BrandCo. - ${client}`);
-
-  const coverDate = new Date()
-    .toLocaleDateString("pt-BR", { month: "long", year: "numeric" })
-    .replace(/^./, (c) => c.toUpperCase());
 
   const toggleCase = (s: string) =>
     update({
@@ -106,6 +125,46 @@ export default function PropostaAvulsa({
     });
 
   if (!loaded) return <div className="lbc-av-loading" />;
+  if (wantsEdit && !admin) return <Login onOk={() => setAdmin(true)} />;
+
+  const extraSlides = (
+    <>
+      <Slide id="entregas" chap="entregas" tone="deep" className="lbc-what">
+        <p className="lbc-kicker">
+          <b>{t(d.entregas_kicker, "Chamada", (v) => update({ entregas_kicker: v }))}</b>
+        </p>
+        <h2 className="lbc-d lbc-h2">
+          {t(d.entregas_title, "Título", (v) => update({ entregas_title: v }))}
+        </h2>
+        <ol className="lbc-av-slide-grid">
+          {d.entregas.map((_, i) => (
+            <li key={i}>
+              <span className="n">{String(i + 1).padStart(2, "0")}</span>
+              <b>{item("entregas", d.entregas, i, "title")}</b>
+              <p>{item("entregas", d.entregas, i, "text")}</p>
+            </li>
+          ))}
+        </ol>
+      </Slide>
+      <Slide id="bonus" chap="bonus" tone="lime">
+        <p className="lbc-kicker">
+          <b>Bônus</b>
+        </p>
+        <h2 className="lbc-d lbc-h2">
+          {t(d.bonus_title, "Título dos bônus", (v) => update({ bonus_title: v }))}
+        </h2>
+        <ol className="lbc-av-slide-grid two">
+          {d.bonus.map((_, i) => (
+            <li key={i} className="bonus">
+              <span className="n">Bônus {i + 1}</span>
+              <b>{item("bonus", d.bonus, i, "title")}</b>
+              <p>{item("bonus", d.bonus, i, "text")}</p>
+            </li>
+          ))}
+        </ol>
+      </Slide>
+    </>
+  );
 
   return (
     <>
@@ -167,207 +226,45 @@ export default function PropostaAvulsa({
           </span>
         </div>
       )}
-
-      <div
-        className={`lbc lbc-dm${edit ? " lbc-editing" : ""}`}
-        ref={rootRef}
-        style={{ "--dm-top": `${admin ? BAR_H : 0}px` } as React.CSSProperties}
-      >
-        <style>{PRINT_PAGE}</style>
-
-        {/* CAPA */}
-        <section className="lbc-dm-sec tone-lime lbc-dm-cover" id="inicio">
-          <div className="lbc-dm-wrap">
-            <div className="lbc-dm-cover-meta">
-              <span>{t(d.cover_label, "Rótulo da capa", (v) => update({ cover_label: v }))}</span>
-              <span>{coverDate}</span>
-            </div>
-            <div className="lbc-dm-mark">
-              <img src={BRAND.logoDark} alt="Legacy BrandCo." width={1716} height={612} />
-            </div>
-            <div className="lbc-dm-for">
-              <small>Proposta preparada para</small>
-              <div className="lbc-dm-client">
-                {t(d.client_name, "Nome do cliente", (v) => update({ client_name: v }))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* O QUE PODEMOS ENTREGAR */}
-        <section className="lbc-dm-sec tone-deep" id="entregas">
-          <div className="lbc-dm-wrap">
-            <p className="lbc-kicker">
-              <b>{t(d.entregas_kicker, "Chamada", (v) => update({ entregas_kicker: v }))}</b>
-            </p>
-            <h2 className="lbc-d lbc-dm-h1">
-              {t(d.entregas_title, "Título", (v) => update({ entregas_title: v }))}
-            </h2>
-            <p className="lbc-dm-lead">
-              {t(d.entregas_lead, "Texto de abertura", (v) => update({ entregas_lead: v }))}
-            </p>
-            <ol className="lbc-av-grid">
-              {d.entregas.map((_, i) => (
-                <li key={i}>
-                  <small>{String(i + 1).padStart(2, "0")}</small>
-                  <b>{itemList("entregas", d.entregas, i, "title")}</b>
-                  <p>{itemList("entregas", d.entregas, i, "text")}</p>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </section>
-
-        {/* BÔNUS */}
-        <section className="lbc-dm-sec tone-lime" id="bonus">
-          <div className="lbc-dm-wrap">
-            <p className="lbc-kicker">
-              <b>Bônus</b>
-            </p>
-            <h2 className="lbc-d lbc-dm-h1">
-              {t(d.bonus_title, "Título dos bônus", (v) => update({ bonus_title: v }))}
-            </h2>
-            <ol className="lbc-av-grid two">
-              {d.bonus.map((_, i) => (
-                <li key={i} className="lbc-av-bonus">
-                  <small>Bônus {i + 1}</small>
-                  <b>{itemList("bonus", d.bonus, i, "title")}</b>
-                  <p>{itemList("bonus", d.bonus, i, "text")}</p>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </section>
-
-        {/* CASES */}
-        {cases.length > 0 && (
-          <section className="lbc-dm-sec tone-paper" id="cases">
-            <div className="lbc-dm-wrap">
-              <p className="lbc-kicker">
-                <b>Cases</b>
-              </p>
-              <h2 className="lbc-d lbc-dm-h1">
-                {t(d.cases_title, "Título dos cases", (v) => update({ cases_title: v }))}
-              </h2>
-              <ul className="lbc-av-cases">
-                {cases.map((c) => (
-                  <li key={c.slug}>
-                    {c.images[0] && <img src={c.images[0]} alt={c.name} loading="lazy" />}
-                    <b>{c.name}</b>
-                    <small>{c.segment}</small>
-                    {c.summary && <p>{c.summary}</p>}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </section>
-        )}
-
-        {/* INVESTIMENTO */}
-        {d.show_price && (
-          <section className="lbc-dm-sec tone-deep" id="investimento">
-            <div className="lbc-dm-wrap">
-              <p className="lbc-kicker">
-                <b>Investimento</b>
-              </p>
-              <p className="lbc-total lbc-dm-total">
-                <span>R$</span>
-                {edit ? (
-                  <EditText
-                    value={brlNumber(total)}
-                    placeholder="0,00"
-                    selectAll
-                    onCommit={(v) => {
-                      const n = parseBrl(v);
-                      if (Number.isFinite(n) && n >= 0) update({ price_total: Math.round(n * 100) / 100 });
-                    }}
-                  />
-                ) : (
-                  brlNumber(total)
-                )}
-              </p>
-              <div className={`lbc-opts lbc-dm-opts${d.show_card ? " three" : ""}`}>
-                <div className={`lbc-opt${d.cash_discount_pct > 0 ? " best" : ""}`}>
-                  {d.cash_discount_pct > 0 && <span className="tag">{d.cash_discount_pct}% OFF</span>}
-                  <h3>À vista no Pix</h3>
-                  <div className="v">
-                    <small>R$</small>
-                    {brlNumber(cash)}
-                  </div>
-                  <p>{t(d.cash_note, "Texto do Pix", (v) => update({ cash_note: v }))}</p>
-                </div>
-                <div className="lbc-opt">
-                  <h3>2x sem juros</h3>
-                  <div className="v">
-                    <small>2x</small>R$ {brlNumber(half)}
-                  </div>
-                  <p>
-                    {t(d.installments_note, "Texto das parcelas", (v) =>
-                      update({ installments_note: v }),
-                    )}
-                  </p>
-                </div>
-                {d.show_card && (
-                  <div className="lbc-opt">
-                    <h3>Cartão de crédito</h3>
-                    <div className="v">
-                      <small>{DIRECAO_CARD_INSTALLMENTS}x</small>R$ {brlNumber(card)}
-                    </div>
-                    <p>Parcelado no cartão, com os juros da operadora.</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* PRÓXIMOS PASSOS */}
-        <section className="lbc-dm-sec tone-lime" id="proximos-passos">
-          <div className="lbc-dm-wrap">
-            <p className="lbc-kicker">
-              <b>Próximos passos</b>
-            </p>
-            <h2 className="lbc-d lbc-dm-h1">Como começamos</h2>
-            <ol className="lbc-dm-grid-3 lbc-dm-steps">
-              <li>
-                <small>Passo 1</small>
-                <b>Aceite</b>
-                <p>Você confirma a proposta e alinhamos os detalhes com a nossa equipe.</p>
-              </li>
-              <li>
-                <small>Passo 2</small>
-                <b>Briefing Legacy</b>
-                <p>Você responde com profundidade a nossa ferramenta de briefing.</p>
-              </li>
-              <li>
-                <small>Passo 3</small>
-                <b>Mãos à obra</b>
-                <p>Começamos pela estratégia e construímos a sua marca etapa por etapa.</p>
-              </li>
-            </ol>
-          </div>
-        </section>
-
-        {/* ENCERRAMENTO */}
-        <section className="lbc-dm-sec tone-deep lbc-dm-end" id="fim">
-          <div className="lbc-dm-wrap">
-            <img src={BRAND.logoLight} alt="Legacy BrandCo." width={1716} height={612} loading="lazy" />
-            <div className="row">
-              <span>Legacy BrandCo.</span>
-              <span>{BRAND.siteLabel}</span>
-            </div>
-          </div>
-        </section>
-
-        <button
-          type="button"
-          className="lbc-dm-pdf lbc-no-print"
-          onClick={() => void print()}
-          disabled={preparing}
-        >
-          {preparing ? "Preparando..." : "Baixar PDF"}
-        </button>
+      <div style={{ paddingTop: admin ? BAR_H : 0 }}>
+        <ProposalView
+          proposal={proposal}
+          onEdit={onEdit}
+          topOffset={admin ? BAR_H : 0}
+          extraSlides={extraSlides}
+          extraChapters={[
+            { id: "entregas", label: "O que podemos entregar" },
+            { id: "bonus", label: "Bônus" },
+          ]}
+          hideSchedule
+          hidePrice={!d.show_price}
+        />
       </div>
     </>
+  );
+}
+
+function Login({ onOk }: { onOk: () => void }) {
+  const [user, setUser] = useState("");
+  const [pass, setPass] = useState("");
+  const [err, setErr] = useState(false);
+  const submit = (e: FormEvent) => {
+    e.preventDefault();
+    if (crmLogin(user, pass)) onOk();
+    else setErr(true);
+  };
+  return (
+    <form className="lbc-av-login" onSubmit={submit}>
+      <b>Editar proposta</b>
+      <input placeholder="Usuário do CRM" value={user} onChange={(e) => setUser(e.target.value)} />
+      <input
+        placeholder="Senha"
+        type="password"
+        value={pass}
+        onChange={(e) => setPass(e.target.value)}
+      />
+      {err && <small>Usuário ou senha incorretos.</small>}
+      <button type="submit">Entrar</button>
+    </form>
   );
 }
