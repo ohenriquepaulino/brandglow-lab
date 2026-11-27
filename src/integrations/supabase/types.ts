@@ -101,6 +101,24 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_proposals: {
+        Row: {
+          data: Json
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          data?: Json
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          data?: Json
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
