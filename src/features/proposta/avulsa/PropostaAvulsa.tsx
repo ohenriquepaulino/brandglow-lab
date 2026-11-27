@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import "./avulsa.css";
 import ProposalView, { Slide } from "../ProposalView";
 import type { Proposal } from "../types";
+import { BRAND } from "../defaults";
 import { CASES } from "../cases";
 import EditText from "../EditText";
 import { CRM_PASS, crmLogin, isCrmAuthed } from "@/lib/crm-auth";
@@ -198,14 +199,13 @@ export default function PropostaAvulsa({
               </div>
             )}
           </div>
-          <label>
-            <input
-              type="checkbox"
-              checked={d.show_price}
-              onChange={(e) => update({ show_price: e.target.checked })}
-            />
-            Preço
-          </label>
+          <button
+            type="button"
+            className={`lbc-av-toggle${d.show_price ? " on" : ""}`}
+            onClick={() => update({ show_price: !d.show_price })}
+          >
+            Investimento: {d.show_price ? "aparecendo" : "escondido"}
+          </button>
           <label>
             <input
               type="checkbox"
@@ -238,6 +238,16 @@ export default function PropostaAvulsa({
           ]}
           hideSchedule
           hidePrice={!d.show_price}
+          endSlide={
+            <Slide id="fim" chap="proximos-passos" tone="deep" className="lbc-av-end">
+              <img src={BRAND.sealLight} alt="Legacy BrandCo." />
+              <h2 className="lbc-d lbc-h1">
+                {t(d.end_title, "Título do encerramento", (v) => update({ end_title: v }))}
+              </h2>
+              <p>{t(d.end_text, "Texto do encerramento", (v) => update({ end_text: v }))}</p>
+              <span>{BRAND.siteLabel}</span>
+            </Slide>
+          }
         />
       </div>
     </>

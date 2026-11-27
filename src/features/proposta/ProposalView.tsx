@@ -45,6 +45,8 @@ interface Props {
   hideSchedule?: boolean;
   /** Esconde o slide de investimento. */
   hidePrice?: boolean;
+  /** Troca o slide de encerramento. */
+  endSlide?: ReactNode;
 }
 
 type TextField =
@@ -72,6 +74,7 @@ export default function ProposalView({
   extraChapters = [],
   hideSchedule = false,
   hidePrice = false,
+  endSlide,
 }: Props) {
   const showPlaceholders = showPh || !!onEdit;
   const rootRef = useRef<HTMLDivElement>(null);
@@ -111,9 +114,9 @@ export default function ProposalView({
     { id: "quem-somos", label: "Quem somos" },
     { id: "o-que-fazemos", label: "O que fazemos" },
     ...(cases.length ? [{ id: "marcas", label: "Marcas que construímos" }] : []),
-    ...extraChapters,
     ...(hideSchedule ? [] : [{ id: "como-trabalhamos", label: "Como trabalhamos" }]),
     { id: "entregaveis", label: "O que você recebe" },
+    ...extraChapters,
     ...(hidePrice ? [] : [{ id: "investimento", label: "Investimento" }]),
     { id: "proximos-passos", label: "Próximos passos" },
   ];
@@ -569,8 +572,6 @@ export default function ProposalView({
         </>
       )}
 
-      {extraSlides}
-
       {/* COMO TRABALHAMOS */}
       {!hideSchedule && (
       <Slide id="como-trabalhamos" chap="como-trabalhamos" tone="paper">
@@ -651,6 +652,8 @@ export default function ProposalView({
           ))}
         </ol>
       </Slide>
+
+      {extraSlides}
 
       {/* INVESTIMENTO */}
       {!hidePrice && (
@@ -778,6 +781,7 @@ export default function ProposalView({
       </Slide>
 
       {/* ENCERRAMENTO */}
+      {endSlide ?? (
       <Slide id="fim" chap="proximos-passos" tone="deep" className="lbc-end">
         <img src={BRAND.logoLight} alt="Legacy BrandCo." width={1716} height={612} loading="lazy" />
         <div className="row">
@@ -785,6 +789,7 @@ export default function ProposalView({
           <span>{BRAND.siteLabel}</span>
         </div>
       </Slide>
+      )}
 
       {chrome && (
         <div className="lbc-ctrl lbc-no-print" role="toolbar" aria-label="Apresentação">

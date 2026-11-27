@@ -24,6 +24,8 @@ export interface AvulsaData {
   cash_note: string;
   installments_note: string;
   show_card: boolean;
+  end_title: string;
+  end_text: string;
 }
 
 export const DRA_DEFAULTS: AvulsaData = {
@@ -36,30 +38,30 @@ export const DRA_DEFAULTS: AvulsaData = {
   entregas: [
     {
       title: "Estratégia de marca",
-      text: "Diagnóstico, cliente ideal, posicionamento e narrativa. A base que define para quem a sua marca fala e por que ela é a escolha certa.",
+      text: "Cliente ideal, posicionamento e narrativa. A base que define para quem a sua marca fala e por que escolher você.",
     },
     {
       title: "Identidade visual",
-      text: "Logotipo e suas versões, paleta de cores, tipografia, elementos gráficos e aplicações. Uma marca com presença de alto padrão em qualquer lugar.",
+      text: "Logo e versões, cores, tipografia e aplicações. Uma marca de alto padrão em qualquer lugar.",
     },
     {
       title: "Estratégia de comunicação",
-      text: "Tom de voz, mensagens-chave e linha editorial. Como a sua marca fala, o que ela diz e o que ela nunca diz.",
+      text: "Tom de voz, mensagens e linha editorial. O que a sua marca diz e como ela fala.",
     },
     {
       title: "Estratégia e estruturação das redes sociais",
-      text: "Perfil, bio, destaques, padrão visual do feed e plano de conteúdo. O Instagram organizado para atrair, gerar confiança e vender.",
+      text: "Perfil, bio, destaques, feed e plano de conteúdo. Um Instagram que atrai e vende.",
     },
   ],
   bonus_title: "Bônus exclusivos desta proposta",
   bonus: [
     {
       title: "Site próprio + página de links da bio",
-      text: "Um site com a cara da nova marca e uma página de links própria para a bio, no lugar de ferramentas genéricas. Tudo pronto para receber os seus clientes.",
+      text: "Um site com a cara da nova marca e uma página de links própria para a bio. Pronto para receber os seus clientes.",
     },
     {
       title: "2 meses de redes sociais",
-      text: "3 posts por semana durante 2 meses, criados por nós já com a nova identidade e a nova comunicação. A marca nasce e já entra no ar com consistência.",
+      text: "3 posts por semana, criados por nós com a nova identidade. A marca já entra no ar com consistência.",
     },
   ],
   show_cases: true,
@@ -71,6 +73,8 @@ export const DRA_DEFAULTS: AvulsaData = {
   cash_note: "Pagamento via Pix na contratação",
   installments_note: "50% na contratação e 50% na entrega",
   show_card: true,
+  end_title: "Obrigado.",
+  end_text: "Vamos construir juntos uma marca à altura do seu trabalho.",
 };
 
 /** Junta o que veio do banco com os padrões, ignorando campos de tipo errado. */

@@ -27,6 +27,14 @@
   padding: 0.5rem; display: grid; gap: 0.35rem; min-width: 220px; max-height: 60vh; overflow: auto;
 }
 .lbc-av-menu label { padding: 0.35rem 0.4rem; }
+.lbc-av-bar .lbc-av-toggle { border-color: #ff7a5c; color: #ff7a5c; font-weight: 600; }
+.lbc-av-bar .lbc-av-toggle.on { border-color: #cfff87; background: #cfff87; color: #121110; }
+
+.lbc-av-end .lbc-slide { align-items: center; justify-content: center; text-align: center; gap: 40px; }
+.lbc-av-end img { height: 120px; width: auto; }
+.lbc-av-end p { font-size: 40px; line-height: 1.4; max-width: 1100px; opacity: 0.8; }
+.lbc-av-end span { font-size: 26px; letter-spacing: 0.08em; color: var(--lime); }
+
 .lbc-av-hint { opacity: 0.55; margin-left: auto; }
 .lbc-av-status { min-width: 90px; }
 .lbc-av-status.salvo { color: #cfff87; }
