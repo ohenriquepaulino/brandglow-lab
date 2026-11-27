@@ -35,6 +35,8 @@
 .lbc-av-end p { font-size: 40px; line-height: 1.4; max-width: 1100px; opacity: 0.8; }
 .lbc-av-end span { font-size: 26px; letter-spacing: 0.08em; color: var(--lime); }
 
+.lbc-av-bar .lbc-av-save { background: #cfff87; color: #121110; border-color: #cfff87; font-weight: 700; padding: 0.45rem 1.1rem; }
+
 .lbc-av-hint { opacity: 0.55; margin-left: auto; }
 .lbc-av-status { min-width: 90px; }
 .lbc-av-status.salvo { color: #cfff87; }

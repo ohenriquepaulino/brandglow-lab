@@ -215,6 +215,19 @@ export default function PropostaAvulsa({
             Cartão 12x
           </label>
           <span className="lbc-av-hint">Clique nos textos para editar</span>
+          <button
+            type="button"
+            className="lbc-av-save"
+            onClick={() => {
+              clearTimeout(saveTimer.current);
+              setStatus("salvando");
+              saveAvulsa(slug, d)
+                .then(() => setStatus("salvo"))
+                .catch(() => setStatus("erro"));
+            }}
+          >
+            Salvar
+          </button>
           <span className={`lbc-av-status ${status}`}>
             {status === "salvando"
               ? "Salvando..."
