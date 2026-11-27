@@ -1,0 +1,41 @@
+/* Proposta avulsa: grade de entregas, bônus, cases e barra de edição. */
+.lbc-av-loading { min-height: 100vh; background: #121110; }
+
+.lbc-av-grid { list-style: none; padding: 0; margin: 2.5rem 0 0; display: grid; gap: 1.25rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.lbc-av-grid li { border-top: 1px solid currentColor; padding-top: 1rem; }
+.lbc-av-grid small { display: block; opacity: 0.6; font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.5rem; }
+.lbc-av-grid b { display: block; font-size: 1.25rem; margin-bottom: 0.5rem; }
+.lbc-av-grid p { margin: 0; opacity: 0.85; line-height: 1.5; }
+.lbc-av-bonus { background: #121110; color: #f4f2ef; padding: 1.5rem !important; border-radius: 12px; border-top: 0 !important; }
+.lbc-av-bonus small { color: #cfff87; opacity: 1 !important; }
+
+.lbc-av-cases { list-style: none; padding: 0; margin: 2.5rem 0 0; display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+.lbc-av-cases img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 10px; display: block; margin-bottom: 0.75rem; }
+.lbc-av-cases b { display: block; font-size: 1.1rem; }
+.lbc-av-cases small { display: block; opacity: 0.6; margin: 0.15rem 0 0.5rem; }
+.lbc-av-cases p { margin: 0; font-size: 0.92rem; line-height: 1.45; opacity: 0.85; }
+
+@media (max-width: 720px) {
+  .lbc-av-grid, .lbc-av-grid.two { grid-template-columns: 1fr; }
+}
+
+.lbc-av-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  display: flex; align-items: center; gap: 1.25rem; padding: 0 1rem;
+  background: #121110; color: #f4f2ef; font: 500 14px/1 system-ui, sans-serif;
+  border-bottom: 1px solid #cfff87; overflow-x: auto; white-space: nowrap;
+}
+.lbc-av-bar b { color: #cfff87; }
+.lbc-av-bar label { display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer; }
+.lbc-av-bar input { accent-color: #cfff87; }
+.lbc-av-bar button { background: transparent; color: inherit; border: 1px solid #555; border-radius: 6px; padding: 0.4rem 0.7rem; cursor: pointer; font: inherit; }
+.lbc-av-pick { position: relative; }
+.lbc-av-menu {
+  position: fixed; top: 52px; background: #1d1c1a; border: 1px solid #333; border-radius: 8px;
+  padding: 0.5rem; display: grid; gap: 0.35rem; min-width: 220px; max-height: 60vh; overflow: auto;
+}
+.lbc-av-menu label { padding: 0.35rem 0.4rem; }
+.lbc-av-hint { opacity: 0.55; margin-left: auto; }
+.lbc-av-status { min-width: 90px; }
+.lbc-av-status.salvo { color: #cfff87; }
+.lbc-av-status.erro { color: #ff7a5c; }

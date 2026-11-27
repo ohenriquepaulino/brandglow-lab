@@ -9,115 +9,62 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as WhatsappRouteImport } from './routes/whatsapp'
-import { Route as TksRouteImport } from './routes/tks'
-import { Route as PrivacidadeRouteImport } from './routes/privacidade'
-import { Route as ObrigadoRouteImport } from './routes/obrigado'
-import { Route as IdentidadeRouteImport } from './routes/identidade'
-import { Route as CrmRouteImport } from './routes/crm'
-import { Route as CheckupRouteImport } from './routes/checkup'
-import { Route as CentralRouteImport } from './routes/central'
-import { Route as BuscaRouteImport } from './routes/busca'
-import { Route as ArquitetosRouteImport } from './routes/arquitetos'
-import { Route as AdsbRouteImport } from './routes/adsb'
-import { Route as AdsaRouteImport } from './routes/adsa'
-import { Route as AdsRouteImport } from './routes/ads'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as CrmIndexRouteImport } from './routes/crm.index'
+import { Route as AdsRouteImport } from './routes/ads'
+import { Route as AdsaRouteImport } from './routes/adsa'
+import { Route as AdsbRouteImport } from './routes/adsb'
+import { Route as ArquitetosRouteImport } from './routes/arquitetos'
+import { Route as BuscaRouteImport } from './routes/busca'
+import { Route as CentralRouteImport } from './routes/central'
+import { Route as CheckupRouteImport } from './routes/checkup'
+import { Route as CrmRouteImport } from './routes/crm'
+import { Route as IdentidadeRouteImport } from './routes/identidade'
+import { Route as ObrigadoRouteImport } from './routes/obrigado'
+import { Route as PrivacidadeRouteImport } from './routes/privacidade'
+import { Route as PropostadraRouteImport } from './routes/propostadra'
+import { Route as TksRouteImport } from './routes/tks'
+import { Route as WhatsappRouteImport } from './routes/whatsapp'
 import { Route as CasesIndexRouteImport } from './routes/cases.index'
-import { Route as VSlugRouteImport } from './routes/v.$slug'
-import { Route as PSlugRouteImport } from './routes/p.$slug'
-import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
-import { Route as CrmWhatsappRouteImport } from './routes/crm.whatsapp'
-import { Route as CrmVideosRouteImport } from './routes/crm.videos'
-import { Route as CrmTarefasRouteImport } from './routes/crm.tarefas'
-import { Route as CrmKanbanRouteImport } from './routes/crm.kanban'
-import { Route as CrmGravadorRouteImport } from './routes/crm.gravador'
-import { Route as CrmDashboardRouteImport } from './routes/crm.dashboard'
-import { Route as CrmConselheiroRouteImport } from './routes/crm.conselheiro'
-import { Route as CrmAbRouteImport } from './routes/crm.ab'
 import { Route as CasesSlugRouteImport } from './routes/cases.$slug'
-import { Route as CrmPropostasIndexRouteImport } from './routes/crm.propostas.index'
-import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
-import { Route as CrmPropostasIdRouteImport } from './routes/crm.propostas.$id'
+import { Route as CrmIndexRouteImport } from './routes/crm.index'
+import { Route as CrmAbRouteImport } from './routes/crm.ab'
+import { Route as CrmConselheiroRouteImport } from './routes/crm.conselheiro'
+import { Route as CrmDashboardRouteImport } from './routes/crm.dashboard'
+import { Route as CrmGravadorRouteImport } from './routes/crm.gravador'
+import { Route as CrmKanbanRouteImport } from './routes/crm.kanban'
+import { Route as CrmTarefasRouteImport } from './routes/crm.tarefas'
+import { Route as CrmVideosRouteImport } from './routes/crm.videos'
+import { Route as CrmWhatsappRouteImport } from './routes/crm.whatsapp'
+import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
+import { Route as PSlugRouteImport } from './routes/p.$slug'
+import { Route as VSlugRouteImport } from './routes/v.$slug'
 import { Route as ApiPublicPropostaRouteImport } from './routes/api/public/proposta'
-import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
-import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
-import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
-import { Route as ApiPublicWhatsappWebhookRouteImport } from './routes/api/public/whatsapp/webhook'
-import { Route as ApiPublicWhatsappProcessRouteImport } from './routes/api/public/whatsapp/process'
-import { Route as ApiPublicWhatsappLinkEnviadoRouteImport } from './routes/api/public/whatsapp/link-enviado'
-import { Route as ApiPublicWhatsappFollowupRouteImport } from './routes/api/public/whatsapp/followup'
-import { Route as ApiPublicVideoTrackRouteImport } from './routes/api/public/video/track'
-import { Route as ApiPublicVideoProcessRouteImport } from './routes/api/public/video/process'
-import { Route as ApiPublicLeadsSubmitRouteImport } from './routes/api/public/leads/submit'
-import { Route as ApiPublicCrmWhatsappRouteImport } from './routes/api/public/crm/whatsapp'
-import { Route as ApiPublicCrmVideosRouteImport } from './routes/api/public/crm/videos'
-import { Route as ApiPublicCrmTasksRouteImport } from './routes/api/public/crm/tasks'
-import { Route as ApiPublicCrmProposalsRouteImport } from './routes/api/public/crm/proposals'
-import { Route as ApiPublicCrmDataRouteImport } from './routes/api/public/crm/data'
-import { Route as ApiPublicCrmConselheiroRouteImport } from './routes/api/public/crm/conselheiro'
-import { Route as ApiPublicCrmAbRouteImport } from './routes/api/public/crm/ab'
+import { Route as ApiPublicPropostaAvulsaRouteImport } from './routes/api/public/proposta-avulsa'
+import { Route as CrmPropostasIndexRouteImport } from './routes/crm.propostas.index'
+import { Route as CrmPropostasIdRouteImport } from './routes/crm.propostas.$id'
+import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as ApiPublicAbVisitRouteImport } from './routes/api/public/ab/visit'
+import { Route as ApiPublicCrmAbRouteImport } from './routes/api/public/crm/ab'
+import { Route as ApiPublicCrmConselheiroRouteImport } from './routes/api/public/crm/conselheiro'
+import { Route as ApiPublicCrmDataRouteImport } from './routes/api/public/crm/data'
+import { Route as ApiPublicCrmProposalsRouteImport } from './routes/api/public/crm/proposals'
+import { Route as ApiPublicCrmTasksRouteImport } from './routes/api/public/crm/tasks'
+import { Route as ApiPublicCrmVideosRouteImport } from './routes/api/public/crm/videos'
+import { Route as ApiPublicCrmWhatsappRouteImport } from './routes/api/public/crm/whatsapp'
+import { Route as ApiPublicLeadsSubmitRouteImport } from './routes/api/public/leads/submit'
+import { Route as ApiPublicVideoProcessRouteImport } from './routes/api/public/video/process'
+import { Route as ApiPublicVideoTrackRouteImport } from './routes/api/public/video/track'
+import { Route as ApiPublicWhatsappFollowupRouteImport } from './routes/api/public/whatsapp/followup'
+import { Route as ApiPublicWhatsappLinkEnviadoRouteImport } from './routes/api/public/whatsapp/link-enviado'
+import { Route as ApiPublicWhatsappProcessRouteImport } from './routes/api/public/whatsapp/process'
+import { Route as ApiPublicWhatsappWebhookRouteImport } from './routes/api/public/whatsapp/webhook'
+import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
+import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
+import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 
-const WhatsappRoute = WhatsappRouteImport.update({
-  id: '/whatsapp',
-  path: '/whatsapp',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TksRoute = TksRouteImport.update({
-  id: '/tks',
-  path: '/tks',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacidadeRoute = PrivacidadeRouteImport.update({
-  id: '/privacidade',
-  path: '/privacidade',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ObrigadoRoute = ObrigadoRouteImport.update({
-  id: '/obrigado',
-  path: '/obrigado',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IdentidadeRoute = IdentidadeRouteImport.update({
-  id: '/identidade',
-  path: '/identidade',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CrmRoute = CrmRouteImport.update({
-  id: '/crm',
-  path: '/crm',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CheckupRoute = CheckupRouteImport.update({
-  id: '/checkup',
-  path: '/checkup',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CentralRoute = CentralRouteImport.update({
-  id: '/central',
-  path: '/central',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BuscaRoute = BuscaRouteImport.update({
-  id: '/busca',
-  path: '/busca',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ArquitetosRoute = ArquitetosRouteImport.update({
-  id: '/arquitetos',
-  path: '/arquitetos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdsbRoute = AdsbRouteImport.update({
-  id: '/adsb',
-  path: '/adsb',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdsaRoute = AdsaRouteImport.update({
-  id: '/adsa',
-  path: '/adsa',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdsRoute = AdsRouteImport.update({
@@ -125,9 +72,79 @@ const AdsRoute = AdsRouteImport.update({
   path: '/ads',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AdsaRoute = AdsaRouteImport.update({
+  id: '/adsa',
+  path: '/adsa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdsbRoute = AdsbRouteImport.update({
+  id: '/adsb',
+  path: '/adsb',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ArquitetosRoute = ArquitetosRouteImport.update({
+  id: '/arquitetos',
+  path: '/arquitetos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuscaRoute = BuscaRouteImport.update({
+  id: '/busca',
+  path: '/busca',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CentralRoute = CentralRouteImport.update({
+  id: '/central',
+  path: '/central',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckupRoute = CheckupRouteImport.update({
+  id: '/checkup',
+  path: '/checkup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CrmRoute = CrmRouteImport.update({
+  id: '/crm',
+  path: '/crm',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IdentidadeRoute = IdentidadeRouteImport.update({
+  id: '/identidade',
+  path: '/identidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ObrigadoRoute = ObrigadoRouteImport.update({
+  id: '/obrigado',
+  path: '/obrigado',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacidadeRoute = PrivacidadeRouteImport.update({
+  id: '/privacidade',
+  path: '/privacidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PropostadraRoute = PropostadraRouteImport.update({
+  id: '/propostadra',
+  path: '/propostadra',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TksRoute = TksRouteImport.update({
+  id: '/tks',
+  path: '/tks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WhatsappRoute = WhatsappRouteImport.update({
+  id: '/whatsapp',
+  path: '/whatsapp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CasesIndexRoute = CasesIndexRouteImport.update({
+  id: '/cases/',
+  path: '/cases/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CasesSlugRoute = CasesSlugRouteImport.update({
+  id: '/cases/$slug',
+  path: '/cases/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CrmIndexRoute = CrmIndexRouteImport.update({
@@ -135,54 +152,9 @@ const CrmIndexRoute = CrmIndexRouteImport.update({
   path: '/',
   getParentRoute: () => CrmRoute,
 } as any)
-const CasesIndexRoute = CasesIndexRouteImport.update({
-  id: '/cases/',
-  path: '/cases/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const VSlugRoute = VSlugRouteImport.update({
-  id: '/v/$slug',
-  path: '/v/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PSlugRoute = PSlugRouteImport.update({
-  id: '/p/$slug',
-  path: '/p/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
-  id: '/email/unsubscribe',
-  path: '/email/unsubscribe',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CrmWhatsappRoute = CrmWhatsappRouteImport.update({
-  id: '/whatsapp',
-  path: '/whatsapp',
-  getParentRoute: () => CrmRoute,
-} as any)
-const CrmVideosRoute = CrmVideosRouteImport.update({
-  id: '/videos',
-  path: '/videos',
-  getParentRoute: () => CrmRoute,
-} as any)
-const CrmTarefasRoute = CrmTarefasRouteImport.update({
-  id: '/tarefas',
-  path: '/tarefas',
-  getParentRoute: () => CrmRoute,
-} as any)
-const CrmKanbanRoute = CrmKanbanRouteImport.update({
-  id: '/kanban',
-  path: '/kanban',
-  getParentRoute: () => CrmRoute,
-} as any)
-const CrmGravadorRoute = CrmGravadorRouteImport.update({
-  id: '/gravador',
-  path: '/gravador',
-  getParentRoute: () => CrmRoute,
-} as any)
-const CrmDashboardRoute = CrmDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+const CrmAbRoute = CrmAbRouteImport.update({
+  id: '/ab',
+  path: '/ab',
   getParentRoute: () => CrmRoute,
 } as any)
 const CrmConselheiroRoute = CrmConselheiroRouteImport.update({
@@ -190,14 +162,59 @@ const CrmConselheiroRoute = CrmConselheiroRouteImport.update({
   path: '/conselheiro',
   getParentRoute: () => CrmRoute,
 } as any)
-const CrmAbRoute = CrmAbRouteImport.update({
-  id: '/ab',
-  path: '/ab',
+const CrmDashboardRoute = CrmDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => CrmRoute,
 } as any)
-const CasesSlugRoute = CasesSlugRouteImport.update({
-  id: '/cases/$slug',
-  path: '/cases/$slug',
+const CrmGravadorRoute = CrmGravadorRouteImport.update({
+  id: '/gravador',
+  path: '/gravador',
+  getParentRoute: () => CrmRoute,
+} as any)
+const CrmKanbanRoute = CrmKanbanRouteImport.update({
+  id: '/kanban',
+  path: '/kanban',
+  getParentRoute: () => CrmRoute,
+} as any)
+const CrmTarefasRoute = CrmTarefasRouteImport.update({
+  id: '/tarefas',
+  path: '/tarefas',
+  getParentRoute: () => CrmRoute,
+} as any)
+const CrmVideosRoute = CrmVideosRouteImport.update({
+  id: '/videos',
+  path: '/videos',
+  getParentRoute: () => CrmRoute,
+} as any)
+const CrmWhatsappRoute = CrmWhatsappRouteImport.update({
+  id: '/whatsapp',
+  path: '/whatsapp',
+  getParentRoute: () => CrmRoute,
+} as any)
+const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
+  id: '/email/unsubscribe',
+  path: '/email/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PSlugRoute = PSlugRouteImport.update({
+  id: '/p/$slug',
+  path: '/p/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VSlugRoute = VSlugRouteImport.update({
+  id: '/v/$slug',
+  path: '/v/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicPropostaRoute = ApiPublicPropostaRouteImport.update({
+  id: '/api/public/proposta',
+  path: '/api/public/proposta',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicPropostaAvulsaRoute = ApiPublicPropostaAvulsaRouteImport.update({
+  id: '/api/public/proposta-avulsa',
+  path: '/api/public/proposta-avulsa',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CrmPropostasIndexRoute = CrmPropostasIndexRouteImport.update({
@@ -205,49 +222,75 @@ const CrmPropostasIndexRoute = CrmPropostasIndexRouteImport.update({
   path: '/propostas/',
   getParentRoute: () => CrmRoute,
 } as any)
-const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
-  id: '/lovable/email/suppression',
-  path: '/lovable/email/suppression',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const CrmPropostasIdRoute = CrmPropostasIdRouteImport.update({
   id: '/propostas/$id',
   path: '/propostas/$id',
   getParentRoute: () => CrmRoute,
 } as any)
-const ApiPublicPropostaRoute = ApiPublicPropostaRouteImport.update({
-  id: '/api/public/proposta',
-  path: '/api/public/proposta',
+const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
+  id: '/lovable/email/suppression',
+  path: '/lovable/email/suppression',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LovableEmailTransactionalSendRoute =
-  LovableEmailTransactionalSendRouteImport.update({
-    id: '/lovable/email/transactional/send',
-    path: '/lovable/email/transactional/send',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const LovableEmailTransactionalPreviewRoute =
-  LovableEmailTransactionalPreviewRouteImport.update({
-    id: '/lovable/email/transactional/preview',
-    path: '/lovable/email/transactional/preview',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const LovableEmailQueueProcessRoute =
-  LovableEmailQueueProcessRouteImport.update({
-    id: '/lovable/email/queue/process',
-    path: '/lovable/email/queue/process',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicWhatsappWebhookRoute =
-  ApiPublicWhatsappWebhookRouteImport.update({
-    id: '/api/public/whatsapp/webhook',
-    path: '/api/public/whatsapp/webhook',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicWhatsappProcessRoute =
-  ApiPublicWhatsappProcessRouteImport.update({
-    id: '/api/public/whatsapp/process',
-    path: '/api/public/whatsapp/process',
+const ApiPublicAbVisitRoute = ApiPublicAbVisitRouteImport.update({
+  id: '/api/public/ab/visit',
+  path: '/api/public/ab/visit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicCrmAbRoute = ApiPublicCrmAbRouteImport.update({
+  id: '/api/public/crm/ab',
+  path: '/api/public/crm/ab',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicCrmConselheiroRoute = ApiPublicCrmConselheiroRouteImport.update({
+  id: '/api/public/crm/conselheiro',
+  path: '/api/public/crm/conselheiro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicCrmDataRoute = ApiPublicCrmDataRouteImport.update({
+  id: '/api/public/crm/data',
+  path: '/api/public/crm/data',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicCrmProposalsRoute = ApiPublicCrmProposalsRouteImport.update({
+  id: '/api/public/crm/proposals',
+  path: '/api/public/crm/proposals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicCrmTasksRoute = ApiPublicCrmTasksRouteImport.update({
+  id: '/api/public/crm/tasks',
+  path: '/api/public/crm/tasks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicCrmVideosRoute = ApiPublicCrmVideosRouteImport.update({
+  id: '/api/public/crm/videos',
+  path: '/api/public/crm/videos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicCrmWhatsappRoute = ApiPublicCrmWhatsappRouteImport.update({
+  id: '/api/public/crm/whatsapp',
+  path: '/api/public/crm/whatsapp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicLeadsSubmitRoute = ApiPublicLeadsSubmitRouteImport.update({
+  id: '/api/public/leads/submit',
+  path: '/api/public/leads/submit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicVideoProcessRoute = ApiPublicVideoProcessRouteImport.update({
+  id: '/api/public/video/process',
+  path: '/api/public/video/process',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicVideoTrackRoute = ApiPublicVideoTrackRouteImport.update({
+  id: '/api/public/video/track',
+  path: '/api/public/video/track',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicWhatsappFollowupRoute =
+  ApiPublicWhatsappFollowupRouteImport.update({
+    id: '/api/public/whatsapp/followup',
+    path: '/api/public/whatsapp/followup',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicWhatsappLinkEnviadoRoute =
@@ -256,67 +299,36 @@ const ApiPublicWhatsappLinkEnviadoRoute =
     path: '/api/public/whatsapp/link-enviado',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicWhatsappFollowupRoute =
-  ApiPublicWhatsappFollowupRouteImport.update({
-    id: '/api/public/whatsapp/followup',
-    path: '/api/public/whatsapp/followup',
+const ApiPublicWhatsappProcessRoute =
+  ApiPublicWhatsappProcessRouteImport.update({
+    id: '/api/public/whatsapp/process',
+    path: '/api/public/whatsapp/process',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicVideoTrackRoute = ApiPublicVideoTrackRouteImport.update({
-  id: '/api/public/video/track',
-  path: '/api/public/video/track',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicVideoProcessRoute = ApiPublicVideoProcessRouteImport.update({
-  id: '/api/public/video/process',
-  path: '/api/public/video/process',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicLeadsSubmitRoute = ApiPublicLeadsSubmitRouteImport.update({
-  id: '/api/public/leads/submit',
-  path: '/api/public/leads/submit',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicCrmWhatsappRoute = ApiPublicCrmWhatsappRouteImport.update({
-  id: '/api/public/crm/whatsapp',
-  path: '/api/public/crm/whatsapp',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicCrmVideosRoute = ApiPublicCrmVideosRouteImport.update({
-  id: '/api/public/crm/videos',
-  path: '/api/public/crm/videos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicCrmTasksRoute = ApiPublicCrmTasksRouteImport.update({
-  id: '/api/public/crm/tasks',
-  path: '/api/public/crm/tasks',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicCrmProposalsRoute = ApiPublicCrmProposalsRouteImport.update({
-  id: '/api/public/crm/proposals',
-  path: '/api/public/crm/proposals',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicCrmDataRoute = ApiPublicCrmDataRouteImport.update({
-  id: '/api/public/crm/data',
-  path: '/api/public/crm/data',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicCrmConselheiroRoute = ApiPublicCrmConselheiroRouteImport.update({
-  id: '/api/public/crm/conselheiro',
-  path: '/api/public/crm/conselheiro',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicCrmAbRoute = ApiPublicCrmAbRouteImport.update({
-  id: '/api/public/crm/ab',
-  path: '/api/public/crm/ab',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicAbVisitRoute = ApiPublicAbVisitRouteImport.update({
-  id: '/api/public/ab/visit',
-  path: '/api/public/ab/visit',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const ApiPublicWhatsappWebhookRoute =
+  ApiPublicWhatsappWebhookRouteImport.update({
+    id: '/api/public/whatsapp/webhook',
+    path: '/api/public/whatsapp/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailQueueProcessRoute =
+  LovableEmailQueueProcessRouteImport.update({
+    id: '/lovable/email/queue/process',
+    path: '/lovable/email/queue/process',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailTransactionalPreviewRoute =
+  LovableEmailTransactionalPreviewRouteImport.update({
+    id: '/lovable/email/transactional/preview',
+    path: '/lovable/email/transactional/preview',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailTransactionalSendRoute =
+  LovableEmailTransactionalSendRouteImport.update({
+    id: '/lovable/email/transactional/send',
+    path: '/lovable/email/transactional/send',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -331,6 +343,7 @@ export interface FileRoutesByFullPath {
   '/identidade': typeof IdentidadeRoute
   '/obrigado': typeof ObrigadoRoute
   '/privacidade': typeof PrivacidadeRoute
+  '/propostadra': typeof PropostadraRoute
   '/tks': typeof TksRoute
   '/whatsapp': typeof WhatsappRoute
   '/cases/$slug': typeof CasesSlugRoute
@@ -348,6 +361,7 @@ export interface FileRoutesByFullPath {
   '/cases/': typeof CasesIndexRoute
   '/crm/': typeof CrmIndexRoute
   '/api/public/proposta': typeof ApiPublicPropostaRoute
+  '/api/public/proposta-avulsa': typeof ApiPublicPropostaAvulsaRoute
   '/crm/propostas/$id': typeof CrmPropostasIdRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/crm/propostas/': typeof CrmPropostasIndexRoute
@@ -382,6 +396,7 @@ export interface FileRoutesByTo {
   '/identidade': typeof IdentidadeRoute
   '/obrigado': typeof ObrigadoRoute
   '/privacidade': typeof PrivacidadeRoute
+  '/propostadra': typeof PropostadraRoute
   '/tks': typeof TksRoute
   '/whatsapp': typeof WhatsappRoute
   '/cases/$slug': typeof CasesSlugRoute
@@ -399,6 +414,7 @@ export interface FileRoutesByTo {
   '/cases': typeof CasesIndexRoute
   '/crm': typeof CrmIndexRoute
   '/api/public/proposta': typeof ApiPublicPropostaRoute
+  '/api/public/proposta-avulsa': typeof ApiPublicPropostaAvulsaRoute
   '/crm/propostas/$id': typeof CrmPropostasIdRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/crm/propostas': typeof CrmPropostasIndexRoute
@@ -435,6 +451,7 @@ export interface FileRoutesById {
   '/identidade': typeof IdentidadeRoute
   '/obrigado': typeof ObrigadoRoute
   '/privacidade': typeof PrivacidadeRoute
+  '/propostadra': typeof PropostadraRoute
   '/tks': typeof TksRoute
   '/whatsapp': typeof WhatsappRoute
   '/cases/$slug': typeof CasesSlugRoute
@@ -452,6 +469,7 @@ export interface FileRoutesById {
   '/cases/': typeof CasesIndexRoute
   '/crm/': typeof CrmIndexRoute
   '/api/public/proposta': typeof ApiPublicPropostaRoute
+  '/api/public/proposta-avulsa': typeof ApiPublicPropostaAvulsaRoute
   '/crm/propostas/$id': typeof CrmPropostasIdRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/crm/propostas/': typeof CrmPropostasIndexRoute
@@ -489,6 +507,7 @@ export interface FileRouteTypes {
     | '/identidade'
     | '/obrigado'
     | '/privacidade'
+    | '/propostadra'
     | '/tks'
     | '/whatsapp'
     | '/cases/$slug'
@@ -506,6 +525,7 @@ export interface FileRouteTypes {
     | '/cases/'
     | '/crm/'
     | '/api/public/proposta'
+    | '/api/public/proposta-avulsa'
     | '/crm/propostas/$id'
     | '/lovable/email/suppression'
     | '/crm/propostas/'
@@ -540,6 +560,7 @@ export interface FileRouteTypes {
     | '/identidade'
     | '/obrigado'
     | '/privacidade'
+    | '/propostadra'
     | '/tks'
     | '/whatsapp'
     | '/cases/$slug'
@@ -557,6 +578,7 @@ export interface FileRouteTypes {
     | '/cases'
     | '/crm'
     | '/api/public/proposta'
+    | '/api/public/proposta-avulsa'
     | '/crm/propostas/$id'
     | '/lovable/email/suppression'
     | '/crm/propostas'
@@ -592,6 +614,7 @@ export interface FileRouteTypes {
     | '/identidade'
     | '/obrigado'
     | '/privacidade'
+    | '/propostadra'
     | '/tks'
     | '/whatsapp'
     | '/cases/$slug'
@@ -609,6 +632,7 @@ export interface FileRouteTypes {
     | '/cases/'
     | '/crm/'
     | '/api/public/proposta'
+    | '/api/public/proposta-avulsa'
     | '/crm/propostas/$id'
     | '/lovable/email/suppression'
     | '/crm/propostas/'
@@ -645,6 +669,7 @@ export interface RootRouteChildren {
   IdentidadeRoute: typeof IdentidadeRoute
   ObrigadoRoute: typeof ObrigadoRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
+  PropostadraRoute: typeof PropostadraRoute
   TksRoute: typeof TksRoute
   WhatsappRoute: typeof WhatsappRoute
   CasesSlugRoute: typeof CasesSlugRoute
@@ -653,6 +678,7 @@ export interface RootRouteChildren {
   VSlugRoute: typeof VSlugRoute
   CasesIndexRoute: typeof CasesIndexRoute
   ApiPublicPropostaRoute: typeof ApiPublicPropostaRoute
+  ApiPublicPropostaAvulsaRoute: typeof ApiPublicPropostaAvulsaRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPublicAbVisitRoute: typeof ApiPublicAbVisitRoute
   ApiPublicCrmAbRoute: typeof ApiPublicCrmAbRoute
@@ -676,88 +702,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/whatsapp': {
-      id: '/whatsapp'
-      path: '/whatsapp'
-      fullPath: '/whatsapp'
-      preLoaderRoute: typeof WhatsappRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/tks': {
-      id: '/tks'
-      path: '/tks'
-      fullPath: '/tks'
-      preLoaderRoute: typeof TksRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacidade': {
-      id: '/privacidade'
-      path: '/privacidade'
-      fullPath: '/privacidade'
-      preLoaderRoute: typeof PrivacidadeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/obrigado': {
-      id: '/obrigado'
-      path: '/obrigado'
-      fullPath: '/obrigado'
-      preLoaderRoute: typeof ObrigadoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/identidade': {
-      id: '/identidade'
-      path: '/identidade'
-      fullPath: '/identidade'
-      preLoaderRoute: typeof IdentidadeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/crm': {
-      id: '/crm'
-      path: '/crm'
-      fullPath: '/crm'
-      preLoaderRoute: typeof CrmRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/checkup': {
-      id: '/checkup'
-      path: '/checkup'
-      fullPath: '/checkup'
-      preLoaderRoute: typeof CheckupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/central': {
-      id: '/central'
-      path: '/central'
-      fullPath: '/central'
-      preLoaderRoute: typeof CentralRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/busca': {
-      id: '/busca'
-      path: '/busca'
-      fullPath: '/busca'
-      preLoaderRoute: typeof BuscaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/arquitetos': {
-      id: '/arquitetos'
-      path: '/arquitetos'
-      fullPath: '/arquitetos'
-      preLoaderRoute: typeof ArquitetosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/adsb': {
-      id: '/adsb'
-      path: '/adsb'
-      fullPath: '/adsb'
-      preLoaderRoute: typeof AdsbRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/adsa': {
-      id: '/adsa'
-      path: '/adsa'
-      fullPath: '/adsa'
-      preLoaderRoute: typeof AdsaRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ads': {
@@ -767,11 +716,109 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/adsa': {
+      id: '/adsa'
+      path: '/adsa'
+      fullPath: '/adsa'
+      preLoaderRoute: typeof AdsaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/adsb': {
+      id: '/adsb'
+      path: '/adsb'
+      fullPath: '/adsb'
+      preLoaderRoute: typeof AdsbRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/arquitetos': {
+      id: '/arquitetos'
+      path: '/arquitetos'
+      fullPath: '/arquitetos'
+      preLoaderRoute: typeof ArquitetosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/busca': {
+      id: '/busca'
+      path: '/busca'
+      fullPath: '/busca'
+      preLoaderRoute: typeof BuscaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/central': {
+      id: '/central'
+      path: '/central'
+      fullPath: '/central'
+      preLoaderRoute: typeof CentralRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkup': {
+      id: '/checkup'
+      path: '/checkup'
+      fullPath: '/checkup'
+      preLoaderRoute: typeof CheckupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/crm': {
+      id: '/crm'
+      path: '/crm'
+      fullPath: '/crm'
+      preLoaderRoute: typeof CrmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/identidade': {
+      id: '/identidade'
+      path: '/identidade'
+      fullPath: '/identidade'
+      preLoaderRoute: typeof IdentidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/obrigado': {
+      id: '/obrigado'
+      path: '/obrigado'
+      fullPath: '/obrigado'
+      preLoaderRoute: typeof ObrigadoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacidade': {
+      id: '/privacidade'
+      path: '/privacidade'
+      fullPath: '/privacidade'
+      preLoaderRoute: typeof PrivacidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/propostadra': {
+      id: '/propostadra'
+      path: '/propostadra'
+      fullPath: '/propostadra'
+      preLoaderRoute: typeof PropostadraRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tks': {
+      id: '/tks'
+      path: '/tks'
+      fullPath: '/tks'
+      preLoaderRoute: typeof TksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/whatsapp': {
+      id: '/whatsapp'
+      path: '/whatsapp'
+      fullPath: '/whatsapp'
+      preLoaderRoute: typeof WhatsappRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cases/': {
+      id: '/cases/'
+      path: '/cases'
+      fullPath: '/cases/'
+      preLoaderRoute: typeof CasesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cases/$slug': {
+      id: '/cases/$slug'
+      path: '/cases/$slug'
+      fullPath: '/cases/$slug'
+      preLoaderRoute: typeof CasesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/crm/': {
@@ -781,74 +828,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CrmIndexRouteImport
       parentRoute: typeof CrmRoute
     }
-    '/cases/': {
-      id: '/cases/'
-      path: '/cases'
-      fullPath: '/cases/'
-      preLoaderRoute: typeof CasesIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/v/$slug': {
-      id: '/v/$slug'
-      path: '/v/$slug'
-      fullPath: '/v/$slug'
-      preLoaderRoute: typeof VSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/p/$slug': {
-      id: '/p/$slug'
-      path: '/p/$slug'
-      fullPath: '/p/$slug'
-      preLoaderRoute: typeof PSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/email/unsubscribe': {
-      id: '/email/unsubscribe'
-      path: '/email/unsubscribe'
-      fullPath: '/email/unsubscribe'
-      preLoaderRoute: typeof EmailUnsubscribeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/crm/whatsapp': {
-      id: '/crm/whatsapp'
-      path: '/whatsapp'
-      fullPath: '/crm/whatsapp'
-      preLoaderRoute: typeof CrmWhatsappRouteImport
-      parentRoute: typeof CrmRoute
-    }
-    '/crm/videos': {
-      id: '/crm/videos'
-      path: '/videos'
-      fullPath: '/crm/videos'
-      preLoaderRoute: typeof CrmVideosRouteImport
-      parentRoute: typeof CrmRoute
-    }
-    '/crm/tarefas': {
-      id: '/crm/tarefas'
-      path: '/tarefas'
-      fullPath: '/crm/tarefas'
-      preLoaderRoute: typeof CrmTarefasRouteImport
-      parentRoute: typeof CrmRoute
-    }
-    '/crm/kanban': {
-      id: '/crm/kanban'
-      path: '/kanban'
-      fullPath: '/crm/kanban'
-      preLoaderRoute: typeof CrmKanbanRouteImport
-      parentRoute: typeof CrmRoute
-    }
-    '/crm/gravador': {
-      id: '/crm/gravador'
-      path: '/gravador'
-      fullPath: '/crm/gravador'
-      preLoaderRoute: typeof CrmGravadorRouteImport
-      parentRoute: typeof CrmRoute
-    }
-    '/crm/dashboard': {
-      id: '/crm/dashboard'
-      path: '/dashboard'
-      fullPath: '/crm/dashboard'
-      preLoaderRoute: typeof CrmDashboardRouteImport
+    '/crm/ab': {
+      id: '/crm/ab'
+      path: '/ab'
+      fullPath: '/crm/ab'
+      preLoaderRoute: typeof CrmAbRouteImport
       parentRoute: typeof CrmRoute
     }
     '/crm/conselheiro': {
@@ -858,18 +842,81 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CrmConselheiroRouteImport
       parentRoute: typeof CrmRoute
     }
-    '/crm/ab': {
-      id: '/crm/ab'
-      path: '/ab'
-      fullPath: '/crm/ab'
-      preLoaderRoute: typeof CrmAbRouteImport
+    '/crm/dashboard': {
+      id: '/crm/dashboard'
+      path: '/dashboard'
+      fullPath: '/crm/dashboard'
+      preLoaderRoute: typeof CrmDashboardRouteImport
       parentRoute: typeof CrmRoute
     }
-    '/cases/$slug': {
-      id: '/cases/$slug'
-      path: '/cases/$slug'
-      fullPath: '/cases/$slug'
-      preLoaderRoute: typeof CasesSlugRouteImport
+    '/crm/gravador': {
+      id: '/crm/gravador'
+      path: '/gravador'
+      fullPath: '/crm/gravador'
+      preLoaderRoute: typeof CrmGravadorRouteImport
+      parentRoute: typeof CrmRoute
+    }
+    '/crm/kanban': {
+      id: '/crm/kanban'
+      path: '/kanban'
+      fullPath: '/crm/kanban'
+      preLoaderRoute: typeof CrmKanbanRouteImport
+      parentRoute: typeof CrmRoute
+    }
+    '/crm/tarefas': {
+      id: '/crm/tarefas'
+      path: '/tarefas'
+      fullPath: '/crm/tarefas'
+      preLoaderRoute: typeof CrmTarefasRouteImport
+      parentRoute: typeof CrmRoute
+    }
+    '/crm/videos': {
+      id: '/crm/videos'
+      path: '/videos'
+      fullPath: '/crm/videos'
+      preLoaderRoute: typeof CrmVideosRouteImport
+      parentRoute: typeof CrmRoute
+    }
+    '/crm/whatsapp': {
+      id: '/crm/whatsapp'
+      path: '/whatsapp'
+      fullPath: '/crm/whatsapp'
+      preLoaderRoute: typeof CrmWhatsappRouteImport
+      parentRoute: typeof CrmRoute
+    }
+    '/email/unsubscribe': {
+      id: '/email/unsubscribe'
+      path: '/email/unsubscribe'
+      fullPath: '/email/unsubscribe'
+      preLoaderRoute: typeof EmailUnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/p/$slug': {
+      id: '/p/$slug'
+      path: '/p/$slug'
+      fullPath: '/p/$slug'
+      preLoaderRoute: typeof PSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/v/$slug': {
+      id: '/v/$slug'
+      path: '/v/$slug'
+      fullPath: '/v/$slug'
+      preLoaderRoute: typeof VSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/proposta': {
+      id: '/api/public/proposta'
+      path: '/api/public/proposta'
+      fullPath: '/api/public/proposta'
+      preLoaderRoute: typeof ApiPublicPropostaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/proposta-avulsa': {
+      id: '/api/public/proposta-avulsa'
+      path: '/api/public/proposta-avulsa'
+      fullPath: '/api/public/proposta-avulsa'
+      preLoaderRoute: typeof ApiPublicPropostaAvulsaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/crm/propostas/': {
@@ -879,13 +926,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CrmPropostasIndexRouteImport
       parentRoute: typeof CrmRoute
     }
-    '/lovable/email/suppression': {
-      id: '/lovable/email/suppression'
-      path: '/lovable/email/suppression'
-      fullPath: '/lovable/email/suppression'
-      preLoaderRoute: typeof LovableEmailSuppressionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/crm/propostas/$id': {
       id: '/crm/propostas/$id'
       path: '/propostas/$id'
@@ -893,123 +933,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CrmPropostasIdRouteImport
       parentRoute: typeof CrmRoute
     }
-    '/api/public/proposta': {
-      id: '/api/public/proposta'
-      path: '/api/public/proposta'
-      fullPath: '/api/public/proposta'
-      preLoaderRoute: typeof ApiPublicPropostaRouteImport
+    '/lovable/email/suppression': {
+      id: '/lovable/email/suppression'
+      path: '/lovable/email/suppression'
+      fullPath: '/lovable/email/suppression'
+      preLoaderRoute: typeof LovableEmailSuppressionRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/lovable/email/transactional/send': {
-      id: '/lovable/email/transactional/send'
-      path: '/lovable/email/transactional/send'
-      fullPath: '/lovable/email/transactional/send'
-      preLoaderRoute: typeof LovableEmailTransactionalSendRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lovable/email/transactional/preview': {
-      id: '/lovable/email/transactional/preview'
-      path: '/lovable/email/transactional/preview'
-      fullPath: '/lovable/email/transactional/preview'
-      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lovable/email/queue/process': {
-      id: '/lovable/email/queue/process'
-      path: '/lovable/email/queue/process'
-      fullPath: '/lovable/email/queue/process'
-      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/whatsapp/webhook': {
-      id: '/api/public/whatsapp/webhook'
-      path: '/api/public/whatsapp/webhook'
-      fullPath: '/api/public/whatsapp/webhook'
-      preLoaderRoute: typeof ApiPublicWhatsappWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/whatsapp/process': {
-      id: '/api/public/whatsapp/process'
-      path: '/api/public/whatsapp/process'
-      fullPath: '/api/public/whatsapp/process'
-      preLoaderRoute: typeof ApiPublicWhatsappProcessRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/whatsapp/link-enviado': {
-      id: '/api/public/whatsapp/link-enviado'
-      path: '/api/public/whatsapp/link-enviado'
-      fullPath: '/api/public/whatsapp/link-enviado'
-      preLoaderRoute: typeof ApiPublicWhatsappLinkEnviadoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/whatsapp/followup': {
-      id: '/api/public/whatsapp/followup'
-      path: '/api/public/whatsapp/followup'
-      fullPath: '/api/public/whatsapp/followup'
-      preLoaderRoute: typeof ApiPublicWhatsappFollowupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/video/track': {
-      id: '/api/public/video/track'
-      path: '/api/public/video/track'
-      fullPath: '/api/public/video/track'
-      preLoaderRoute: typeof ApiPublicVideoTrackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/video/process': {
-      id: '/api/public/video/process'
-      path: '/api/public/video/process'
-      fullPath: '/api/public/video/process'
-      preLoaderRoute: typeof ApiPublicVideoProcessRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/leads/submit': {
-      id: '/api/public/leads/submit'
-      path: '/api/public/leads/submit'
-      fullPath: '/api/public/leads/submit'
-      preLoaderRoute: typeof ApiPublicLeadsSubmitRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/crm/whatsapp': {
-      id: '/api/public/crm/whatsapp'
-      path: '/api/public/crm/whatsapp'
-      fullPath: '/api/public/crm/whatsapp'
-      preLoaderRoute: typeof ApiPublicCrmWhatsappRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/crm/videos': {
-      id: '/api/public/crm/videos'
-      path: '/api/public/crm/videos'
-      fullPath: '/api/public/crm/videos'
-      preLoaderRoute: typeof ApiPublicCrmVideosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/crm/tasks': {
-      id: '/api/public/crm/tasks'
-      path: '/api/public/crm/tasks'
-      fullPath: '/api/public/crm/tasks'
-      preLoaderRoute: typeof ApiPublicCrmTasksRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/crm/proposals': {
-      id: '/api/public/crm/proposals'
-      path: '/api/public/crm/proposals'
-      fullPath: '/api/public/crm/proposals'
-      preLoaderRoute: typeof ApiPublicCrmProposalsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/crm/data': {
-      id: '/api/public/crm/data'
-      path: '/api/public/crm/data'
-      fullPath: '/api/public/crm/data'
-      preLoaderRoute: typeof ApiPublicCrmDataRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/crm/conselheiro': {
-      id: '/api/public/crm/conselheiro'
-      path: '/api/public/crm/conselheiro'
-      fullPath: '/api/public/crm/conselheiro'
-      preLoaderRoute: typeof ApiPublicCrmConselheiroRouteImport
+    '/api/public/ab/visit': {
+      id: '/api/public/ab/visit'
+      path: '/api/public/ab/visit'
+      fullPath: '/api/public/ab/visit'
+      preLoaderRoute: typeof ApiPublicAbVisitRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/crm/ab': {
@@ -1019,11 +954,116 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCrmAbRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/ab/visit': {
-      id: '/api/public/ab/visit'
-      path: '/api/public/ab/visit'
-      fullPath: '/api/public/ab/visit'
-      preLoaderRoute: typeof ApiPublicAbVisitRouteImport
+    '/api/public/crm/conselheiro': {
+      id: '/api/public/crm/conselheiro'
+      path: '/api/public/crm/conselheiro'
+      fullPath: '/api/public/crm/conselheiro'
+      preLoaderRoute: typeof ApiPublicCrmConselheiroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/crm/data': {
+      id: '/api/public/crm/data'
+      path: '/api/public/crm/data'
+      fullPath: '/api/public/crm/data'
+      preLoaderRoute: typeof ApiPublicCrmDataRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/crm/proposals': {
+      id: '/api/public/crm/proposals'
+      path: '/api/public/crm/proposals'
+      fullPath: '/api/public/crm/proposals'
+      preLoaderRoute: typeof ApiPublicCrmProposalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/crm/tasks': {
+      id: '/api/public/crm/tasks'
+      path: '/api/public/crm/tasks'
+      fullPath: '/api/public/crm/tasks'
+      preLoaderRoute: typeof ApiPublicCrmTasksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/crm/videos': {
+      id: '/api/public/crm/videos'
+      path: '/api/public/crm/videos'
+      fullPath: '/api/public/crm/videos'
+      preLoaderRoute: typeof ApiPublicCrmVideosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/crm/whatsapp': {
+      id: '/api/public/crm/whatsapp'
+      path: '/api/public/crm/whatsapp'
+      fullPath: '/api/public/crm/whatsapp'
+      preLoaderRoute: typeof ApiPublicCrmWhatsappRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/leads/submit': {
+      id: '/api/public/leads/submit'
+      path: '/api/public/leads/submit'
+      fullPath: '/api/public/leads/submit'
+      preLoaderRoute: typeof ApiPublicLeadsSubmitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/video/process': {
+      id: '/api/public/video/process'
+      path: '/api/public/video/process'
+      fullPath: '/api/public/video/process'
+      preLoaderRoute: typeof ApiPublicVideoProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/video/track': {
+      id: '/api/public/video/track'
+      path: '/api/public/video/track'
+      fullPath: '/api/public/video/track'
+      preLoaderRoute: typeof ApiPublicVideoTrackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/whatsapp/followup': {
+      id: '/api/public/whatsapp/followup'
+      path: '/api/public/whatsapp/followup'
+      fullPath: '/api/public/whatsapp/followup'
+      preLoaderRoute: typeof ApiPublicWhatsappFollowupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/whatsapp/link-enviado': {
+      id: '/api/public/whatsapp/link-enviado'
+      path: '/api/public/whatsapp/link-enviado'
+      fullPath: '/api/public/whatsapp/link-enviado'
+      preLoaderRoute: typeof ApiPublicWhatsappLinkEnviadoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/whatsapp/process': {
+      id: '/api/public/whatsapp/process'
+      path: '/api/public/whatsapp/process'
+      fullPath: '/api/public/whatsapp/process'
+      preLoaderRoute: typeof ApiPublicWhatsappProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/whatsapp/webhook': {
+      id: '/api/public/whatsapp/webhook'
+      path: '/api/public/whatsapp/webhook'
+      fullPath: '/api/public/whatsapp/webhook'
+      preLoaderRoute: typeof ApiPublicWhatsappWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/queue/process': {
+      id: '/lovable/email/queue/process'
+      path: '/lovable/email/queue/process'
+      fullPath: '/lovable/email/queue/process'
+      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/transactional/preview': {
+      id: '/lovable/email/transactional/preview'
+      path: '/lovable/email/transactional/preview'
+      fullPath: '/lovable/email/transactional/preview'
+      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/transactional/send': {
+      id: '/lovable/email/transactional/send'
+      path: '/lovable/email/transactional/send'
+      fullPath: '/lovable/email/transactional/send'
+      preLoaderRoute: typeof LovableEmailTransactionalSendRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -1072,6 +1112,7 @@ const rootRouteChildren: RootRouteChildren = {
   IdentidadeRoute: IdentidadeRoute,
   ObrigadoRoute: ObrigadoRoute,
   PrivacidadeRoute: PrivacidadeRoute,
+  PropostadraRoute: PropostadraRoute,
   TksRoute: TksRoute,
   WhatsappRoute: WhatsappRoute,
   CasesSlugRoute: CasesSlugRoute,
@@ -1080,6 +1121,7 @@ const rootRouteChildren: RootRouteChildren = {
   VSlugRoute: VSlugRoute,
   CasesIndexRoute: CasesIndexRoute,
   ApiPublicPropostaRoute: ApiPublicPropostaRoute,
+  ApiPublicPropostaAvulsaRoute: ApiPublicPropostaAvulsaRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ApiPublicAbVisitRoute: ApiPublicAbVisitRoute,
   ApiPublicCrmAbRoute: ApiPublicCrmAbRoute,
